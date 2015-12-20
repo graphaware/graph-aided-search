@@ -15,19 +15,21 @@
 
 package com.graphaware.integration.es.plugin;
 
-import java.util.Collection;
-
-//import org.codelibs.elasticsearch.extension.module.ExtensionModule;
 import com.graphaware.integration.es.plugin.filter.GAQueryResultNeo4jFilter;
 import com.graphaware.integration.es.plugin.module.GAQueryResultNeo4jModule;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.elasticsearch.action.ActionModule;
-import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.cluster.ClusterModule;
+import org.elasticsearch.cluster.settings.Validator;
 import org.elasticsearch.common.inject.Module;
-import org.elasticsearch.index.settings.IndexDynamicSettingsModule;
-import org.elasticsearch.plugins.AbstractPlugin;
+import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.rest.RestModule;
 
-public class GAQueryResultNeo4jPlugin extends AbstractPlugin
+//import org.codelibs.elasticsearch.extension.module.ExtensionModule;
+
+
+public class GAQueryResultNeo4jPlugin extends Plugin
 {
   public static final String REST_LOGGER_NAME = "rest.action.admin.ga-es-neo4j";
 
@@ -60,18 +62,28 @@ public class GAQueryResultNeo4jPlugin extends AbstractPlugin
 //    module.addRestAction(RestClearQRCacheAction.class);
 //    module.addRestAction(RestStatsQRCacheAction.class);
   }
+  
+//   public void onModule(final ClusterModule module) {
+//        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_SCRIPT, Validator.EMPTY);
+//        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_SCRIPT_LANG, Validator.EMPTY);
+//        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_SCRIPT_TYPE, Validator.EMPTY);
+//        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_SCRIPT_PARAMS+"*", Validator.EMPTY);
+//        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_REORDER_SIZE, Validator.POSITIVE_INTEGER);
+//        module.registerClusterDynamicSetting(DynamicRanker.INDICES_DYNARANK_REORDER_SIZE, Validator.POSITIVE_INTEGER);
+//        module.registerClusterDynamicSetting(DynamicRanker.INDICES_DYNARANK_CACHE_EXPIRE, Validator.TIME);
+//        module.registerClusterDynamicSetting(DynamicRanker.INDICES_DYNARANK_CACHE_CLEAN_INTERVAL, Validator.TIME);
+//    }
 
-  public void onModule(final IndexDynamicSettingsModule module)
-  {
-    module.addDynamicSettings("index.ga-es-neo4j.enable.*");
-  }
+//  public void onModule(final IndexDynamicSettingsModule module)
+//  {
+//    module.addDynamicSettings("index.ga-es-neo4j.enable.*");
+//  }
 
   @Override
-  public Collection<Class<? extends Module>> modules()
-  {
-    final Collection<Class<? extends Module>> modules = Lists
-            .newArrayList();
-    modules.add(GAQueryResultNeo4jModule.class);
+  public Collection<Module> nodeModules() {
+  
+    final Collection<Module> modules =new ArrayList<>();
+    modules.add(new GAQueryResultNeo4jModule());
     return modules;
   }
 

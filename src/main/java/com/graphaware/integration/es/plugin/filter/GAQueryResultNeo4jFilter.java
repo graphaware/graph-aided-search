@@ -24,12 +24,14 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.ActionFilter;
 import org.elasticsearch.action.support.ActionFilterChain;
+import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
-public class GAQueryResultNeo4jFilter implements ActionFilter
+public class GAQueryResultNeo4jFilter extends AbstractComponent
+        implements ActionFilter
 {
   private static final String SEARCH_REQUEST_INVOKED = "filter.graphaware.neo4j.Invoked";
 
@@ -43,6 +45,7 @@ public class GAQueryResultNeo4jFilter implements ActionFilter
   public GAQueryResultNeo4jFilter(final Settings settings,
                                   final GAQueryResultNeo4j queryResultCache)
   {
+    super(settings);
     this.neo4jConnection = queryResultCache;
     logger = Loggers.getLogger(GAQueryResultNeo4jFilter.class.getName(), settings);
   }

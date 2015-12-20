@@ -12,7 +12,6 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.graphaware.integration.es.plugin.query;
 
 import com.google.common.cache.Cache;
@@ -38,7 +37,6 @@ import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.io.stream.BytesStreamInput;
 import org.elasticsearch.common.io.stream.BytesStreamOutput;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -47,7 +45,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.search.aggregations.InternalAggregations;
-import org.elasticsearch.search.facet.InternalFacets;
 import org.elasticsearch.search.internal.InternalSearchHits;
 import org.elasticsearch.search.internal.InternalSearchResponse;
 import org.elasticsearch.search.lookup.SourceLookup;
@@ -64,14 +61,16 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static org.elasticsearch.action.search.ShardSearchFailure.readShardSearchFailure;
+import org.elasticsearch.cluster.metadata.AliasOrIndex;
 import static org.elasticsearch.search.internal.InternalSearchHits.readSearchHits;
+import org.elasticsearch.transport.netty.ChannelBufferStreamInput;
 
 public class GAQueryResultNeo4j extends AbstractComponent
 {
 
   public static final String INDEX_GA_ES_NEO4J_ENABLED = "index.ga-es-neo4j.enable";
   public static final String INDEX_GA_ES_NEO4J_REORDER_TYPE = "index.ga-es-neo4j.booster.defaultClass";
-  public static final String INDEX_GA_ES_NEO4J_KEY_PROPERTY= "index.ga-es-neo4j.booster.keyProperty";
+  public static final String INDEX_GA_ES_NEO4J_KEY_PROPERTY = "index.ga-es-neo4j.booster.keyProperty";
   public static final String DEFAULT_KEY_PROPERTY = "uuid";
 
   private static final String DYNARANK_RERANK_ENABLE = "_rerank";
@@ -88,7 +87,6 @@ public class GAQueryResultNeo4j extends AbstractComponent
   private Cache<String, ScriptInfo> scriptInfoCache;
 
   //private GARecommenderBooster booster;
-  
   private Map<String, Class<IGAResultBooster>> boostersClasses;
   private Map<String, Class<IGAResultFilter>> filtersClasses;
 
@@ -108,7 +106,6 @@ public class GAQueryResultNeo4j extends AbstractComponent
     scriptInfoCache = builder.build();
 
   }
-
 
   public ActionListener<SearchResponse> wrapActionListener(
           final String action, final SearchRequest request,
@@ -154,7 +151,7 @@ public class GAQueryResultNeo4j extends AbstractComponent
     //These configuration should be defined at index level and cached
     final String index = indices[0];
     final ScriptInfo scriptInfo = getScriptInfo(index);
-    
+
     if (scriptInfo != null)
     {
       logger.warn(">>>>>>>>>>>> Type: " + scriptInfo.getClassname());
@@ -166,11 +163,9 @@ public class GAQueryResultNeo4j extends AbstractComponent
       final Map<String, Object> sourceAsMap = SourceLookup
               .sourceAsMap(source);
 
-      
       IGAResultBooster booster = getGABoosters(sourceAsMap);
       IGAResultFilter filter = getGAFilters(sourceAsMap);
-      
-      
+
       final int size = GAESUtil.getInt(sourceAsMap.get("size"), 10);
       final int from = GAESUtil.getInt(sourceAsMap.get("from"), 0);
 //
@@ -178,7 +173,7 @@ public class GAQueryResultNeo4j extends AbstractComponent
       {
         return null;
       }
-      
+
       if (booster == null && filter == null)
       {
         return null;
@@ -192,13 +187,9 @@ public class GAQueryResultNeo4j extends AbstractComponent
 //            if (from + size > scriptInfo.getReorderSize()) {
 //                maxSize = from + size;
 //            }
-      
 //      int maxSize = Integer.MAX_VALUE; //Get complete response to can reorder (may be some parameter could reduce the dimension)
 //      sourceAsMap.put("size", maxSize);
 //      sourceAsMap.put("from", 0);
-
-
-
       final XContentBuilder builder = XContentFactory
               .contentBuilder(Requests.CONTENT_TYPE);
       //String userId = findUser(sourceAsMap);
@@ -325,8 +316,8 @@ public class GAQueryResultNeo4j extends AbstractComponent
     {
       logger.debug("Reading headers...");
     }
-    final BytesStreamInput in = new BytesStreamInput(
-            out.bytes());
+    final ChannelBufferStreamInput in = new ChannelBufferStreamInput(
+                            out.bytes().toChannelBuffer());
     Map<String, Object> headers = null;
     if (in.readBoolean())
     {
@@ -342,12 +333,7 @@ public class GAQueryResultNeo4j extends AbstractComponent
       newHits = booster.doReorder(hits);
     if (filter != null)
       newHits = filter.doFilter(newHits);
-    
-    InternalFacets facets = null;
-    if (in.readBoolean())
-    {
-      facets = InternalFacets.readFacets(in);
-    }
+
     if (logger.isDebugEnabled())
     {
       logger.debug("Reading aggregations...");
@@ -375,7 +361,7 @@ public class GAQueryResultNeo4j extends AbstractComponent
       terminatedEarly = in.readOptionalBoolean();
     }
     final InternalSearchResponse internalResponse = new InternalSearchResponse(
-            newHits, facets, aggregations, suggest, timedOut,
+            newHits, aggregations, suggest, timedOut,
             terminatedEarly);
     final int totalShards = in.readVInt();
     final int successfulShards = in.readVInt();
@@ -422,7 +408,6 @@ public class GAQueryResultNeo4j extends AbstractComponent
     return newResponse;
   }
 
-
   public ScriptInfo getScriptInfo(final String index)
   {
     try
@@ -434,21 +419,20 @@ public class GAQueryResultNeo4j extends AbstractComponent
         {
           final MetaData metaData = clusterService.state()
                   .getMetaData();
-          String[] concreteIndices = metaData.concreteIndices(
-                  IndicesOptions.strictExpandOpenAndForbidClosed(),
-                  index);
-          Settings indexSettings = null;
-          for (String concreteIndex : concreteIndices)
+          AliasOrIndex aliasOrIndex = metaData
+                  .getAliasAndIndexLookup().get(index);
+          if (aliasOrIndex == null)
           {
-            IndexMetaData indexMD = metaData.index(concreteIndex);
-            if (indexMD != null)
+            return ScriptInfo.NO_SCRIPT_INFO;
+          }
+          Settings indexSettings = null;
+          for (IndexMetaData indexMD : aliasOrIndex.getIndices())
+          {
+            final Settings scriptSettings = indexMD.getSettings();
+            final String script = scriptSettings.get(INDEX_GA_ES_NEO4J_REORDER_TYPE);
+            if (script != null && script.length() > 0)
             {
-              final Settings scriptSettings = indexMD.settings();
-              final String script = scriptSettings.get(INDEX_GA_ES_NEO4J_REORDER_TYPE);
-              if (script != null && script.length() > 0)
-              {
-                indexSettings = scriptSettings;
-              }
+              indexSettings = scriptSettings;
             }
           }
 
@@ -472,7 +456,7 @@ public class GAQueryResultNeo4j extends AbstractComponent
     HashMap extParams = (HashMap) sourceAsMap.get("ga-booster");
     if (extParams == null)
       return null;
-    String name = (String)extParams.get("name");
+    String name = (String) extParams.get("name");
     IGAResultBooster booster = getBooster(name);
     if (booster == null)
     {
@@ -480,18 +464,18 @@ public class GAQueryResultNeo4j extends AbstractComponent
       sourceAsMap.remove("ga-booster");
       return null;
     }
-    
+
     booster.parseRequest(sourceAsMap);
     sourceAsMap.remove("ga-booster");
     return booster;
   }
-  
+
   private IGAResultFilter getGAFilters(Map<String, Object> sourceAsMap)
   {
     HashMap extParams = (HashMap) sourceAsMap.get("ga-filter");
     if (extParams == null)
       return null;
-    String name = (String)extParams.get("name");
+    String name = (String) extParams.get("name");
     IGAResultFilter filter = getFilter(name);
     if (filter == null)
     {
@@ -499,7 +483,7 @@ public class GAQueryResultNeo4j extends AbstractComponent
       sourceAsMap.remove("ga-filter");
       return null;
     }
-    
+
     filter.parseRequest(sourceAsMap);
     sourceAsMap.remove("ga-filter");
     return filter;
@@ -562,7 +546,7 @@ public class GAQueryResultNeo4j extends AbstractComponent
               + ", scriptType=" + scriptType + ", settings=" + settings
               + ", reorderSize=" + reorderSize + "]";
     }
-    
+
     public String getClassname()
     {
       return classname;
@@ -572,7 +556,7 @@ public class GAQueryResultNeo4j extends AbstractComponent
   {
     if (boostersClasses == null)
       boostersClasses = loadBoosters();
-    
+
     if (boostersClasses.isEmpty() || !boostersClasses.containsKey(name.toLowerCase()))
       return null;
     Class< IGAResultBooster> boosterClass = boostersClasses.get(name.toLowerCase());
@@ -601,12 +585,12 @@ public class GAQueryResultNeo4j extends AbstractComponent
       return null;
     }
   }
-  
+
   private static Map<String, Class<IGAResultBooster>> loadBoosters()
   {
     Collection<Class<IGAResultBooster>> boosters = GaServiceLoader.loadClass(IGAResultBooster.class, GAGraphBooster.class).values();
 
-    HashMap<String,  Class<IGAResultBooster>> result = new HashMap<>();
+    HashMap<String, Class<IGAResultBooster>> result = new HashMap<>();
     for (Class<IGAResultBooster> boosterClass : boosters)
     {
       String name = boosterClass.getAnnotation(GAGraphBooster.class).name().toLowerCase();
@@ -614,13 +598,12 @@ public class GAQueryResultNeo4j extends AbstractComponent
     }
     return result;
   }
-  
-  
+
   private IGAResultFilter getFilter(String name)
   {
     if (filtersClasses == null)
       filtersClasses = loadFilters();
-    
+
     if (filtersClasses.isEmpty() || !filtersClasses.containsKey(name.toLowerCase()))
       return null;
     Class< IGAResultFilter> filterClass = filtersClasses.get(name.toLowerCase());
@@ -649,12 +632,12 @@ public class GAQueryResultNeo4j extends AbstractComponent
       return null;
     }
   }
-  
+
   private static Map<String, Class<IGAResultFilter>> loadFilters()
   {
     Collection<Class<IGAResultFilter>> filters = GaServiceLoader.loadClass(IGAResultFilter.class, GAGraphFilter.class).values();
 
-    HashMap<String,  Class<IGAResultFilter>> result = new HashMap<>();
+    HashMap<String, Class<IGAResultFilter>> result = new HashMap<>();
     for (Class<IGAResultFilter> filterClass : filters)
     {
       String name = filterClass.getAnnotation(GAGraphFilter.class).name().toLowerCase();

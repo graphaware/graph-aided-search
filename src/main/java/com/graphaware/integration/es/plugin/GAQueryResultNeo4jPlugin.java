@@ -17,6 +17,8 @@ package com.graphaware.integration.es.plugin;
 
 import com.graphaware.integration.es.plugin.filter.GAQueryResultNeo4jFilter;
 import com.graphaware.integration.es.plugin.module.GAQueryResultNeo4jModule;
+import static com.graphaware.integration.es.plugin.query.GAQueryResultNeo4j.INDEX_GA_ES_NEO4J_HOST;
+import static com.graphaware.integration.es.plugin.query.GAQueryResultNeo4j.INDEX_GA_ES_NEO4J_REORDER_TYPE;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.elasticsearch.action.ActionModule;
@@ -62,6 +64,10 @@ public class GAQueryResultNeo4jPlugin extends Plugin
 //    module.addRestAction(RestClearQRCacheAction.class);
 //    module.addRestAction(RestStatsQRCacheAction.class);
   }
+  public void onModule(final ClusterModule module) {
+        module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_REORDER_TYPE, Validator.EMPTY);
+        module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_HOST, Validator.EMPTY);
+    }
   
 //   public void onModule(final ClusterModule module) {
 //        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_SCRIPT, Validator.EMPTY);

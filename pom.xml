@@ -88,12 +88,6 @@
       <artifactId>elasticsearch</artifactId>
       <version>${elasticsearch.version}</version>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-core</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -122,83 +116,37 @@
       <version>0.9.9</version>
     </dependency>
     
-    
     <dependency>
-	<groupId>javax.mail</groupId>
-	<artifactId>javax.mail-api</artifactId>
-	<version>1.5.5</version>
+      <groupId>javax.mail</groupId>
+      <artifactId>javax.mail-api</artifactId>
+      <version>1.5.5</version>
     </dependency>
 
 
     <!-- Test dependencies -->
 
     <dependency>
-      <groupId>com.graphaware.integration.es</groupId>
-      <artifactId>neo4j-to-elasticsearch</artifactId>
-      <version>2.2.6.35.0</version>
+      <groupId>org.codelibs</groupId>
+      <artifactId>elasticsearch-cluster-runner</artifactId>
+      <version>2.2.0.0</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
-      <groupId>com.graphaware.neo4j</groupId>
-      <artifactId>recommendation-engine</artifactId>
-      <version>2.2.6.35.9</version>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
-      <groupId>com.graphaware.neo4j</groupId>
-      <artifactId>runtime</artifactId>
-      <version>2.2.6.35</version>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
-      <groupId>com.graphaware.neo4j</groupId>
-      <artifactId>server-common</artifactId>
-      <version>2.2.6.35</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.graphaware.neo4j</groupId>
-      <artifactId>server-community</artifactId>
-      <version>2.2.6.35</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.graphaware.neo4j</groupId>
-      <artifactId>uuid</artifactId>
-      <version>2.2.6.35.7</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.graphaware.neo4j</groupId>
-      <artifactId>tests</artifactId>
-      <version>2.2.6.35</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.graphaware.neo4j</groupId>
-      <artifactId>common</artifactId>
-      <version>2.2.6.35</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.neo4j</groupId>
-      <artifactId>neo4j</artifactId>
-      <version>2.2.6</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.graphaware.integration.es</groupId>
-      <artifactId>neo4j-elasticsearch-tests</artifactId>
-      <version>1.0</version>
+      <groupId>io.searchbox</groupId>
+      <artifactId>jest</artifactId>
+      <version>2.0.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -258,7 +206,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.18.1</version>
         <configuration>
-          <skip>true</skip>
+          <skip>false</skip>
           <argLine>-Xmx2048m -XX:MaxPermSize=512m</argLine>
           <systemPropertyVariables>
             <classpath>${project.basedir}/target</classpath>

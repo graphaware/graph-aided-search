@@ -20,7 +20,7 @@ import org.elasticsearch.search.internal.InternalSearchHits;
 
 /**
  *
- * @author ale
+ * @author alessandro@graphaware.com
  */
 public interface IGAResultBooster
 {

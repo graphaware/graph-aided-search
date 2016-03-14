@@ -12,7 +12,6 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.graphaware.integration.es.plugin.graphfilter;
 
 import java.util.Map;
@@ -20,10 +19,11 @@ import org.elasticsearch.search.internal.InternalSearchHits;
 
 /**
  *
- * @author ale
+ * @author alessandro@graphaware.com
  */
-public interface IGAResultFilter
-{
-  public InternalSearchHits doFilter(final InternalSearchHits hits);
-  public void parseRequest(Map<String, Object> sourceAsMap);
+public interface IGAResultFilter {
+
+    public InternalSearchHits doFilter(final InternalSearchHits hits);
+
+    public void parseRequest(Map<String, Object> sourceAsMap);
 }

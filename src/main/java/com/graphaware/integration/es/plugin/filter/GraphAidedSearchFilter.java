@@ -30,7 +30,7 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
-public class GAQueryResultNeo4jFilter extends AbstractComponent
+public class GraphAidedSearchFilter extends AbstractComponent
         implements ActionFilter
 {
   private static final String SEARCH_REQUEST_INVOKED = "filter.graphaware.neo4j.Invoked";
@@ -42,12 +42,12 @@ public class GAQueryResultNeo4jFilter extends AbstractComponent
   private GAQueryResultNeo4j neo4jConnection;
 
   @Inject
-  public GAQueryResultNeo4jFilter(final Settings settings,
+  public GraphAidedSearchFilter(final Settings settings,
                                   final GAQueryResultNeo4j queryResultCache)
   {
     super(settings);
     this.neo4jConnection = queryResultCache;
-    logger = Loggers.getLogger(GAQueryResultNeo4jFilter.class.getName(), settings);
+    logger = Loggers.getLogger(GraphAidedSearchFilter.class.getName(), settings);
   }
 
   @Override

@@ -17,27 +17,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.graphaware.integration.es.plugin.graphfilter;
 
 /**
  *
- * @author ale
+ * @author alessandro@graphaware.com
  */
-public class Neo4JNodeIdResult
-{
-  private long nodeId;
-  
-  public Neo4JNodeIdResult()
-  {
-  }
+public class Neo4JNodeIdResult {
 
-  public long getId()
-  {
-    return nodeId;
-  }
-  public void setId(long nodeId)
-  {
-    this.nodeId = nodeId;
-  }  
+    private long nodeId;
+
+    public Neo4JNodeIdResult() {
+    }
+
+    public long getId() {
+        return nodeId;
+    }
+
+    public void setId(long nodeId) {
+        this.nodeId = nodeId;
+    }
 }

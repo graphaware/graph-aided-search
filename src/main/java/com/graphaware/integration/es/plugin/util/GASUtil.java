@@ -12,13 +12,30 @@
  * You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.integration.es.plugin.query;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.graphaware.integration.es.plugin.util;
 
 /**
  *
- * @author ale
+ * @author alessandro@graphaware.com
  */
-public class GAExtendedRequest
+public class GASUtil
 {
-  
+  public static int getInt(final Object value, final int defaultValue)
+  {
+    if (value instanceof Number)
+    {
+      return ((Number) value).intValue();
+    }
+    else if (value instanceof String)
+    {
+      return Integer.parseInt(value.toString());
+    }
+    return defaultValue;
+  }
 }

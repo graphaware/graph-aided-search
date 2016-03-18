@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2015 GraphAware
  *
@@ -15,7 +14,7 @@
 
 package com.graphaware.integration.es.plugin.filter;
 
-import com.graphaware.integration.es.plugin.query.GAQueryResultNeo4j;
+import com.graphaware.integration.es.plugin.query.GraphAidedSearch;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionResponse;
@@ -30,6 +29,10 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
+/**
+ *
+ * @author alessandro@graphaware.com
+ */
 public class GraphAidedSearchFilter extends AbstractComponent
         implements ActionFilter
 {
@@ -39,14 +42,14 @@ public class GraphAidedSearchFilter extends AbstractComponent
 
   private int order;
 
-  private GAQueryResultNeo4j neo4jConnection;
+  private final GraphAidedSearch graphAidedSearch;
 
   @Inject
   public GraphAidedSearchFilter(final Settings settings,
-                                  final GAQueryResultNeo4j queryResultCache)
+                                  final GraphAidedSearch graphAidedSearch)
   {
     super(settings);
-    this.neo4jConnection = queryResultCache;
+    this.graphAidedSearch = graphAidedSearch;
     logger = Loggers.getLogger(GraphAidedSearchFilter.class.getName(), settings);
   }
 
@@ -70,10 +73,10 @@ public class GraphAidedSearchFilter extends AbstractComponent
 
     final SearchRequest searchRequest = (SearchRequest) request;
     final Boolean invoked = searchRequest.getHeader(SEARCH_REQUEST_INVOKED);
-    if (invoked != null && invoked.booleanValue())
+    if (invoked != null && invoked)
     {
       @SuppressWarnings("unchecked")
-      final ActionListener<SearchResponse> wrappedListener = neo4jConnection
+      final ActionListener<SearchResponse> wrappedListener = graphAidedSearch
               .wrapActionListener(action, searchRequest, listener);
       chain.proceed(action, request,
               wrappedListener == null ? listener : wrappedListener);

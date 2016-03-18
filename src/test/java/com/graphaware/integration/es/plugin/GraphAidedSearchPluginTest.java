@@ -1,7 +1,6 @@
 package com.graphaware.integration.es.plugin;
 
-import com.graphaware.integration.es.plugin.module.GAQueryResultNeo4jModule;
-import com.graphaware.integration.es.plugin.query.GAQueryResultNeo4j;
+import com.graphaware.integration.es.plugin.query.GraphAidedSearch;
 import com.graphaware.integration.es.plugin.query.GASIndexInfo;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
@@ -26,13 +25,8 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
-import org.elasticsearch.index.query.WrapperQueryBuilder;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -89,8 +83,8 @@ public class GraphAidedSearchPluginTest {
                 .createIndex(INDEX_NAME,
                         Settings
                         .builder()
-                        .put(GAQueryResultNeo4j.INDEX_GA_ES_NEO4J_ENABLED, true)
-                        .put(GAQueryResultNeo4j.INDEX_GA_ES_NEO4J_HOST, NEO4J_HOSTNAME)
+                        .put(GraphAidedSearch.INDEX_GA_ES_NEO4J_ENABLED, true)
+                        .put(GraphAidedSearch.INDEX_GA_ES_NEO4J_HOST, NEO4J_HOSTNAME)
                         .build());
         assertTrue(createIndexResponse.isAcknowledged());
         IndicesAliasesResponse aliasesResponse = runner.updateAlias(INDEX_ALIAS_NAME,
@@ -101,7 +95,7 @@ public class GraphAidedSearchPluginTest {
                 .createIndex(DISABLED_INDEX_NAME,
                         Settings
                         .builder()
-                        .put(GAQueryResultNeo4j.INDEX_GA_ES_NEO4J_ENABLED, false)
+                        .put(GraphAidedSearch.INDEX_GA_ES_NEO4J_ENABLED, false)
                         .build());
         assertTrue(createDisabledIndexResponse.isAcknowledged());
     }
@@ -138,7 +132,7 @@ public class GraphAidedSearchPluginTest {
 
         assertThat(NUMBER_OF_NODES, is(runner.getNodeSize()));
         final Client client = runner.client();
-        final GAQueryResultNeo4j ranker = runner.getInstance(GAQueryResultNeo4j.class);
+        final GraphAidedSearch ranker = runner.getInstance(GraphAidedSearch.class);
         final GASIndexInfo indexInfo = ranker.getScriptInfo(INDEX_NAME);
         assertEquals(indexInfo.getNeo4jHost(), NEO4J_HOSTNAME);
         assertTrue(indexInfo.isEnabled());
@@ -179,7 +173,7 @@ public class GraphAidedSearchPluginTest {
                     + "         ]"
                     + "      }"
                     + "   }"
-                    + "   ,\"ga-booster\" :{"
+                    + "   ,\"gas-booster\" :{"
                     + "          \"name\": \"GraphAidedSearchTestBooster\","
                     + "          \"recoTarget\": \"Durgan%20LLC\""
                     + "      }"
@@ -209,7 +203,7 @@ public class GraphAidedSearchPluginTest {
                     + "         \"msg\": \"test 1\""
                     + "     }"
                     + "   }"
-                    + "   ,\"ga-booster\" :{"
+                    + "   ,\"gas-booster\" :{"
                     + "          \"name\": \"GraphAidedSearchTestBooster\","
                     + "          \"recoTarget\": \"Durgan%20LLC\""
                     + "      }"
@@ -244,7 +238,7 @@ public class GraphAidedSearchPluginTest {
                     + "         ]"
                     + "      }"
                     + "   }"
-                    + "   ,\"ga-booster\" :{"
+                    + "   ,\"gas-booster\" :{"
                     + "          \"name\": \"GraphAidedSearchTestBooster\","
                     + "          \"recoTarget\": \"Durgan%20LLC\","
                     + "          \"maxResultSize\": 100"
@@ -279,7 +273,7 @@ public class GraphAidedSearchPluginTest {
                     + "         ]"
                     + "      }"
                     + "   }"
-                    + "   ,\"ga-booster\" :{"
+                    + "   ,\"gas-booster\" :{"
                     + "          \"name\": \"GraphAidedSearchTestBooster\","
                     + "          \"recoTarget\": \"Durgan%20LLC\""
                     + "      }"
@@ -315,7 +309,7 @@ public class GraphAidedSearchPluginTest {
                     + "         ]"
                     + "      }"
                     + "   }"
-                    + "   ,\"ga-booster\" :{"
+                    + "   ,\"gas-booster\" :{"
                     + "          \"name\": \"GraphAidedSearchTestBooster\","
                     + "          \"recoTarget\": \"Durgan%20LLC\","
                     + "          \"maxResultSize\": 20"

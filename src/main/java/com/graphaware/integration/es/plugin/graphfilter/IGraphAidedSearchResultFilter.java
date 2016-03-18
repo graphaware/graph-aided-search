@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015 GraphAware
  *
@@ -11,18 +12,18 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+package com.graphaware.integration.es.plugin.graphfilter;
 
-package com.graphaware.integration.es.plugin.annotation;
+import java.util.Map;
+import org.elasticsearch.search.internal.InternalSearchHits;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+/**
+ *
+ * @author alessandro@graphaware.com
+ */
+public interface IGraphAidedSearchResultFilter {
 
+    public InternalSearchHits doFilter(final InternalSearchHits hits);
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface GAGraphBooster
-{
-  String name();
+    public void parseRequest(Map<String, Object> sourceAsMap);
 }

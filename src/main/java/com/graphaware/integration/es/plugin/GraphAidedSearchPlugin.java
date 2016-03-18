@@ -16,7 +16,7 @@ package com.graphaware.integration.es.plugin;
 
 import com.graphaware.integration.es.plugin.filter.GraphAidedSearchFilter;
 import com.graphaware.integration.es.plugin.module.GAQueryResultNeo4jModule;
-import static com.graphaware.integration.es.plugin.query.GAQueryResultNeo4j.*;
+import static com.graphaware.integration.es.plugin.query.GraphAidedSearch.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.elasticsearch.action.ActionModule;
@@ -24,11 +24,8 @@ import org.elasticsearch.cluster.ClusterModule;
 import org.elasticsearch.cluster.settings.Validator;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.rest.RestModule;
 
 public class GraphAidedSearchPlugin extends Plugin {
-
-    public static final String REST_LOGGER_NAME = "rest.action.admin.ga-es-neo4j";
 
     public static final String INDEX_LOGGER_NAME = "index.graph-aided-search";
 
@@ -39,44 +36,21 @@ public class GraphAidedSearchPlugin extends Plugin {
 
     @Override
     public String description() {
-        return "This is Graph Aware plugin for Neo4j.";
+        return "This is Graphaware Graph Aided Search Plugin for Neo4j.";
     }
 
     public void onModule(final ActionModule module) {
         module.registerFilter(GraphAidedSearchFilter.class);
     }
 
-//  public void onModule(final ExtensionModule module)
-//  {
-//    //module.registerEngineFilter(RefreshEngineFilter.class);
-//  }
-    public void onModule(final RestModule module) {
-//    module.addRestAction(RestClearQRCacheAction.class);
-//    module.addRestAction(RestStatsQRCacheAction.class);
-    }
-
     public void onModule(final ClusterModule module) {
-        module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_ENABLED, Validator.EMPTY);
+        module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_ENABLED, Validator.BOOLEAN);
         module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_HOST, Validator.EMPTY);
     }
 
-//   public void onModule(final ClusterModule module) {
-//        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_SCRIPT, Validator.EMPTY);
-//        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_SCRIPT_LANG, Validator.EMPTY);
-//        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_SCRIPT_TYPE, Validator.EMPTY);
-//        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_SCRIPT_PARAMS+"*", Validator.EMPTY);
-//        module.registerIndexDynamicSetting(DynamicRanker.INDEX_DYNARANK_REORDER_SIZE, Validator.POSITIVE_INTEGER);
-//        module.registerClusterDynamicSetting(DynamicRanker.INDICES_DYNARANK_REORDER_SIZE, Validator.POSITIVE_INTEGER);
-//        module.registerClusterDynamicSetting(DynamicRanker.INDICES_DYNARANK_CACHE_EXPIRE, Validator.TIME);
-//        module.registerClusterDynamicSetting(DynamicRanker.INDICES_DYNARANK_CACHE_CLEAN_INTERVAL, Validator.TIME);
-//    }
-//  public void onModule(final IndexDynamicSettingsModule module)
-//  {
-//    module.addDynamicSettings("index.ga-es-neo4j.enable.*");
-//  }
+
     @Override
     public Collection<Module> nodeModules() {
-
         final Collection<Module> modules = new ArrayList<>();
         modules.add(new GAQueryResultNeo4jModule());
         return modules;

@@ -11,27 +11,27 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.plugin;
+package com.graphaware.integration.es.plugin.graphbooster;
 
 import java.util.Comparator;
 
 /**
  *
- * @author ale
+ * @author alessandro@graphaware.com
  */
-public class Neo4JResult {
+public class Neo4JFilterResult {
 
     private long nodeId;
     private String uuid;
     private String item;
     private float score;
 
-    public Neo4JResult(String uuid, float score) {
+    public Neo4JFilterResult(String uuid, float score) {
         this.uuid = uuid;
         this.score = score;
     }
 
-    public Neo4JResult() {
+    public Neo4JFilterResult() {
     }
 
     public long getNodeId() {
@@ -66,10 +66,10 @@ public class Neo4JResult {
         this.score = score;
     }
 
-    class Neo4JResultComparator implements Comparator<Neo4JResult> {
+    class Neo4JResultComparator implements Comparator<Neo4JFilterResult> {
 
         @Override
-        public int compare(Neo4JResult o1, Neo4JResult o2) {
+        public int compare(Neo4JFilterResult o1, Neo4JFilterResult o2) {
             if (o1.score < o2.score) {
                 return -1;
             }

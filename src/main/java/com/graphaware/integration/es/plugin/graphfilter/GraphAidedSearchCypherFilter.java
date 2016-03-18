@@ -19,7 +19,7 @@
  */
 package com.graphaware.integration.es.plugin.graphfilter;
 
-import com.graphaware.integration.es.plugin.annotation.GAGraphFilter;
+import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchFilter;
 import com.graphaware.integration.es.plugin.util.GASUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -47,10 +47,10 @@ import org.elasticsearch.search.internal.InternalSearchHits;
  *
  * @author alessandro@graphaware.com
  */
-@GAGraphFilter(name = "GACypherQueryFilter")
-public class GACypherQueryFilter implements IGAResultFilter {
+@GraphAidedSearchFilter(name = "GACypherQueryFilter")
+public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilter {
 
-    private static final Logger logger = Logger.getLogger(GACypherQueryFilter.class.getName());
+    private static final Logger logger = Logger.getLogger(GraphAidedSearchCypherFilter.class.getName());
     public static final String INDEX_GA_ES_NEO4J_HOST = "index.ga-es-neo4j.host";
     private String neo4jHost = "http://localhost:7575";
 
@@ -58,7 +58,7 @@ public class GACypherQueryFilter implements IGAResultFilter {
     private int from;
     private String cypher;
 
-    public GACypherQueryFilter(Settings settings) {
+    public GraphAidedSearchCypherFilter(Settings settings) {
         this.neo4jHost = settings.get(INDEX_GA_ES_NEO4J_HOST, neo4jHost);
 
     }

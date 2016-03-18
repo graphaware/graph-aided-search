@@ -16,10 +16,7 @@ package com.graphaware.integration.es.plugin.util;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.reflections.Reflections;
 
@@ -43,6 +40,4 @@ public class GASServiceLoader
       loader.put(item.getName(), (Class<T>) item);
     return loader;
   }
-
-  
 }

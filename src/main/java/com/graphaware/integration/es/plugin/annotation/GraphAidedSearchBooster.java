@@ -12,29 +12,17 @@
  * You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.graphaware.integration.es.plugin.graphfilter;
+package com.graphaware.integration.es.plugin.annotation;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
-public class Neo4JNodeIdResult {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    private long nodeId;
 
-    public Neo4JNodeIdResult() {
-    }
-
-    public long getId() {
-        return nodeId;
-    }
-
-    public void setId(long nodeId) {
-        this.nodeId = nodeId;
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface GraphAidedSearchBooster
+{
+  String name();
 }

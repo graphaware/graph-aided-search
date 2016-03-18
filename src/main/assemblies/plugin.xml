@@ -18,9 +18,7 @@
 			<useProjectArtifact>true</useProjectArtifact>
 			<useTransitiveFiltering>true</useTransitiveFiltering>
 			<excludes>
-				<exclude>org.elasticsearch:elasticsearch</exclude>
 				<exclude>com.google.guava:guava</exclude>
-				<exclude>org.codelibs:minhash</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>

@@ -18,13 +18,20 @@ the end of 2015.
 
 # Elasticsearch -> Neo4j
 
-## Feature Overview
+## Feature Overview: Graph Aided Search
 
 This module is a plugin for Elasticsearch that allow to improve the search result boosting or filtering them using data stored in the neo4j graph database. 
-After performing the search on Elasticsearch, and just before returing results to the user this plugin is able to submit some requests 
+After performing the search on Elasticsearch, and just before returing results to the user, this plugin is able to submit some requests 
 to the graph database through the REST api to get information needed to boost or filter the results and then get back the results to the user.
 
-In order to perform
+Two main features are exposed by the plugin: 
+
+* Result Boosting: This feature allow to change the score value of the results. The score can be changed in different ways, mixing graph score with elasticsearch score or replacing it entirely are just 
+two examples. It is possible to customize this behaviour with different formulas, rewriting some methods of the Graph Aided Search Boster.
+ 
+* Result Filtering: 
+
+The integration with already existing query is seamlessy, since it require to add some pieces to the query. 
 
 ## Getting the Software
 

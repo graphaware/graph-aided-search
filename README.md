@@ -18,12 +18,26 @@ the end of 2015.
 
 # Elasticsearch -> Neo4j
 
-Under active development, stay tuned.
+## Feature Overview
+
+This module is a plugin for Elasticsearch that allow to improve the search result boosting or filtering them using data stored in the neo4j graph database. 
+After performing the search on Elasticsearch, and just before returing results to the user this plugin is able to submit some requests 
+to the graph database through the REST api to get information needed to boost or filter the results and then get back the results to the user.
+
+In order to perform
+
+## Getting the Software
+
+### Download the binary
+
+### Build from source
+
+## Customize the plugin
 
 License
 -------
 
-Copyright (c) 2015 GraphAware
+Copyright (c) 2016 GraphAware
 
 GraphAware is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

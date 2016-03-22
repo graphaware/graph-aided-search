@@ -45,6 +45,19 @@ The integration with already existing query is seamlessy, since it require to ad
 
 ## Customize the plugin
 
+## Version Matrix
+
+The following version are currently supported
+
+| Version   | Elasticsearch |
+|:---------:|:-------------:|
+| master    | 2.2.X         |
+| 2.2.1     | 2.2.1         |
+
+### Issues/Questions
+
+Please file an [issue](https://github.com/graphaware/elasticsearch-to-neo4j/issues "issue").
+
 License
 -------
 

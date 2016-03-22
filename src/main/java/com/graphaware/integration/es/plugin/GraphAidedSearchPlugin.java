@@ -15,7 +15,7 @@
 package com.graphaware.integration.es.plugin;
 
 import com.graphaware.integration.es.plugin.filter.GraphAidedSearchFilter;
-import com.graphaware.integration.es.plugin.module.GAQueryResultNeo4jModule;
+import com.graphaware.integration.es.plugin.module.GraphAidedSearchModule;
 import static com.graphaware.integration.es.plugin.query.GraphAidedSearch.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +52,7 @@ public class GraphAidedSearchPlugin extends Plugin {
     @Override
     public Collection<Module> nodeModules() {
         final Collection<Module> modules = new ArrayList<>();
-        modules.add(new GAQueryResultNeo4jModule());
+        modules.add(new GraphAidedSearchModule());
         return modules;
     }
 

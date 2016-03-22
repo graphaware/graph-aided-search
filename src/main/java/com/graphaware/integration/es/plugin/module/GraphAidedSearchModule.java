@@ -17,7 +17,7 @@ package com.graphaware.integration.es.plugin.module;
 import com.graphaware.integration.es.plugin.query.GraphAidedSearch;
 import org.elasticsearch.common.inject.AbstractModule;
 
-public class GAQueryResultNeo4jModule extends AbstractModule {
+public class GraphAidedSearchModule extends AbstractModule {
 
     @Override
     protected void configure() {

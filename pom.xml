@@ -27,7 +27,7 @@
     <java.version>1.7</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <elasticsearch.version>2.2.1</elasticsearch.version>
-    <elasticsearch.plugin.classname>com.graphaware.integration.es.plugin.GAQueryResultNeo4jPlugin</elasticsearch.plugin.classname>
+    <elasticsearch.plugin.classname>com.graphaware.integration.es.plugin.GraphAidedSearchPlugin</elasticsearch.plugin.classname>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
   </properties>

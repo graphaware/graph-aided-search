@@ -64,11 +64,11 @@ import org.elasticsearch.transport.netty.ChannelBufferStreamInput;
 
 public class GraphAidedSearch extends AbstractComponent {
 
-    public static final String INDEX_GA_ES_NEO4J_ENABLED = "index.ga-es-neo4j.enable";
+    public static final String INDEX_GA_ES_NEO4J_ENABLED = "index.gas.enable";
     public static final String INDEX_MAX_RESULT_WINDOW = "max_result_window";
-//    public static final String INDEX_GA_ES_NEO4J_REORDER_TYPE = "index.ga-es-neo4j.booster.defaultClass";
-//    public static final String INDEX_GA_ES_NEO4J_KEY_PROPERTY = "index.ga-es-neo4j.booster.keyProperty";
-    public static final String INDEX_GA_ES_NEO4J_HOST = "index.ga-es-neo4j.neo4j.hostname";
+//    public static final String INDEX_GA_ES_NEO4J_REORDER_TYPE = "index.gas.booster.defaultClass";
+//    public static final String INDEX_GA_ES_NEO4J_KEY_PROPERTY = "index.gas.booster.keyProperty";
+    public static final String INDEX_GA_ES_NEO4J_HOST = "index.gas.neo4j.hostname";
 //    public static final String DEFAULT_KEY_PROPERTY = "uuid";
 
     private static final String GAS_REQUEST = "_gas";

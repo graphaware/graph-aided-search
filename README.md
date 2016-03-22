@@ -31,19 +31,54 @@ mixing graph score with elasticsearch score or replacing it entirely are just tw
 It is possible to customize this behaviour with different formulas, rewriting some methods of the Graph Aided Search Booster. 
 Usage examples include boosting (i) based on interest prediction (recommendations), (ii) based on friends interests/likes, (iii) whichever queries on neo4j
  
-* **_Result Filtering_**: This feature allow to filter results removing documents from the results list. In this case providing a cypher query it is possible to return to the user only the document which id match results from cypher query.
+* **_Result Filtering_**: This feature allow to filter results removing documents from the results list. In this case, providing a cypher query, it is possible to return to the user only the document which id match results from cypher query.
+
+## Usage: Installation
+
+### Install Graph Aided Search 
+
+    $ $ES_HOME/bin/plugin install com.graphaware/graph-aided-search/2.2.1
+
+### Build from source
+
+    $ git clone git@github.com:graphaware/elasticsearch-to-neo4j.git
+    $ mvn clean deploy
+    $ $ES_HOME/bin/plugin install file:///path/to/project/elasticsearch-to-neo4j/target/releases/elasticsearch-to-neo4j-2.2.1.zip
+    
+Start elasticsearch
+
+### Configuration
+
+Then configure indexes with the url of the neo4j. This can be done in two way:
+
+    $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.hostname=http://10.10.10.60:7474
+    $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=true
+
+Or add it to the settings in the index template template:
+
+```
+    GET  _template/template_gas
+    {
+      "template": "*",
+      "settings": {
+        "index.gas.neo4j.hostname": "http://localhost:7474",
+        "index.gas.enable": true
+      }
+    }
+```
+
+
+### Disable Plugin
+
+The query will continue to work with no issue, even with the "gas-boost" and "gas-filter" piece in the query. They will be removed automatically.
+
+    $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=false
 
 ## Usage: Search Phase
 
 The integration with already existing query is seamlessy, since it require to add some pieces to the query. 
 
-## Getting the Software
 
-### Download the binary
-
-    $ $ES_HOME/bin/plugin install com.graphaware/graph-aided-search/2.2.1
-
-### Build from source
 
 ## Customize the plugin
 

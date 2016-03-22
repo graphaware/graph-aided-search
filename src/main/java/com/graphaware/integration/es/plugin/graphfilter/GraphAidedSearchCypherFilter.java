@@ -20,6 +20,8 @@
 package com.graphaware.integration.es.plugin.graphfilter;
 
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchFilter;
+import com.graphaware.integration.es.plugin.query.GASIndexInfo;
+import com.graphaware.integration.es.plugin.query.GraphAidedSearch;
 import com.graphaware.integration.es.plugin.util.GASUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -47,30 +49,36 @@ import org.elasticsearch.search.internal.InternalSearchHits;
  *
  * @author alessandro@graphaware.com
  */
-@GraphAidedSearchFilter(name = "GACypherQueryFilter")
+@GraphAidedSearchFilter(name = "GraphAidedSearchCypherFilter")
 public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilter {
 
     private static final Logger logger = Logger.getLogger(GraphAidedSearchCypherFilter.class.getName());
-    public static final String INDEX_GA_ES_NEO4J_HOST = "index.ga-es-neo4j.host";
-    private String neo4jHost = "http://localhost:7575";
+    private final String neo4jHost;
+    private final int maxResultWindow;
 
+    private int maxResultSize = -1;
     private int size;
     private int from;
     private String cypher;
 
-    public GraphAidedSearchCypherFilter(Settings settings) {
-        this.neo4jHost = settings.get(INDEX_GA_ES_NEO4J_HOST, neo4jHost);
-
+    public GraphAidedSearchCypherFilter(Settings settings, GASIndexInfo indexSettings) {
+        this.neo4jHost = indexSettings.getNeo4jHost();
+        this.maxResultWindow = indexSettings.getMaxResultWindow();
     }
 
     public void parseRequest(Map<String, Object> sourceAsMap) {
         size = GASUtil.getInt(sourceAsMap.get("size"), 10);
         from = GASUtil.getInt(sourceAsMap.get("from"), 0);
 
-        HashMap extParams = (HashMap) sourceAsMap.get("ga-filter");
+        HashMap extParams = (HashMap) sourceAsMap.get(GraphAidedSearch.GAS_FILTER_CLAUSE);
         if (extParams != null) {
             cypher = (String) extParams.get("query");
+            maxResultSize = GASUtil.getInt(extParams.get("maxResultSize"), maxResultWindow);
         }
+        if (maxResultSize > 0) {
+            sourceAsMap.put("size", maxResultSize);
+        }
+        sourceAsMap.put("from", 0);
     }
 
     public InternalSearchHits doFilter(final InternalSearchHits hits) {
@@ -83,23 +91,37 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
 
         InternalSearchHit[] tmpSearchHits = new InternalSearchHit[hitMap.size()];
         int k = 0;
+        float maxScore = -1;
         for (Map.Entry<String, InternalSearchHit> item : hitMap.entrySet()) {
             if (remoteFilter.contains(item.getKey())) {
                 tmpSearchHits[k] = item.getValue();
                 k++;
+                float score = item.getValue().getScore();
+                if (maxScore < score) {
+                    maxScore = score;
+                }
             }
         }
+        int totalSize = k;
 
-        logger.log(Level.WARNING, "searchHits.length <= reorderSize: {0}", (searchHits.length <= size));
-        InternalSearchHit[] newSearchHits = new InternalSearchHit[k];
+        logger.log(Level.WARNING, "k <= reorderSize: {0}", (k <= size));
+        
+        final int arraySize = (size + from) < k ? size
+                : (k - from) > 0 ? (k - from) : 0;
+        if (arraySize == 0) {
+            return new InternalSearchHits(new InternalSearchHit[0], 0, 0);
+        }
+        
+        InternalSearchHit[] newSearchHits = new InternalSearchHit[arraySize];
         k = 0;
-        for (InternalSearchHit newId : tmpSearchHits) {
+        for (int i = from; i < arraySize + from; i++) {
+            InternalSearchHit newId = tmpSearchHits[i];
             if (newId == null) {
                 break;
             }
             newSearchHits[k++] = newId;
         }
-        return new InternalSearchHits(newSearchHits, newSearchHits.length,
+        return new InternalSearchHits(newSearchHits, totalSize,
                 hits.maxScore());
     }
 
@@ -140,9 +162,6 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
         };
         Map<String, Object> results = response.getEntity(type);
 
-//    System.out.println(String.format("\n\n\n\n\n\n\nGET to [%s], status code [%d], returned data: "
-//            + System.getProperty("line.separator") + "%s \n\n\n\n\n\n",
-//            url, response.getStatus(), results));
         Map res = (Map) ((ArrayList) results.get("results")).get(0);
         ArrayList<LinkedHashMap> rows = (ArrayList) res.get("data");
         response.close();

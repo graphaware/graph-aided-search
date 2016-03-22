@@ -13,7 +13,6 @@
  */
 package com.graphaware.integration.es.plugin.graphbooster;
 
-import com.graphaware.integration.es.plugin.*;
 import com.graphaware.integration.es.plugin.query.GASIndexInfo;
 import com.graphaware.integration.es.plugin.query.GraphAidedSearch;
 import com.graphaware.integration.es.plugin.util.GASUtil;
@@ -22,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.elasticsearch.common.logging.ESLogger;
-import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
@@ -34,6 +31,7 @@ import org.elasticsearch.search.internal.InternalSearchHits;
  */
 public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearchResultBooster {
 
+    private final static String DEFAULT_KEY_PROPERTY = "uuid";
     private final String neo4jHost;
     private final int maxResultWindow;
 
@@ -41,13 +39,14 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
     private int from;
     private String targetId;
     private int maxResultSize = -1;
+    private String keyProperty;
 
     public GraphAidedSearchResultBooster(Settings settings, GASIndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
         this.maxResultWindow = indexSettings.getMaxResultWindow();
     }
 
-    public void parseRequest(Map<String, Object> sourceAsMap) {
+    public final void parseRequest(Map<String, Object> sourceAsMap) {
         size = GASUtil.getInt(sourceAsMap.get("size"), 10);
         from = GASUtil.getInt(sourceAsMap.get("from"), 0);
 
@@ -55,7 +54,8 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
         if (extParams != null) {
             targetId = (String) extParams.get("recoTarget");
             maxResultSize = GASUtil.getInt(extParams.get("maxResultSize"), maxResultWindow);
-            //keyProperty = (String) (extParams.get("keyProperty") != null ? extParams.get("keyProperty") : keyProperty);
+            keyProperty = (String) (extParams.get("keyProperty") != null ? extParams.get("keyProperty") : DEFAULT_KEY_PROPERTY);
+            extendedParseRequest(extParams);
         }
         if (maxResultSize > 0) {
             sourceAsMap.put("size", maxResultSize);
@@ -83,7 +83,7 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
         for (Map.Entry<String, InternalSearchHit> item : hitMap.entrySet()) {
             Neo4JFilterResult remoteResult = remoteScore.get(item.getKey());
             if (remoteResult != null) {
-                float newScore = item.getValue().score() * remoteResult.getScore();
+                float newScore = composeScore(item.getValue().score(), remoteResult.getScore());
                 if (maxScore < newScore) {
                     maxScore = newScore;
                 }
@@ -115,6 +115,10 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
                 maxScore);
     }
 
+    protected float composeScore(float esScore, float extScore) {
+        return esScore * extScore;
+    }
+
     public int getSize() {
         return size;
     }
@@ -139,5 +143,13 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
 
     protected String getTargetId() {
         return targetId;
+    }
+
+    public String getKeyProperty() {
+        return keyProperty;
+    }
+
+    protected void extendedParseRequest(HashMap extParams) {
+        
     }
 }

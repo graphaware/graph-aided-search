@@ -330,6 +330,111 @@ public class GraphAidedSearchPluginTest {
             assertEquals("test 46", hits.get(0).source.getMsg());
             assertEquals(result.getMaxScore(), 3861, 1);
         }
+        
+        {
+            //Test Replace Booster
+            String query = "{"
+                    + "   \"query\": {"
+                    + "      \"bool\": {"
+                    + "         \"should\": ["
+                    + "            {"
+                    + "                  \"match\": {"
+                    + "                       \"msg\": \"test 1\""
+                    + "                   }"
+                    + "            }"
+                    + "         ]"
+                    + "      }"
+                    + "   }"
+                    + "   ,\"gas-booster\" :{"
+                    + "          \"name\": \"GraphAidedSearchReplaceBooster\","
+                    + "          \"recoTarget\": \"Durgan%20LLC\""
+                    + "      }"
+                    + "}";
+
+            Search search = new Search.Builder(query)
+                    // multiple index or types can be added.
+                    .addIndex(INDEX_NAME)
+                    .addType(TYPE_NAME)
+                    .build();
+
+            SearchResult result = jstClient.execute(search);
+
+            assertEquals(1000, result.getTotal().intValue());
+            List<SearchResult.Hit<JestMsgResult, Void>> hits = result.getHits(JestMsgResult.class);
+            assertEquals(10, hits.size());
+            assertEquals("test 1000", hits.get(0).source.getMsg());
+            assertEquals(result.getMaxScore(), 1000*1000, 1);
+        }
+        
+        {
+            //Test Filter
+            String query = "{"
+                    + "   \"query\": {"
+                    + "      \"bool\": {"
+                    + "         \"should\": ["
+                    + "            {"
+                    + "                  \"match\": {"
+                    + "                       \"msg\": \"test 1\""
+                    + "                   }"
+                    + "            }"
+                    + "         ]"
+                    + "      }"
+                    + "   }"
+                    + "   ,\"gas-filter\" :{"
+                    + "          \"name\": \"GraphAidedSearchCypherTestFilter\""
+                    + "      }"
+                    + "}";
+
+            Search search = new Search.Builder(query)
+                    // multiple index or types can be added.
+                    .addIndex(INDEX_NAME)
+                    .addType(TYPE_NAME)
+                    .build();
+
+            SearchResult result = jstClient.execute(search);
+
+            assertEquals(333, result.getTotal().intValue());
+            List<SearchResult.Hit<JestMsgResult, Void>> hits = result.getHits(JestMsgResult.class);
+            assertEquals(10, hits.size());
+            assertEquals("test 3", hits.get(0).source.getMsg());
+            assertEquals(result.getMaxScore(), 3.8, 0.1);
+        }
+        
+        {
+            //Test Filter and from different than 0
+            String query = "{"
+                    + "\"from\" : 5, \"size\" : 25,"
+                    + "   \"query\": {"
+                    + "      \"bool\": {"
+                    + "         \"should\": ["
+                    + "            {"
+                    + "                  \"match\": {"
+                    + "                       \"msg\": \"test 1\""
+                    + "                   }"
+                    + "            }"
+                    + "         ]"
+                    + "      }"
+                    + "   }"
+                    + "   ,\"gas-filter\" :{"
+                    + "          \"name\": \"GraphAidedSearchCypherTestFilter\","
+                    + "          \"maxResultSize\": 20"
+                    + "      }"
+                    + "}";
+
+            Search search = new Search.Builder(query)
+                    // multiple index or types can be added.
+                    .addIndex(INDEX_NAME)
+                    .addType(TYPE_NAME)
+                    .build();
+
+            SearchResult result = jstClient.execute(search);
+
+            assertEquals(6, result.getTotal().intValue());
+            List<SearchResult.Hit<JestMsgResult, Void>> hits = result.getHits(JestMsgResult.class);
+            assertEquals(1, hits.size());
+            assertEquals("test 54", hits.get(0).source.getMsg());
+            assertEquals(result.getMaxScore(), 3.8, 0.1);
+        }
 
     }
 }

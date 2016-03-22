@@ -41,6 +41,8 @@ The integration with already existing query is seamlessy, since it require to ad
 
 ### Download the binary
 
+    $ $ES_HOME/bin/plugin install com.graphaware/graph-aided-search/2.2.1
+
 ### Build from source
 
 ## Customize the plugin

@@ -51,7 +51,7 @@ Start elasticsearch
 
 Then configure indexes with the url of the neo4j. This can be done in two way:
 
-    $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.hostname=http://10.10.10.60:7474
+    $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.hostname=http://localhost:7474
     $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=true
 
 Or add it to the settings in the index template template:
@@ -89,7 +89,7 @@ The following version are currently supported
 | Version   | Elasticsearch |
 |:---------:|:-------------:|
 | master    | 2.2.X         |
-| 2.2.1     | 2.2.1         |
+| 2.2.1.x   | 2.2.1         |
 
 ### Issues/Questions
 

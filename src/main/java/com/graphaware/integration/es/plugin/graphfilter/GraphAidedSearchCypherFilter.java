@@ -167,10 +167,16 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
         response.close();
         Set<String> newSet = new HashSet<>();
         for (Iterator<LinkedHashMap> it = rows.iterator(); it.hasNext();) {
-            String nodeId = (String) ((ArrayList) (it.next().get("row"))).get(0);
+            String nodeId = getIdentifier(((ArrayList) (it.next().get("row"))).get(0));
             newSet.add(String.valueOf(nodeId));
         }
         return newSet;
+    }
+
+    private static String getIdentifier(Object objectId) {
+        if (objectId instanceof String)
+            return (String)objectId;
+        return String.valueOf(objectId);            
     }
 
 }

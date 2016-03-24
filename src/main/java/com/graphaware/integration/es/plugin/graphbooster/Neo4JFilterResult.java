@@ -22,12 +22,12 @@ import java.util.Comparator;
 public class Neo4JFilterResult {
 
     private long nodeId;
-    private String uuid;
+    private String objectId;
     private String item;
     private float score;
 
-    public Neo4JFilterResult(String uuid, float score) {
-        this.uuid = uuid;
+    public Neo4JFilterResult(String objectId, float score) {
+        this.objectId = objectId;
         this.score = score;
     }
 
@@ -42,12 +42,12 @@ public class Neo4JFilterResult {
         this.nodeId = nodeId;
     }
 
-    public String getUuid() {
-        return uuid;
+    public String getObjectId() {
+        return objectId;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setObjectId(String uuid) {
+        this.objectId = uuid;
     }
 
     public String getItem() {

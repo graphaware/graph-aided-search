@@ -396,8 +396,42 @@ public class GraphAidedSearchPluginTest {
             assertEquals(333, result.getTotal().intValue());
             List<SearchResult.Hit<JestMsgResult, Void>> hits = result.getHits(JestMsgResult.class);
             assertEquals(10, hits.size());
-            assertEquals("test 3", hits.get(0).source.getMsg());
+            assertEquals("test 339", hits.get(0).source.getMsg());
             assertEquals(result.getMaxScore(), 3.8, 0.1);
+        }
+
+        {
+            // Test exclude filter
+            String query = "{"
+                    + "   \"query\": {"
+                    + "      \"bool\": {"
+                    + "         \"should\": ["
+                    + "            {"
+                    + "                  \"match\": {"
+                    + "                       \"msg\": \"test 1\""
+                    + "                   }"
+                    + "            }"
+                    + "         ]"
+                    + "      }"
+                    + "   }"
+                    + "   ,\"gas-filter\" :{"
+                    + "          \"name\": \"GraphAidedSearchCypherFilter\","
+                    + "          \"exclude\": true,"
+                    + "          \"query\": \"MATCH (n) RETURN id(n)\""
+                    + "      }"
+                    + "}";
+
+            Search search = new Search.Builder(query)
+                    // multiple index or types can be added.
+                    .addIndex(INDEX_NAME)
+                    .addType(TYPE_NAME)
+                    .build();
+
+            SearchResult result = jstClient.execute(search);
+
+            assertEquals(0, result.getTotal().intValue());
+            List<SearchResult.Hit<JestMsgResult, Void>> hits = result.getHits(JestMsgResult.class);
+            assertEquals(0, hits.size());
         }
         
         {

@@ -60,6 +60,7 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
     private int size;
     private int from;
     private String cypher;
+    private boolean shouldExclude;
 
     public GraphAidedSearchCypherFilter(Settings settings, GASIndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
@@ -74,6 +75,8 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
         if (extParams != null) {
             cypher = (String) extParams.get("query");
             maxResultSize = GASUtil.getInt(extParams.get("maxResultSize"), maxResultWindow);
+            shouldExclude = extParams.containsKey("exclude") && extParams.get("exclude") == true;
+            System.out.println("Should exclude is " + shouldExclude);
         }
         if (maxResultSize > 0) {
             sourceAsMap.put("size", maxResultSize);
@@ -94,11 +97,13 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
         float maxScore = -1;
         for (Map.Entry<String, InternalSearchHit> item : hitMap.entrySet()) {
             if (remoteFilter.contains(item.getKey())) {
-                tmpSearchHits[k] = item.getValue();
-                k++;
-                float score = item.getValue().getScore();
-                if (maxScore < score) {
-                    maxScore = score;
+                if (!shouldExclude) {
+                    tmpSearchHits[k] = item.getValue();
+                    k++;
+                    float score = item.getValue().getScore();
+                    if (maxScore < score) {
+                        maxScore = score;
+                    }
                 }
             }
         }

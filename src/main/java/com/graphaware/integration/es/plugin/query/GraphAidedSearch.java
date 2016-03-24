@@ -195,7 +195,7 @@ public class GraphAidedSearch extends AbstractComponent {
                     searchResponseListener.onFailure(t);
                 }
             };
-        } catch (final IOException e) {
+        } catch (final Exception e) {
             throw new RuntimeException("Failed to parse a source.", e);
         }
     }
@@ -367,7 +367,7 @@ public class GraphAidedSearch extends AbstractComponent {
         }
     }
 
-    private IGraphAidedSearchResultBooster getGABoosters(Map<String, Object> sourceAsMap, GASIndexInfo indexSettings) {
+    private IGraphAidedSearchResultBooster getGABoosters(Map<String, Object> sourceAsMap, GASIndexInfo indexSettings) throws Exception{
         HashMap extParams = (HashMap) sourceAsMap.get(GAS_BOOSTER_CLAUSE);
         if (extParams == null) {
             return null;

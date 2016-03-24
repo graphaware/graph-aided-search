@@ -76,7 +76,6 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
             cypher = (String) extParams.get("query");
             maxResultSize = GASUtil.getInt(extParams.get("maxResultSize"), maxResultWindow);
             shouldExclude = extParams.containsKey("exclude") && extParams.get("exclude") == true;
-            System.out.println("Should exclude is " + shouldExclude);
         }
         if (maxResultSize > 0) {
             sourceAsMap.put("size", maxResultSize);

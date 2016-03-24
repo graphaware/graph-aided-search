@@ -11,6 +11,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
@@ -28,7 +29,7 @@ public class GraphAidedSearchCypherBooster implements IGraphAidedSearchResultBoo
 
     private String idResultName;
 
-    public GraphAidedSearchCypherBooster(GASIndexInfo indexInfo) {
+    public GraphAidedSearchCypherBooster(Settings settings, GASIndexInfo indexInfo) {
         this.scoreResultName = "score";
         this.idResultName = "id";
         this.neo4jHost = indexInfo.getNeo4jHost();

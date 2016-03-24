@@ -470,5 +470,40 @@ public class GraphAidedSearchPluginTest {
             assertEquals(result.getMaxScore(), 3.8, 0.1);
         }
 
+        {
+            //Test CypherBooster
+            String query = "{"
+                    + "   \"query\": {"
+                    + "      \"bool\": {"
+                    + "         \"should\": ["
+                    + "            {"
+                    + "                  \"match\": {"
+                    + "                       \"msg\": \"test 1\""
+                    + "                   }"
+                    + "            }"
+                    + "         ]"
+                    + "      }"
+                    + "   }"
+                    + "   ,\"gas-booster\" :{"
+                    + "          \"name\": \"GraphAidedSearchCypherBooster\","
+                    + "          \"query\": \"MATCH (n:User {id: 2})-[:LIKES]->(m) RETURN m.id as id, size((m)<-[:LIKES]-()) as score\""
+                    + "      }"
+                    + "}";
+
+            Search search = new Search.Builder(query)
+                    // multiple index or types can be added.
+                    .addIndex(INDEX_NAME)
+                    .addType(TYPE_NAME)
+                    .build();
+
+            SearchResult result = jstClient.execute(search);
+
+            assertEquals(6, result.getTotal().intValue());
+            List<SearchResult.Hit<JestMsgResult, Void>> hits = result.getHits(JestMsgResult.class);
+            assertEquals(1, hits.size());
+            assertEquals("test 54", hits.get(0).source.getMsg());
+            assertEquals(result.getMaxScore(), 3.8, 0.1);
+        }
+
     }
 }

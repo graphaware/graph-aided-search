@@ -196,7 +196,7 @@ public class GraphAidedSearch extends AbstractComponent {
                 }
             };
         } catch (final Exception e) {
-            throw new RuntimeException("Failed to parse a source.", e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 

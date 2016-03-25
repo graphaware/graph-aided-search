@@ -60,7 +60,7 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
     private int size;
     private int from;
     private String cypher;
-    private boolean shouldExclude;
+    private boolean shouldExclude = true;
 
     public GraphAidedSearchCypherFilter(Settings settings, GASIndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
@@ -75,7 +75,7 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
         if (extParams != null) {
             cypher = (String) extParams.get("query");
             maxResultSize = GASUtil.getInt(extParams.get("maxResultSize"), maxResultWindow);
-            shouldExclude = extParams.containsKey("exclude") && extParams.get("exclude") == true;
+            shouldExclude = extParams.containsKey("exclude") && String.valueOf(extParams.get("exclude")).equalsIgnoreCase("true");
         }
         if (maxResultSize > 0) {
             sourceAsMap.put("size", maxResultSize);
@@ -95,27 +95,26 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
         int k = 0;
         float maxScore = -1;
         for (Map.Entry<String, InternalSearchHit> item : hitMap.entrySet()) {
-            if (remoteFilter.contains(item.getKey())) {
-                if (!shouldExclude) {
-                    tmpSearchHits[k] = item.getValue();
-                    k++;
-                    float score = item.getValue().getScore();
-                    if (maxScore < score) {
-                        maxScore = score;
-                    }
+            if ((shouldExclude && !remoteFilter.contains(item.getKey())) 
+                    || (!shouldExclude && remoteFilter.contains(item.getKey()))) {
+                tmpSearchHits[k] = item.getValue();
+                k++;
+                float score = item.getValue().getScore();
+                if (maxScore < score) {
+                    maxScore = score;
                 }
             }
         }
         int totalSize = k;
 
         logger.log(Level.WARNING, "k <= reorderSize: {0}", (k <= size));
-        
+
         final int arraySize = (size + from) < k ? size
                 : (k - from) > 0 ? (k - from) : 0;
         if (arraySize == 0) {
             return new InternalSearchHits(new InternalSearchHit[0], 0, 0);
         }
-        
+
         InternalSearchHit[] newSearchHits = new InternalSearchHit[arraySize];
         k = 0;
         for (int i = from; i < arraySize + from; i++) {
@@ -178,9 +177,10 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
     }
 
     private static String getIdentifier(Object objectId) {
-        if (objectId instanceof String)
-            return (String)objectId;
-        return String.valueOf(objectId);            
+        if (objectId instanceof String) {
+            return (String) objectId;
+        }
+        return String.valueOf(objectId);
     }
 
 }

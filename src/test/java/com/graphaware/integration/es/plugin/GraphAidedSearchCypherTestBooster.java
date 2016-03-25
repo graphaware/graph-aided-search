@@ -2,7 +2,6 @@ package com.graphaware.integration.es.plugin;
 
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchBooster;
 import com.graphaware.integration.es.plugin.graphbooster.GraphAidedSearchCypherBooster;
-import com.graphaware.integration.es.plugin.neo4j.CypherResultRow;
 import com.graphaware.integration.es.plugin.query.GASIndexInfo;
 import org.elasticsearch.common.settings.Settings;
 
@@ -17,13 +16,12 @@ public class GraphAidedSearchCypherTestBooster extends GraphAidedSearchCypherBoo
     }
 
     @Override
-    public Map<String, CypherResultRow> executeCypher(String serverUlr, String... statements) {
+    protected Map<String, Float> executeCypher(String serverUrl, String... cypherStatements) {
 
-        Map<String, CypherResultRow> results = new HashMap<>();
+        Map<String, Float> results = new HashMap<>();
         for (int i = 0; i < 1000; ++i) {
-            //results.put()
+            results.put(String.valueOf(i), 1000.0f*i);
         }
-
         return results;
     }
 }

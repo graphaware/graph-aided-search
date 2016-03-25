@@ -1,9 +1,8 @@
 package com.graphaware.integration.es.plugin.graphbooster;
 
+import com.graphaware.integration.es.plugin.GraphAidedSearchPlugin;
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchBooster;
-import com.graphaware.integration.es.plugin.neo4j.CypherResultRow;
 import com.graphaware.integration.es.plugin.query.GASIndexInfo;
-import com.graphaware.integration.es.plugin.query.GraphAidedSearch;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -12,64 +11,49 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.search.internal.InternalSearchHit;
-import org.elasticsearch.search.internal.InternalSearchHits;
 
 import javax.ws.rs.core.MediaType;
 import java.util.*;
+import org.elasticsearch.common.logging.ESLogger;
+import org.elasticsearch.common.logging.Loggers;
 
 @GraphAidedSearchBooster(name = "GraphAidedSearchCypherBooster")
-public class GraphAidedSearchCypherBooster implements IGraphAidedSearchResultBooster {
+public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster {
 
-    private final String neo4jHost;
+    private final ESLogger logger;
 
     private String cypherQuery;
-
     private String scoreResultName;
-
     private String idResultName;
 
     public GraphAidedSearchCypherBooster(Settings settings, GASIndexInfo indexInfo) {
-        this.scoreResultName = "score";
-        this.idResultName = "id";
-        this.neo4jHost = indexInfo.getNeo4jHost();
+        super(settings, indexInfo);
+        this.logger = Loggers.getLogger(GraphAidedSearchPlugin.INDEX_LOGGER_NAME, settings);
+    }
+
+    
+
+    @Override
+    protected void extendedParseRequest(HashMap extParams) {
+        cypherQuery = (String) (extParams.get("query"));
+        scoreResultName = (String) (extParams.get("scoreName"));
+        idResultName = (String) (extParams.get("identifier"));
     }
 
     @Override
-    public InternalSearchHits doReorder(InternalSearchHits hits) {
-        Map<String, CypherResultRow> remoteBooster = executeCypher(neo4jHost, cypherQuery);
-        final InternalSearchHit[] searchHits = hits.internalHits();
-        Map<String, InternalSearchHit> hitsMap = new HashMap<>();
-        for (InternalSearchHit hit : searchHits) {
-            hitsMap.put(hit.getId(), hit);
-        }
+    protected Map<String, Neo4JFilterResult> externalDoReorder(Set<String> keySet) {
+        logger.warn("Query cypher for: " + keySet);
+        Map<String, Float> res = executeCypher(getNeo4jHost(), cypherQuery);
 
-        InternalSearchHit[] temporarySearchHits = new InternalSearchHit[hitsMap.size()];
-        int k = 0;
-        for (Map.Entry<String, InternalSearchHit> item : hitsMap.entrySet()) {
-            if (remoteBooster.containsKey(item.getKey())) {
-                temporarySearchHits[k] = item.getValue();
-                ++k;
-                float score = item.getValue().getScore();
-                score += (Float) remoteBooster.get(item.getKey()).values().get(scoreResultName);
-            }
-        }
+        HashMap<String, Neo4JFilterResult> results = new HashMap<>();
 
-        return new InternalSearchHits(temporarySearchHits, hitsMap.size(), hits.maxScore());
+        for (Map.Entry<String, Float> item : res.entrySet()) 
+            results.put(item.getKey(), new Neo4JFilterResult(item.getKey(), item.getValue()));
+        return results;
     }
-
-    @Override
-    public void parseRequest(Map<String, Object> sourceAsMap) throws Exception{
-        HashMap extParams = (HashMap) sourceAsMap.get(GraphAidedSearch.GAS_BOOSTER_CLAUSE);
-        scoreResultName = extParams.containsKey("score_result_name") ? extParams.get("score_result_name").toString() : scoreResultName;
-        idResultName = extParams.containsKey("id_result_name") ? extParams.get("id_result_name").toString() : idResultName;
-        if (!extParams.containsKey("query")) {
-            throw new Exception("Missing the \"query\" key for GraphAidedSearchCypherBooster");
-        }
-        cypherQuery = extParams.get("query").toString();
-    }
-
-    public Map<String, CypherResultRow> executeCypher(String serverUrl, String... cypherStatements) {
+    
+    
+    protected Map<String, Float> executeCypher(String serverUrl, String... cypherStatements) {
         StringBuilder stringBuilder = new StringBuilder("{\"statements\" : [");
         for (String statement : cypherStatements) {
             stringBuilder.append("{\"statement\" : \"").append(statement).append("\"}").append(",");
@@ -85,7 +69,7 @@ public class GraphAidedSearchCypherBooster implements IGraphAidedSearchResultBoo
         return post(serverUrl + "/db/data/transaction/commit", stringBuilder.toString());
     }
 
-    public Map<String, CypherResultRow> post(String url, String json) {
+    protected Map<String, Float> post(String url, String json) {
         ClientConfig cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
         WebResource resource = Client.create(cfg).resource(url);
@@ -97,6 +81,8 @@ public class GraphAidedSearchCypherBooster implements IGraphAidedSearchResultBoo
         GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>() {
         };
         Map<String, Object> results = response.getEntity(type);
+        if (results.get("errors") != null && ((ArrayList) results.get("results")).size() > 1)
+            throw new RuntimeException("Error while getting response from neo4j " + results.get("errors"));
 
         Map res = (Map) ((ArrayList) results.get("results")).get(0);
         ArrayList<LinkedHashMap> rows = (ArrayList) res.get("data");
@@ -108,13 +94,13 @@ public class GraphAidedSearchCypherBooster implements IGraphAidedSearchResultBoo
             columnsMap.put(c, k);
             ++k;
         }
-        Map<String, CypherResultRow> resultRows = new HashMap<>();
+        Map<String, Float> resultRows = new HashMap<>();
         for (Iterator<LinkedHashMap> it = rows.iterator(); it.hasNext();) {
-            CypherResultRow resultRow = new CypherResultRow();
-            LinkedHashMap row = it.next();
-            resultRow.values().put(idResultName, row.get(columnsMap.get(idResultName)));
-            resultRow.values().put(scoreResultName, row.get(columnsMap.get(scoreResultName)));
-            resultRows.put(idResultName, resultRow);
+            LinkedHashMap r = it.next();
+            ArrayList row = (ArrayList)r.get("row");
+            String key = String.valueOf(row.get(columnsMap.get(idResultName)));
+            float value = Float.parseFloat(String.valueOf(row.get(columnsMap.get(scoreResultName))));
+            resultRows.put(key, value);
         }
         return resultRows;
     }

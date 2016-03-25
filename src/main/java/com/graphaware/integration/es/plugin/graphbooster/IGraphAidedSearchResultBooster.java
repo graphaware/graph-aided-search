@@ -25,5 +25,5 @@ import org.elasticsearch.search.internal.InternalSearchHits;
 public interface IGraphAidedSearchResultBooster
 {
   public InternalSearchHits doReorder(final InternalSearchHits hits);
-  public void parseRequest(Map<String, Object> sourceAsMap);
+  public void parseRequest(Map<String, Object> sourceAsMap) throws Exception;
 }

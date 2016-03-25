@@ -46,7 +46,7 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
         this.maxResultWindow = indexSettings.getMaxResultWindow();
     }
 
-    public final void parseRequest(Map<String, Object> sourceAsMap) {
+    public final void parseRequest(Map<String, Object> sourceAsMap) throws Exception{
         size = GASUtil.getInt(sourceAsMap.get("size"), 10);
         from = GASUtil.getInt(sourceAsMap.get("from"), 0);
 

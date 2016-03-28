@@ -17,10 +17,8 @@ import com.graphaware.integration.es.plugin.query.GASIndexInfo;
 import com.graphaware.integration.es.plugin.query.GraphAidedSearch;
 import com.graphaware.integration.es.plugin.util.GASUtil;
 
-import java.io.IOException;
 import java.util.*;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;

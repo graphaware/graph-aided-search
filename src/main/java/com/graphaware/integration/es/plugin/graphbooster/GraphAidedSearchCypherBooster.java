@@ -22,6 +22,9 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
 
     private final ESLogger logger;
 
+    private static final String DEFAULT_SCORE_RESULT_NAME = "score";
+    private static final String DEFAULT_ID_RESULT_NAME = "id";
+
     private String cypherQuery;
     private String scoreResultName;
     private String idResultName;
@@ -36,8 +39,8 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
     @Override
     protected void extendedParseRequest(HashMap extParams) {
         cypherQuery = (String) (extParams.get("query"));
-        scoreResultName = (String) (extParams.get("scoreName"));
-        idResultName = (String) (extParams.get("identifier"));
+        scoreResultName = extParams.get("scoreName") != null ? (String) extParams.get("scoreName") : DEFAULT_SCORE_RESULT_NAME;
+        idResultName = extParams.get("identifier") != null ? (String) extParams.get("identifier") : DEFAULT_ID_RESULT_NAME;
     }
 
     @Override
@@ -51,8 +54,7 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
             results.put(item.getKey(), new Neo4JFilterResult(item.getKey(), item.getValue()));
         return results;
     }
-    
-    
+
     protected Map<String, Float> executeCypher(String serverUrl, String... cypherStatements) {
         StringBuilder stringBuilder = new StringBuilder("{\"statements\" : [");
         for (String statement : cypherStatements) {

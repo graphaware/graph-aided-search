@@ -16,11 +16,11 @@ package com.graphaware.integration.es.plugin.graphbooster;
 import com.graphaware.integration.es.plugin.query.GASIndexInfo;
 import com.graphaware.integration.es.plugin.query.GraphAidedSearch;
 import com.graphaware.integration.es.plugin.util.GASUtil;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.io.IOException;
+import java.util.*;
+
+import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
@@ -41,6 +41,10 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
     private int maxResultSize = -1;
     private String keyProperty;
 
+    protected String composeScoreOperator;
+
+    protected static final String DEFAULT_SCORE_OPERATOR = "*";
+
     public GraphAidedSearchResultBooster(Settings settings, GASIndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
         this.maxResultWindow = indexSettings.getMaxResultWindow();
@@ -55,7 +59,9 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
             targetId = (String) extParams.get("recoTarget");
             maxResultSize = GASUtil.getInt(extParams.get("maxResultSize"), maxResultWindow);
             keyProperty = (String) (extParams.get("keyProperty") != null ? extParams.get("keyProperty") : DEFAULT_KEY_PROPERTY);
+            composeScoreOperator = extParams.get("operator") != null ? (String) extParams.get("operator") : DEFAULT_SCORE_OPERATOR;
             extendedParseRequest(extParams);
+            validateOperator();
         }
         if (maxResultSize > 0) {
             sourceAsMap.put("size", maxResultSize);
@@ -116,7 +122,19 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
     }
 
     protected float composeScore(float esScore, float extScore) {
-        return esScore * extScore;
+        switch (getComposeScoreOperator()) {
+            case "*":
+                return esScore * extScore;
+            case "/":
+                return esScore / extScore;
+            case "+":
+                return esScore + extScore;
+            case "-":
+                return esScore - extScore;
+            default:
+                return esScore;
+        }
+
     }
 
     public int getSize() {
@@ -151,5 +169,23 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
 
     protected void extendedParseRequest(HashMap extParams) {
         
+    }
+
+    protected void validateOperator() {
+        Set<String> validOperators = new HashSet<>();
+        validOperators.add("*");
+        validOperators.add("+");
+        validOperators.add("-");
+        validOperators.add("/");
+
+        String operator = getComposeScoreOperator();
+
+        if (!validOperators.contains(operator)) {
+            throw new IllegalArgumentException("Operator \"" + operator + "\" is not valid");
+        }
+    }
+
+    protected String getComposeScoreOperator() {
+        return composeScoreOperator != null ? composeScoreOperator : DEFAULT_SCORE_OPERATOR;
     }
 }

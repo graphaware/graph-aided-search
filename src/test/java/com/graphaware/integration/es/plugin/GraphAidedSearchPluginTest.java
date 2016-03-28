@@ -397,7 +397,7 @@ public class GraphAidedSearchPluginTest {
             assertEquals(333, result.getTotal().intValue());
             List<SearchResult.Hit<JestMsgResult, Void>> hits = result.getHits(JestMsgResult.class);
             assertEquals(10, hits.size());
-            assertEquals("test 3", hits.get(0).source.getMsg());
+            assertEquals("test 339", hits.get(0).source.getMsg());
             assertEquals(result.getMaxScore(), 3.8, 0.1);
         }
 
@@ -432,7 +432,7 @@ public class GraphAidedSearchPluginTest {
             assertEquals(667, result.getTotal().intValue());
             List<SearchResult.Hit<JestMsgResult, Void>> hits = result.getHits(JestMsgResult.class);
             assertEquals(10, hits.size());
-            assertEquals("test 1", hits.get(0).source.getMsg());
+            assertEquals("test 338", hits.get(0).source.getMsg());
             assertEquals(result.getMaxScore(), 3.8, 0.1);
         }
 
@@ -489,9 +489,10 @@ public class GraphAidedSearchPluginTest {
 //                    + "   }"
 //                    + "   ,\"gas-booster\" :{"
 //                    + "          \"name\": \"GraphAidedSearchCypherBooster\","
-//                    + "          \"query\": \"MATCH (n:User)-[:LIKES]->(m) where id(n) = 2 RETURN m.objectId as id, size((m)<-[:LIKES]-()) as score\","
+//                    + "          \"query\": \"MATCH (n:User)-[:RATED]->(m) where n.id = 2 RETURN m.id as id, size((m)<-[:RATED]-()) as score\","
 //                    + "          \"scoreName\": \"score\","
-//                    + "          \"identifier\": \"id\""
+//                    + "          \"identifier\": \"id\","
+//                    + "          \"operator\": \"+\""
 //                    + "      }"
 //                    + "}";
 //
@@ -506,8 +507,8 @@ public class GraphAidedSearchPluginTest {
 //            assertEquals(1000, result.getTotal().intValue());
 //            List<SearchResult.Hit<JestMsgResult, Void>> hits = result.getHits(JestMsgResult.class);
 //            assertEquals(10, hits.size());
-//            assertEquals("test 54", hits.get(0).source.getMsg());
-//            assertEquals(result.getMaxScore(), 3.8, 0.1);
+//            assertEquals("test 260", hits.get(0).source.getMsg());
+//            assertEquals(273, result.getMaxScore(), 0.1);
 //        }
 //        
 //        {

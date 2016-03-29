@@ -29,12 +29,14 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alessandro@graphaware.com
  */
 public class GraphAidedSearchFilter extends AbstractComponent
-        implements ActionFilter
+        implements ActionFilter, Serializable
 {
   private static final String SEARCH_REQUEST_INVOKED = "filter.graphaware.neo4j.Invoked";
 
@@ -75,7 +77,6 @@ public class GraphAidedSearchFilter extends AbstractComponent
     final Boolean invoked = searchRequest.getHeader(SEARCH_REQUEST_INVOKED);
     if (invoked != null && invoked)
     {
-      @SuppressWarnings("unchecked")
       final ActionListener<SearchResponse> wrappedListener = graphAidedSearch
               .wrapActionListener(action, searchRequest, listener);
       chain.proceed(action, request,

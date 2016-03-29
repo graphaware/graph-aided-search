@@ -47,24 +47,7 @@ public class GraphAidedSearchPluginTest {
     @Before
     public void setUp() throws Exception {
         clusterName = "es-testgas-" + System.currentTimeMillis();
-        runner = new ElasticsearchClusterRunner();
-        runner.onBuild(new ElasticsearchClusterRunner.Builder() {
-            @Override
-            public void build(final int number, final Builder settingsBuilder) {
-                settingsBuilder.put("script.search", "on");
-                settingsBuilder.put("http.cors.enabled", true);
-                settingsBuilder.put("http.cors.allow-origin", "*");
-                settingsBuilder.put("index.number_of_shards", 3);
-                settingsBuilder.put("index.number_of_replicas", 0);
-                settingsBuilder.putArray("discovery.zen.ping.unicast.hosts",
-                        "localhost:9301-9310");
-                settingsBuilder.put("plugin.types",
-                        "com.graphaware.integration.es.plugin.GraphAidedSearchPlugin");
-                settingsBuilder
-                        .put("index.unassigned.node_left.delayed_timeout", "0");
-            }
-        }).build(newConfigs().numOfNode(NUMBER_OF_NODES).clusterName(clusterName));
-        runner.ensureGreen();
+
         String conn = String.format("http://%s:%s",
                 "localhost",
                 "9201");

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.graphaware.integration.es.plugin;
+package com.graphaware.integration.es.plugin.stubs;
 
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchBooster;
 import com.graphaware.integration.es.plugin.graphbooster.GraphAidedSearchResultScoreReplace;

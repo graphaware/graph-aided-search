@@ -18,7 +18,7 @@ public class JestMsgResult
   @JestId
   private String documentId;
   
-  private String msg;
+  private String message;
   
   public String getDocumentId()
   {
@@ -26,10 +26,10 @@ public class JestMsgResult
   }
   public String getMsg()
   {
-    return msg;
+    return message;
   }
-  public void setMsg(String name)
+  public void setMessage(String name)
   {
-    this.msg = name;
+    this.message = name;
   }
 }

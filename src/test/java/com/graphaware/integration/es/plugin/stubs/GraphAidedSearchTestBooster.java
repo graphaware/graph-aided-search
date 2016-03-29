@@ -11,7 +11,7 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.plugin;
+package com.graphaware.integration.es.plugin.stubs;
 
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchBooster;
 import com.graphaware.integration.es.plugin.graphbooster.GraphAidedSearchResultBooster;

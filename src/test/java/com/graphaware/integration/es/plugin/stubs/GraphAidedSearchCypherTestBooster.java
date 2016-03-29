@@ -1,4 +1,4 @@
-package com.graphaware.integration.es.plugin;
+package com.graphaware.integration.es.plugin.stubs;
 
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchBooster;
 import com.graphaware.integration.es.plugin.graphbooster.GraphAidedSearchCypherBooster;

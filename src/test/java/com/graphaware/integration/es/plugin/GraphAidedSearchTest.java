@@ -7,6 +7,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Before;
@@ -112,8 +113,12 @@ public abstract class GraphAidedSearchTest {
         assertEquals(expected, runner.client().prepareSearch(indexName).setTypes(typeName).setSize(0).get().getHits().getTotalHits());
     }
 
-    protected void refresh() {
+    protected final void refresh() {
         runner.refresh();
+    }
+
+    protected final Client client() {
+        return runner.client();
     }
 
     protected void tearDown() {

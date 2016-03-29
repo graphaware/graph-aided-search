@@ -10,6 +10,7 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.settings.Settings;
+import org.junit.After;
 import org.junit.Before;
 
 import java.io.IOException;
@@ -121,7 +122,8 @@ public abstract class GraphAidedSearchTest {
         return runner.client();
     }
 
-    protected void tearDown() {
+    @After
+    public void tearDown() {
         runner.close();
         runner.clean();
     }

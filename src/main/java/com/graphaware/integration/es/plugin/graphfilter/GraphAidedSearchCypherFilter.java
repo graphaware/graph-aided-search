@@ -29,18 +29,15 @@ import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+
+import java.io.IOException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
 
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
@@ -165,7 +162,14 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
         };
         Map<String, Object> results = response.getEntity(type);
 
+        @SuppressWarnings("unchecked")
+        ArrayList<HashMap<String, Object>> errors = (ArrayList) results.get("errors");
+        if (errors.size() > 0) {
+            throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
+        }
+
         Map res = (Map) ((ArrayList) results.get("results")).get(0);
+
         ArrayList<LinkedHashMap> rows = (ArrayList) res.get("data");
         response.close();
         Set<String> newSet = new HashSet<>();

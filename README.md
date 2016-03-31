@@ -33,9 +33,16 @@ Usage examples include boosting (i) based on interest prediction (recommendation
  
 * **_Result Filtering_**: This feature allow to filter results removing documents from the results list. In this case, providing a cypher query, it is possible to return to the user only the document which id match results from cypher query.
 
+More in details it operates in the following way:
+1. Intercepts any “search” to the elasticsearch to find query extension;
+2. Processes query extension identifying the type of the extension, if an boosting or a filter, and instantiates the related class;
+3. Performs the operation required to boost or filter connecting to the neo4j rest API (or some extension to neo4j like Graphaware Recommendation Engine)
+passing information needed, like cypher query, targe user, and so on;
+4. Replies back to the user that submit the query.
+
 ## Usage: Installation
 
-### Install Graph Aided Search 
+### Install Graph Aided Search Binary
 
     $ $ES_HOME/bin/plugin install com.graphaware/graph-aided-search/2.2.1
 
@@ -54,7 +61,7 @@ Then configure indexes with the url of the neo4j. This can be done in two way:
     $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.hostname=http://localhost:7474
     $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=true
 
-Or add it to the settings in the index template template:
+Or add it to the settings in the index template:
 
 ```
     GET  _template/template_gas
@@ -67,7 +74,6 @@ Or add it to the settings in the index template template:
     }
 ```
 
-
 ### Disable Plugin
 
 The query will continue to work with no issue, even with the "gas-boost" and "gas-filter" piece in the query. They will be removed automatically.
@@ -76,11 +82,63 @@ The query will continue to work with no issue, even with the "gas-boost" and "ga
 
 ## Usage: Search Phase
 
-The integration with already existing query is seamlessy, since it require to add some pieces to the query. 
+The integration with already existing query is seamless, since the plugin requires to add only some new pieces into the query. 
+### Booster example
+
+If you would like to search for all the Movie in the es dataset you should run a query like this:
+
+```
+  curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
+    "query" : {
+        "match_all" : {}
+    }';
+```
+In this case you'll get as score value 1 for all the results. If you would like to boost results accordingly to user interest computed by Graphaware 
+Recommendation Plugin on top of Neo4j you should change the query in the following way.
+
+
+```
+  curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
+    "query" : {
+        "match_all" : {}
+    },
+    "gas-booster" :{
+          "name": "GraphAidedSearchNeo4jBooster",
+          "recoTarget": "2",
+          "maxResultSize": 10,
+          "keyProperty": "objectId",
+          "neo4j.endpoint": "/graphaware/recommendation/movie/filter/"
+       }
+  }';
+```
+The _gas-booster_ clause identify the type of operation, in this case it is required a boost operation. 
+The _name_ parameter is mandatory and allows to specify the Booster class. The remaining parameters depends on the type of booster.
+In the following paragraph the available boosters are described.
+
+#### GraphAidedSearchNeo4jBooster
+
+
+dsada
+
+#### GraphAidedSearchCypherBooster
+
+dsada
+
+
+
+Filter Example...
+
+
+The _gas-filter_ clause identify the type of operation, in this case it is required a filter operation.
+
+The following Filter classes are alrea
+
 
 
 
 ## Customize the plugin
+
+The plugin allows to implement custom booster and custom filter. In order to implements 
 
 ## Version Matrix
 
@@ -88,8 +146,10 @@ The following version are currently supported
 
 | Version   | Elasticsearch |
 |:---------:|:-------------:|
-| master    | 2.2.X         |
+| master    | 2.3.x         |
 | 2.2.1.x   | 2.2.1         |
+| 2.2.0.x   | 2.2.0         |
+| 2.1.1.x   | 2.1.1         |
 
 ### Issues/Questions
 

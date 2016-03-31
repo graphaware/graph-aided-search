@@ -176,6 +176,37 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
     }
 
     @Test
+    public void testCypherFilterWithInvalidSyntax() throws IOException {
+        String query = "{"
+                + "   \"query\": {"
+                + "      \"bool\": {"
+                + "         \"should\": ["
+                + "            {"
+                + "                  \"match\": {"
+                + "                       \"message\": \"test 1\""
+                + "                   }"
+                + "            }"
+                + "         ]"
+                + "      }"
+                + "   }"
+                + "   ,\"gas-filter\" :{"
+                + "          \"name\": \"GraphAidedSearchCypherFilter\","
+                + "          \"exclude\": false," +
+                "            \"query\": \"MATCH (n) RETURN (x)\""
+                + "      }"
+                + "}";
+
+        Search search = new Search.Builder(query)
+                // multiple index or types can be added.
+                .addIndex(INDEX_NAME)
+                .addType(TYPE_NAME)
+                .build();
+
+        SearchResult result = jestClient.execute(search);
+        assertTrue(result.getErrorMessage().contains("Cypher Execution Error"));
+    }
+
+    @Test
     public void testCypherFilterQueryWithExcludeTrue() throws IOException {
         String query = "{"
                 + "   \"query\": {"

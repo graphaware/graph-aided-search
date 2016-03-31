@@ -137,17 +137,19 @@ It is added to the neo4j host value defined for the index.
 It passes information about the list of the ids that should be boosted as well as thetarget 
 The REST API should expose a POST endpoint that admit the following parameters: 
 
-* **target** (url parameter): This is the value of recoTarget defined before and it is used to identify 
-* **limit**:
-* **from**: 
-* **keyProperty**:
-* **ids**:
+* **target** (url parameter): This is the value of recoTarget defined before and it is used to identify the user or item for which the score will be computed from the recommender;
+* **limit**: This value can be used to limit the number of results provided be the REST API;
+* **from**: In order to support pagination this value allow to avoid send back again the first results in the list;
+* **keyProperty**: Specify the property on the nodes used to identify the nodes. Such property will be used to filter the results, accordingly to the lists of "ids";
+* **ids**: This comma separated list of identifier of the nodes that must be evaluated and then returned;
 
 This is an example of the call:
 
+```
 http://localhost:7474/graphaware/recommendation/movie/filter/2
-limit=2147483647&keyProperty=objectId&ids=99,166,486,478,270,172,73,84,351,120
 
+limit=2147483647&from=0&keyProperty=objectId&ids=99,166,486,478,270,172,73,84,351,120
+```
 And return a json with the following strcuture.
 
 ```

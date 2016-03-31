@@ -122,25 +122,26 @@ This booster connects to a neo4j instance using some REST API available as plugi
 
 This is the list of the parameters available for this booster:
 
-* recoTarget: (mandatory) This parameter contains the identifier of the target for which the boosting values are computed. 
+* **recoTarget**: (mandatory) This parameter contains the identifier of the target for which the boosting values are computed. 
 Since the boosting is customized accordingly to a target, this parameter is mandatory and allow to get different results for different target.
-* maxResultSize: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window) 
+* **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window) 
 When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed accordingly to this parameter.
 This is necessary since once the bosting function is applied the order may change so that some of the results that fall out of size may be boosted and fall in the "size" window.
-* keyProperty: (Default value is uuid) the id of each document in the search results must match some property value of the nodes in the graph. 
+* **keyProperty**: (Default value is uuid) the id of each document in the search results must match some property value of the nodes in the graph. 
 In order to avoid ambiguities in the results this property must identify a single node, for this reason is defined as key property.
-* operator: (Default is multiply [*]) It specifies how to compose elasticsearch score with neo4j provided score. 
+* **operator**: (Default is multiply [*]) It specifies how to compose elasticsearch score with neo4j provided score. 
 Available operators are: * (multiply), + (sum), - (substract), / (divide), replace (replace score). 
-* neo4j.endpoint:
+* **neo4j.endpoint**: (Default /graphaware/recommendation/filter) It defines the endpoint to which submit the request to get the new boosting. 
+It is added to the neo4j host value defined for the index.
 
 It passes information about the list of the ids that should be boosted as well as thetarget 
 The REST API should expose a POST endpoint that admit the following parameters: 
 
-* target (url parameter): 
-* limit:
-* from: 
-* keyProperty:
-* ids:
+* **target** (url parameter): This is the value of recoTarget defined before and it is used to identify 
+* **limit**:
+* **from**: 
+* **keyProperty**:
+* **ids**:
 
 This is an example of the call:
 

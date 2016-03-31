@@ -72,7 +72,7 @@ public class GraphAidedSearchNeo4jBooster extends GraphAidedSearchResultBooster 
         WebResource resource = Client.create(cfg).resource(recommendationEndopint);
         ClientResponse response = resource
                 .accept(MediaType.APPLICATION_JSON)
-                .get(ClientResponse.class);
+                .post(ClientResponse.class);
         GenericType<List<Neo4JFilterResult>> type = new GenericType<List<Neo4JFilterResult>>() {
         };
         List<Neo4JFilterResult> res = response.getEntity(type);

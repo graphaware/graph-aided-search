@@ -1,70 +1,71 @@
-GraphAware Neo4j Elasticsearch Integration (ES Module)
-======================================================
+# GraphAware GraphAidedSearch
+
+## ElasticSearch Plugin providing integration with Neo4j
 
 [![Build Status](https://magnum.travis-ci.com/graphaware/elasticsearch-to-neo4j.svg?token=tFjWxABA1S1VaGsxdhvX)](https://magnum.travis-ci.org/graphaware/elasticsearch-to-neo4j) | Latest Release: none yet!
 
-GraphAware Elasticsearch Integration is an enterprise-grade bi-directional integration between Neo4j and Elasticsearch.
-It consists of two independent modules plus a test suite. Both modules can be used independently or together to achieve
-full integration.
+GraphAware GraphAidedSearch is an enterprise-grade bi-directional integration between Neo4j and Elasticsearch. It consists of two independent modules plus a test suite.
+Both modules can be used independently or together to achieve full integration.
 
-The [first module](https://github.com/graphaware/neo4j-to-elasticsearch) is a plugin to Neo4j (more precisely, a [GraphAware Transaction-Driven Runtime Module](https://github.com/graphaware/neo4j-framework/tree/master/runtime#graphaware-runtime)),
-which can be configured to transparently and asynchronously replicate data from Neo4j to Elasticsearch. This module is now
-production-ready and officially supported by GraphAware for  <a href="http://graphaware.com/enterprise/" target="_blank">GraphAware Enterprise</a> subscribers.
+The [first module](https://github.com/graphaware/neo4j-to-elasticsearch) is a plugin for Neo4j (more precisely, a [GraphAware Transaction-Driven Runtime Module](https://github.com/graphaware/neo4j-framework/tree/master/runtime#graphaware-runtime)),
+which can be configured to transparently and asynchronously replicate data from Neo4j to ElasticSearch.
 
-The second module(this module) is a plugin to Elasticsearch that can consult the Neo4j database during an Elasticsearch query to enrich
-the result (boost the score) by results that are more efficiently calculated in a graph database, e.g. recommendations.
-This module is in active alpha development and isn't yet officially supported. We expect it to be production-ready by
-the end of 2015.
+This module is now production-ready and officially supported by GraphAware for  <a href="http://graphaware.com/enterprise/" target="_blank">GraphAware Enterprise</a> subscribers.
 
-# Elasticsearch -> Neo4j
+The second module (this module) is a plugin for ElasticSearch that can query the Neo4j graph database during search query to enrich the result (boost the score) by results that are more efficiently calculated in a graph database, e.g. recommendations.
 
 ## Feature Overview: Graph Aided Search
 
-This module is a plugin for Elasticsearch that allow to improve the search result boosting or filtering them using data stored in the neo4j graph database. 
-After performing the search on Elasticsearch, and just before returing results to the user, this plugin is able to submit some requests 
-to the graph database through the REST api to get information needed to boost or filter the results and then get back the results to the user.
+This module is a plugin for Elasticsearch that allow to improve the search result boosting or filtering them using data stored in the Neo4j graph database.
+After performing the search in Elasticsearch, and just before returning results to the user, this plugin is able to request Neo4j through the REST api to retrieve information needed to boost or filter the results
+and then return the results back to the user.
 
 Two main features are exposed by the plugin: 
 
-* **_Result Boosting_**: This feature allow to change the score value of the results. The score can be changed in different ways, 
-mixing graph score with elasticsearch score or replacing it entirely are just two examples. 
+* **_Result Boosting_**: This feature allow to change the score value of the results. The score can be changed in different ways, mixing graph score with Elasticsearch score or replacing it entirely are just two examples.
 It is possible to customize this behaviour with different formulas, rewriting some methods of the Graph Aided Search Booster. 
-Usage examples include boosting (i) based on interest prediction (recommendations), (ii) based on friends interests/likes, (iii) whichever queries on neo4j
+Usage examples include boosting (i) based on interest prediction (recommendations), (ii) based on friends interests/likes, (iii) all use cases that can be solved by Neo4j
  
 * **_Result Filtering_**: This feature allow to filter results removing documents from the results list. In this case, providing a cypher query, it is possible to return to the user only the document which id match results from cypher query.
 
-More in details it operates in the following way:
+Detailed workflow :
 
-1. Intercepts any “search” to the elasticsearch to find query extension;
-2. Processes query extension identifying the type of the extension, if an boosting or a filter, and instantiates the related class;
-3. Performs the operation required to boost or filter connecting to the neo4j rest API (or some extension to neo4j like Graphaware Recommendation Engine)
-passing information needed, like cypher query, targe user, and so on;
-4. Replies back to the user that submit the query.
+1. Intercepts and parses any "Search query" and tries to find the `GraphAidedSearch` extension parameter;
+2. Process the query extension identifying the type of the extension (boosting or a filter), and instantiates the related class;
+3. Performs the operation required to boost or filter by connecting to the Neo4j Rest API (or some Neo4j extension like the popular [Graphaware Recommendation Engine Module](https://github.com/graphaware/neo4j-reco) passing information needed,
+like cypher query, target user, etc...;
+4. Returns the filtered/boosted result set back to the user;
 
 ## Usage: Installation
 
-### Install Graph Aided Search Binary
+### Install GraphAidedSearch Binary
 
-    $ $ES_HOME/bin/plugin install com.graphaware/graph-aided-search/2.2.1
+```bash
+$ $ES_HOME/bin/plugin install com.graphaware/graph-aided-search/2.2.1
+```
 
 ### Build from source
 
-    $ git clone git@github.com:graphaware/elasticsearch-to-neo4j.git
-    $ mvn clean deploy
-    $ $ES_HOME/bin/plugin install file:///path/to/project/elasticsearch-to-neo4j/target/releases/elasticsearch-to-neo4j-2.2.1.zip
+```bash
+$ git clone git@github.com:graphaware/elasticsearch-to-neo4j.git
+$ mvn clean deploy
+$ $ES_HOME/bin/plugin install file:///path/to/project/elasticsearch-to-neo4j/target/releases/elasticsearch-to-neo4j-2.2.1.zip
+```
     
 Start elasticsearch
 
 ### Configuration
 
-Then configure indexes with the url of the neo4j. This can be done in two way:
+Then configure indexes with the url of Neo4j. This can be done in two way:
 
-    $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.hostname=http://localhost:7474
-    $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=true
+```bash
+$ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.hostname=http://localhost:7474
+$ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=true
+```
 
 Or add it to the settings in the index template:
 
-```
+```json
     POST _template/template_gas
     {
       "template": "*",
@@ -79,7 +80,9 @@ Or add it to the settings in the index template:
 
 The query will continue to work with no issue, even with the "gas-boost" and "gas-filter" piece in the query. They will be removed automatically.
 
-    $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=false
+```bash
+$ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=false
+```
 
 ## Usage: Search Phase
 
@@ -87,20 +90,20 @@ The integration with already existing query is seamless, since the plugin requir
 
 ### Booster example
 
-Boosters allow to change the score accordingly to external score sources that could be a recommender, or a generic cypher query on graph database, 
-or whatever custom booster provider.
-The most simple query on elasticsearch could have the following structure:
+Boosters allow to change the score accordingly to external score sources that could be a `recommender`, a Cypher query or any custom booster provider.
+A simple query for Elasticsearch could have the following structure:
 
-```
+```bash
   curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
     "query" : {
         "match_all" : {}
     }';
 ```
-In this case you'll get as score value 1 for all the results. If you would like to boost results accordingly to user interest computed by Graphaware 
-Recommendation Plugin on top of Neo4j you should change the query in the following way.
 
-```
+In this case all the Elasticsearch results hits will have a relevancy score value of `1`. If you would like to boost these results accordingly to user interest computed by Graphaware Recommendation Plugin on top of
+Neo4j you should change the query in the following way.
+
+```bash
   curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
     "query" : {
         "match_all" : {}
@@ -114,7 +117,7 @@ Recommendation Plugin on top of Neo4j you should change the query in the followi
        }
   }';
 ```
-The **_gas-booster_** clause identify the type of operation, in this case it is required a boost operation. 
+The **_gas-booster_** clause identify the type of operation, in this case it defines a boost operation.
 The **_name_** parameter is mandatory and allows to specify the Booster class. The remaining parameters depends on the type of booster.
 In the following paragraph the available boosters are described.
 
@@ -156,27 +159,27 @@ limit=2147483647&from=0&keyProperty=objectId&ids=99,166,486,478,270,172,73,84,35
 ```
 This component supposes that the results is a json array with the following structure.
 
-```
+```json
 [
   {
-    nodeId: 1212,
-    objectId: "270",
-    score: 3
+    "nodeId": 1212,
+    "objectId": "270",
+    "score": 3
   },
   {
-    nodeId: 1041,
-    objectId: "99",
-    score: 1
+    "nodeId": 1041,
+    "objectId": "99",
+    "score": 1
   },
   {
-    nodeId: 1420,
-    objectId: "478",
-    score: 1
+    "nodeId": 1420,
+    "objectId": "478",
+    "score": 1
   },
   {
-    nodeId: 1428,
-    objectId: "486",
-    score: 1
+    "nodeId": 1428,
+    "objectId": "486",
+    "score": 1
   }
 ]
 ```
@@ -194,8 +197,10 @@ This is the list of the parameters available for this booster:
 * **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window) 
 When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed accordingly to this parameter.
 This is necessary since once the bosting function is applied the order may change so that some of the results that fall out of size may be boosted and fall in the "size" window.
-* **operator**: (Default is multiply [*]) It specifies how to compose elasticsearch score with neo4j provided score. 
-Available operators are: * (multiply), + (sum), - (substract), / (divide), replace (replace score). 
+* **operator**: (Default is multiply `*`) It specifies how to compose elasticsearch score with neo4j provided score.
+Available operators are: `*` (multiply), `+` (sum), `-` (substract), `/` (divide), `replace` (replace score).
+
+The Elasticsearch result hits ids are passed as Cypher query parameter as a `List` of strings named `items`.
 
 This is an example of the usage of this booster:
 

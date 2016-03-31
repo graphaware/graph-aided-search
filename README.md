@@ -84,6 +84,7 @@ The query will continue to work with no issue, even with the "gas-boost" and "ga
 ## Usage: Search Phase
 
 The integration with already existing query is seamless, since the plugin requires to add only some new pieces into the query. 
+
 ### Booster example
 
 If you would like to search for all the Movie in the es dataset you should run a query like this:
@@ -96,7 +97,6 @@ If you would like to search for all the Movie in the es dataset you should run a
 ```
 In this case you'll get as score value 1 for all the results. If you would like to boost results accordingly to user interest computed by Graphaware 
 Recommendation Plugin on top of Neo4j you should change the query in the following way.
-
 
 ```
   curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
@@ -118,8 +118,52 @@ In the following paragraph the available boosters are described.
 
 #### GraphAidedSearchNeo4jBooster
 
+This booster connects to a neo4j instance using some REST API available as plugin for the database. 
 
-dsada
+This is the list of the parameters available for this booster:
+
+* asda
+* asdasd
+* dasda
+
+It passes information about the list of the ids that should be boosted as well as thetarget 
+The REST API should expose a POST endpoint that admit the following parameters: 
+
+* target (url parameter): 
+* limit:
+* keyProperty:
+* ids:
+
+This is an example of the call
+http://localhost:7474/graphaware/recommendation/movie/filter/2
+limit=2147483647&keyProperty=objectId&ids=99,166,486,478,270,172,73,84,351,120
+
+And return a json with the following strcuture.
+
+```
+[
+  {
+    nodeId: 1212,
+    objectId: "270",
+    score: 3
+  },
+  {
+    nodeId: 1041,
+    objectId: "99",
+    score: 1
+  },
+  {
+    nodeId: 1420,
+    objectId: "478",
+    score: 1
+  },
+  {
+    nodeId: 1428,
+    objectId: "486",
+    score: 1
+  }
+]
+```
 
 #### GraphAidedSearchCypherBooster
 
@@ -127,19 +171,18 @@ dsada
 
 
 
-Filter Example...
+### Filter example
 
 
 The _gas-filter_ clause identify the type of operation, in this case it is required a filter operation.
 
 The following Filter classes are alrea
 
-
-
-
 ## Customize the plugin
 
-The plugin allows to implement custom booster and custom filter. In order to implements 
+The plugin allows to implement custom booster and custom filter. In order to implements ...
+
+Here an example
 
 ## Version Matrix
 

@@ -103,6 +103,7 @@ A simple query for Elasticsearch could have the following structure:
 In this case all the Elasticsearch results hits will have a relevancy score value of `1`. If you would like to boost these results accordingly to user interest computed by Graphaware Recommendation Plugin on top of
 Neo4j you should change the query in the following way.
 
+
 ```bash
   curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
     "query" : {

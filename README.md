@@ -197,8 +197,10 @@ This is the list of the parameters available for this booster:
 * **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window) 
 When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed accordingly to this parameter.
 This is necessary since once the bosting function is applied the order may change so that some of the results that fall out of size may be boosted and fall in the "size" window.
-* **operator**: (Default is multiply [*]) It specifies how to compose elasticsearch score with neo4j provided score. 
-Available operators are: * (multiply), + (sum), - (substract), / (divide), replace (replace score). 
+* **operator**: (Default is multiply `*`) It specifies how to compose elasticsearch score with neo4j provided score.
+Available operators are: `*` (multiply), `+` (sum), `-` (substract), `/` (divide), `replace` (replace score).
+
+The Elasticsearch result hits ids are passed as Cypher query parameter as a `List` of strings named `items`.
 
 This is an example of the usage of this booster:
 

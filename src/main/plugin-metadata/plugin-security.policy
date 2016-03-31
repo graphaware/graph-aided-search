@@ -1,0 +1,8 @@
+grant {
+  permission org.elasticsearch.script.ClassPermission "java.lang.*"; // allow class`
+  permission "java.lang.RuntimePermission" "createClassLoader";
+  permission "java.lang.RuntimePermission" "getClassLoader";
+  permission "java.lang.RuntimePermission" "accessDeclaredMembers";
+  permission "java.lang.RuntimePermission" "accessClassInPackage.sun.reflect";
+  permission "java.lang.RuntimePermission" "closeClassLoader";
+};

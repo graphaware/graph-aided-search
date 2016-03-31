@@ -30,20 +30,37 @@ public class GraphBoosterTest {
 
     @Test
     public void testComposerScoreOperatorCanBeCustomized() throws Exception{
-        HashMap<String, Object> sourceMap = new HashMap<>();
-        HashMap<String, Object> externalParameters = new HashMap<>();
-        externalParameters.put("operator", "+");
-        sourceMap.put("gas-booster", externalParameters);
-        booster.parseRequest(sourceMap);
+
+        booster.parseRequest(getBoosterSourceMap("+"));
         assertEquals("+", booster.getComposeScoreOperator());
 
-        externalParameters.put("operator", "-");
-        sourceMap.put("gas-booster", externalParameters);
-        booster.parseRequest(sourceMap);
+        booster.parseRequest(getBoosterSourceMap("-"));
         assertEquals("-", booster.getComposeScoreOperator());
 
-        externalParameters.put("operator", "/");
+        booster.parseRequest(getBoosterSourceMap("/"));
+        assertEquals("/", booster.getComposeScoreOperator());
+
+        booster.parseRequest(getBoosterSourceMap("*"));
+        assertEquals("*", booster.getComposeScoreOperator());
+
+        booster.parseRequest(getBoosterSourceMap("replace"));
+        assertEquals("replace", booster.getComposeScoreOperator());
+
+        try {
+            booster.parseRequest(getBoosterSourceMap("_"));
+            assertTrue(false); // exception should be thrown
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("Operator"));
+        }
 
     }
 
+    private HashMap<String, Object> getBoosterSourceMap(String operator) {
+        HashMap<String, Object> sourceMap = new HashMap<>();
+        HashMap<String, Object> externalParameters = new HashMap<>();
+        externalParameters.put("operator", operator);
+        sourceMap.put("gas-booster", externalParameters);
+
+        return sourceMap;
+    }
 }

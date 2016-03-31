@@ -129,6 +129,8 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
                 return esScore + extScore;
             case "-":
                 return esScore - extScore;
+            case "replace":
+                return extScore;
             default:
                 return esScore;
         }
@@ -175,6 +177,7 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
         validOperators.add("+");
         validOperators.add("-");
         validOperators.add("/");
+        validOperators.add("replace");
 
         String operator = getComposeScoreOperator();
 

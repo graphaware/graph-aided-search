@@ -1,13 +1,10 @@
 package com.graphaware.integration.es.plugin;
 
-import com.graphaware.integration.es.plugin.graphbooster.GraphAidedSearchCypherBooster;
 import com.graphaware.integration.es.plugin.query.GASIndexInfo;
-import com.graphaware.integration.es.plugin.query.GASIndexInfoTest;
 import com.graphaware.integration.es.plugin.query.GraphAidedSearch;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
@@ -289,6 +286,48 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         assertEquals("test 99", hits.get(0).source.getMsg());
         assertEquals(7121, result.getMaxScore(), 1.0);
         assertTrue(withoutBoosterMaxScore < result.getMaxScore());
+    }
+
+    @Test
+    public void testCypherBoosterWithReplace() throws IOException {
+        String query = "{"
+                + "   \"query\": {"
+                + "      \"bool\": {"
+                + "         \"should\": ["
+                + "            {"
+                + "                  \"match\": {"
+                + "                       \"message\": \"test 1\""
+                + "                   }"
+                + "            }"
+                + "         ]"
+                + "      }"
+                + "   }"
+                + "   ,\"gas-booster\" :{"
+                + "          \"name\": \"GraphAidedSearchCypherTestBooster\","
+                + "          \"query\": \"MATCH (n:User)-[:RATED]->(m) where n.id = 2 RETURN m.id as id, size((m)<-[:RATED]-()) as score\","
+                + "          \"scoreName\": \"score\","
+                + "          \"identifier\": \"id\"," +
+                "            \"operator\": \"replace\""
+                + "      }"
+                + "}";
+
+        Search search = new Search.Builder(query)
+                // multiple index or types can be added.
+                .addIndex(INDEX_NAME)
+                .addType(TYPE_NAME)
+                .build();
+
+        SearchResult result = jestClient.execute(search);
+
+        assertEquals(100, result.getTotal().intValue());
+        List<SearchResult.Hit<JestMsgResult, Void>> hits = getHitsForResult(result);
+        float withoutBoosterMaxScore = getResultForDocWithMessage("test1").getMaxScore();
+
+        assertEquals(10, hits.size());
+        for (SearchResult.Hit<JestMsgResult, Void> hit : hits) {
+            float hitId = Float.valueOf(hit.source.getDocumentId());
+            assertEquals((hitId * 1000f), hit.score, 0.1);
+        }
     }
 
     @Test

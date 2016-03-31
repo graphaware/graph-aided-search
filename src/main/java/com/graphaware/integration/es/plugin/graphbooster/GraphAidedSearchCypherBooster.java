@@ -65,16 +65,13 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
             stringBuilder.append("{\"statements\" : [");
             for (String statement : cypherStatements) {
                 stringBuilder.append("{\"statement\" : \"").append(statement).append("\"").append(",");
-                stringBuilder.append("\"parameters\":").append("{\"items\":").append(ObjectMapper.class.newInstance().writeValueAsString(resultKeySet)).append("}").append("}");
+                stringBuilder.append("\"parameters\":").append("{\"ids\":").append(ObjectMapper.class.newInstance().writeValueAsString(resultKeySet)).append("}").append("}");
             }
-            //stringBuilder.deleteCharAt(stringBuilder.length() - 1);
 
             stringBuilder.append("]}");
         } catch (Exception e) {
             throw new RuntimeException("Unable to build the Cypher query : " + e.getMessage());
         }
-
-        System.out.println(stringBuilder.toString());
 
         while (serverUrl.endsWith("/")) {
             serverUrl = serverUrl.substring(0, serverUrl.length() - 1);

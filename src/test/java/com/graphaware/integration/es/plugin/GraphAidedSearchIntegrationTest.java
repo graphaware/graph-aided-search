@@ -413,10 +413,10 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
                 + "   }"
                 + "   ,\"gas-booster\" :{"
                 + "          \"name\": \"GraphAidedSearchCypherBooster\","
-                + "          \"query\": \"MATCH (n:User) WHERE n.id = 2 UNWIND {items} as itemId MATCH (item:Movie) WHERE item.id = toInt(itemId) OPTIONAL MATCH p=shortestPath((n)-[r*..20]-(item)) RETURN itemId as id, length(p) as score\","
+                + "          \"query\": \"MATCH (n:User) WHERE n.id = 2 UNWIND {ids} as itemId MATCH (item:Movie) WHERE item.id = toInt(itemId) OPTIONAL MATCH p=shortestPath((n)-[r*..20]-(item)) RETURN itemId as id, (length(p)/10f) as score\","
                 + "          \"scoreName\": \"score\","
                 + "          \"identifier\": \"id\"," +
-                "            \"operator\": \"-\""
+                "            \"operator\": \"replace\""
                 + "      }"
                 + "}";
 
@@ -434,7 +434,7 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
 
         assertEquals(10, hits.size());
         assertEquals("test 1", hits.get(0).source.getMsg());
-        assertEquals(1.58, result.getMaxScore(), 1.0);
+        assertEquals(-1.0, result.getMaxScore(), 1.0);
         assertTrue(withoutBoosterMaxScore > result.getMaxScore());
     }
 

@@ -22,11 +22,13 @@ import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -52,19 +54,22 @@ public class GraphAidedSearchNeo4jBooster extends GraphAidedSearchResultBooster 
         logger.warn("Query cypher for: " + keySet);
 
         String recommendationEndopint = getRestURL()
-                + getTargetId()
-                + "?limit=" + Integer.MAX_VALUE
-                + "&from=" + getFrom()
-                + "&keyProperty=" + getKeyProperty()
-                + "&ids=";
+                + getTargetId();
+        
         boolean isFirst = true;
+        String ids = "";
         for (String id : keySet) {
             if (!isFirst) {
-                recommendationEndopint = recommendationEndopint.concat(",");
+                ids = ids.concat(",");
             }
             isFirst = false;
-            recommendationEndopint = recommendationEndopint.concat(id);
+            ids = ids.concat(id);
         }
+        MultivaluedMap param = new MultivaluedMapImpl();
+        param.add("limit", Integer.MAX_VALUE);
+        param.add("from", getFrom());
+        param.add("keyProperty", getKeyProperty());
+        param.add("ids", ids);
         logger.warn("Call: " + recommendationEndopint);
 
         ClientConfig cfg = new DefaultClientConfig();
@@ -72,7 +77,7 @@ public class GraphAidedSearchNeo4jBooster extends GraphAidedSearchResultBooster 
         WebResource resource = Client.create(cfg).resource(recommendationEndopint);
         ClientResponse response = resource
                 .accept(MediaType.APPLICATION_JSON)
-                .post(ClientResponse.class);
+                .post(ClientResponse.class, param);
         GenericType<List<Neo4JFilterResult>> type = new GenericType<List<Neo4JFilterResult>>() {
         };
         List<Neo4JFilterResult> res = response.getEntity(type);

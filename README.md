@@ -190,7 +190,37 @@ This is the list of the parameters available for this booster:
 
 * **query**: (Mandatory) This parameter contains the query to submit to the neo4j instance. 
 * **scoreName**: (Default value is "score") The name of the returned value that is used as scoring function
-* **identifier**: (Default value is "id") 
+* **identifier**: (Default value is "id") The name of the returned value that is used as id matching
+* **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window) 
+When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed accordingly to this parameter.
+This is necessary since once the bosting function is applied the order may change so that some of the results that fall out of size may be boosted and fall in the "size" window.
+* **operator**: (Default is multiply [*]) It specifies how to compose elasticsearch score with neo4j provided score. 
+Available operators are: * (multiply), + (sum), - (substract), / (divide), replace (replace score). 
+
+This is an example of the usage of this booster:
+
+```
+  curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
+    "query" : {
+        "match_all" : {}
+    },
+    "gas-booster" :{
+          "name": "GraphAidedSearchCypherBooster",
+          "cypher": "MATCH (input:User) WHERE id(input) = {id}
+                    MATCH p=(input)-[r:RATED]->(movie)<-[r2:RATED]-(other)
+                    WITH other, collect(p) as paths
+                    WITH other, reduce(x=0, p in paths | x + reduce(i=0, r in rels(p) | i+r.rating)) as score
+                    WITH other, score
+                    ORDER BY score DESC
+                    MATCH (other)-[:RATED]->(reco)
+                    RETURN reco.objectId as id, score
+                    LIMIT 500",
+          "maxResultSize": 1000,
+          "scoreName": "score",
+          "identifier": "id"
+       }
+  }';
+```
 
 ### Filter example
 

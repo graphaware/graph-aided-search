@@ -87,7 +87,9 @@ The integration with already existing query is seamless, since the plugin requir
 
 ### Booster example
 
-If you would like to search for all the Movie in the es dataset you should run a query like this:
+As stated before booster allow to change the score accordingly to external score sources that could be a recommender, or a generic cypher query on graph database, 
+or whatever custom booster provider.
+The most simple query on elasticsearch could have the following structure:
 
 ```
   curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
@@ -118,11 +120,12 @@ In the following paragraph the available boosters are described.
 
 #### GraphAidedSearchNeo4jBooster
 
-This booster connects to a neo4j instance using some REST API available as plugin for the database. 
+This booster uses neo4j throught some custom REST API available as plugin for the database. 
+In this case the _name_ value must be set to: GraphAidedSearchNeo4jBooster.
 
 This is the list of the parameters available for this booster:
 
-* **recoTarget**: (mandatory) This parameter contains the identifier of the target for which the boosting values are computed. 
+* **recoTarget**: (Mandatory) This parameter contains the identifier of the target for which the boosting values are computed. 
 Since the boosting is customized accordingly to a target, this parameter is mandatory and allow to get different results for different target.
 * **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window) 
 When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed accordingly to this parameter.
@@ -148,9 +151,10 @@ This is an example of the call:
 ```
 http://localhost:7474/graphaware/recommendation/movie/filter/2
 
+Parameters:
 limit=2147483647&from=0&keyProperty=objectId&ids=99,166,486,478,270,172,73,84,351,120
 ```
-And return a json with the following strcuture.
+This component supposes that the results is a json array with the following structure.
 
 ```
 [
@@ -179,16 +183,24 @@ And return a json with the following strcuture.
 
 #### GraphAidedSearchCypherBooster
 
-dsada
+This booster uses neo4j throught some REST API available as plugin for the database. 
+In this case the _name_ value must be set to: GraphAidedSearchCypherBooster.
 
+This is the list of the parameters available for this booster:
 
+* **query**: (Mandatory) This parameter contains the query to submit to the neo4j instance. 
+* **scoreName**: (Default value is "score") The name of the returned value that is used as scoring function
+* **identifier**: (Default value is "id") 
 
 ### Filter example
-
 
 The _gas-filter_ clause identify the type of operation, in this case it is required a filter operation.
 
 The following Filter classes are alrea
+
+#### GraphAidedSearchCypherFilter
+
+This booster uses neo4j submitting cypher query through REST API. 
 
 ## Customize the plugin
 

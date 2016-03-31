@@ -29,15 +29,13 @@ import org.elasticsearch.search.internal.InternalSearchHits;
  */
 public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearchResultBooster {
 
-    private final static String DEFAULT_KEY_PROPERTY = "uuid";
     private final String neo4jHost;
     private final int maxResultWindow;
 
+    private int maxResultSize = -1;
+
     private int size;
     private int from;
-    private String targetId;
-    private int maxResultSize = -1;
-    private String keyProperty;
 
     protected String composeScoreOperator;
 
@@ -48,15 +46,13 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
         this.maxResultWindow = indexSettings.getMaxResultWindow();
     }
 
-    public final void parseRequest(Map<String, Object> sourceAsMap) throws Exception{
+    public final void parseRequest(Map<String, Object> sourceAsMap) throws Exception {
         size = GASUtil.getInt(sourceAsMap.get("size"), 10);
         from = GASUtil.getInt(sourceAsMap.get("from"), 0);
 
         HashMap extParams = (HashMap) sourceAsMap.get(GraphAidedSearch.GAS_BOOSTER_CLAUSE);
         if (extParams != null) {
-            targetId = (String) extParams.get("recoTarget");
             maxResultSize = GASUtil.getInt(extParams.get("maxResultSize"), maxResultWindow);
-            keyProperty = (String) (extParams.get("keyProperty") != null ? extParams.get("keyProperty") : DEFAULT_KEY_PROPERTY);
             composeScoreOperator = extParams.get("operator") != null ? (String) extParams.get("operator") : DEFAULT_SCORE_OPERATOR;
             extendedParseRequest(extParams);
             validateOperator();
@@ -159,16 +155,9 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
         return maxResultWindow;
     }
 
-    protected String getTargetId() {
-        return targetId;
-    }
-
-    public String getKeyProperty() {
-        return keyProperty;
-    }
 
     protected void extendedParseRequest(HashMap extParams) {
-        
+
     }
 
     protected void validateOperator() {

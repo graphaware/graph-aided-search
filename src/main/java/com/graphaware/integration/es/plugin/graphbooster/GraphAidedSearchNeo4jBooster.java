@@ -16,6 +16,7 @@ package com.graphaware.integration.es.plugin.graphbooster;
 import com.graphaware.integration.es.plugin.GraphAidedSearchPlugin;
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchBooster;
 import com.graphaware.integration.es.plugin.query.GASIndexInfo;
+import com.graphaware.integration.es.plugin.util.GASUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -41,8 +42,11 @@ import org.elasticsearch.common.settings.Settings;
 @GraphAidedSearchBooster(name = "GraphAidedSearchNeo4jBooster")
 public class GraphAidedSearchNeo4jBooster extends GraphAidedSearchResultBooster {
 
+    private final static String DEFAULT_KEY_PROPERTY = "uuid";
     private String restEndpoint = null;
-    private ESLogger logger;
+    private final ESLogger logger;
+    private String targetId;
+    private String keyProperty;
 
     public GraphAidedSearchNeo4jBooster(Settings settings, GASIndexInfo indexSettings) {
         super(settings, indexSettings);
@@ -55,7 +59,7 @@ public class GraphAidedSearchNeo4jBooster extends GraphAidedSearchResultBooster 
 
         String recommendationEndopint = getRestURL()
                 + getTargetId();
-        
+
         boolean isFirst = true;
         String ids = "";
         for (String id : keySet) {
@@ -91,10 +95,12 @@ public class GraphAidedSearchNeo4jBooster extends GraphAidedSearchResultBooster 
 
         return results;
     }
-    
+
     @Override
     protected void extendedParseRequest(HashMap extParams) {
-        restEndpoint = (String)(extParams.get("neo4j.endpoint"));
+        targetId = (String) extParams.get("recoTarget");
+        keyProperty = (String) (extParams.get("keyProperty") != null ? extParams.get("keyProperty") : DEFAULT_KEY_PROPERTY);
+        restEndpoint = (String) (extParams.get("neo4j.endpoint"));
     }
 
     private String getRestURL() {
@@ -105,6 +111,14 @@ public class GraphAidedSearchNeo4jBooster extends GraphAidedSearchResultBooster 
             endpoint += "/graphaware/recommendation/filter";
         }
         return endpoint;
+    }
+    
+    protected String getTargetId() {
+        return targetId;
+    }
+
+    public String getKeyProperty() {
+        return keyProperty;
     }
 
 }

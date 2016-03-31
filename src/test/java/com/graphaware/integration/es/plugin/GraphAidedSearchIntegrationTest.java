@@ -9,6 +9,7 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -155,7 +156,8 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
                 + "      }"
                 + "   }"
                 + "   ,\"gas-filter\" :{"
-                + "          \"name\": \"GraphAidedSearchCypherTestFilter\","
+                + "          \"name\": \"GraphAidedSearchCypherTestFilter\"," +
+                "            \"query\": \"MATCH (n) RETURN n\","
                 + "          \"exclude\": false"
                 + "      }"
                 + "}";
@@ -221,7 +223,8 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
                 + "      }"
                 + "   }"
                 + "   ,\"gas-filter\" :{"
-                + "          \"name\": \"GraphAidedSearchCypherTestFilter\","
+                + "          \"name\": \"GraphAidedSearchCypherTestFilter\"," +
+                "            \"query\": \"MATCH (n) RETURN n\","
                 + "          \"exclude\": true"
                 + "      }"
                 + "}";
@@ -259,7 +262,8 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
                 + "   }"
                 + "   ,\"gas-filter\" :{"
                 + "          \"name\": \"GraphAidedSearchCypherTestFilter\","
-                + "          \"maxResultSize\": 20,"
+                + "          \"maxResultSize\": 20," +
+                "            \"query\": \"MATCH (n) RETURN n\","
                 + "          \"exclude\": false"
                 + "      }"
                 + "}";
@@ -317,6 +321,38 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         assertEquals("test 99", hits.get(0).source.getMsg());
         assertEquals(7121, result.getMaxScore(), 1.0);
         assertTrue(withoutBoosterMaxScore < result.getMaxScore());
+    }
+
+    @Test
+    public void testCypherBoosterWithInvalidSyntax() throws IOException {
+        String query = "{"
+                + "   \"query\": {"
+                + "      \"bool\": {"
+                + "         \"should\": ["
+                + "            {"
+                + "                  \"match\": {"
+                + "                       \"message\": \"test 1\""
+                + "                   }"
+                + "            }"
+                + "         ]"
+                + "      }"
+                + "   }"
+                + "   ,\"gas-booster\" :{"
+                + "          \"name\": \"GraphAidedSearchCypherBooster\","
+                + "          \"query\": \"MATCH (n:User) RETURN zzzzz\","
+                + "          \"scoreName\": \"score\","
+                + "          \"identifier\": \"id\""
+                + "      }"
+                + "}";
+
+        Search search = new Search.Builder(query)
+                // multiple index or types can be added.
+                .addIndex(INDEX_NAME)
+                .addType(TYPE_NAME)
+                .build();
+
+        SearchResult result = jestClient.execute(search);
+        assertTrue(result.getErrorMessage().contains("Cypher Execution Error"));
     }
 
     @Test

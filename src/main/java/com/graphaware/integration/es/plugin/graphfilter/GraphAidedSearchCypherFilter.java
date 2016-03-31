@@ -77,6 +77,9 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
         if (maxResultSize > 0) {
             sourceAsMap.put("size", maxResultSize);
         }
+        if (null == cypher) {
+            throw new RuntimeException("The Query Parameter is required in gas-filter");
+        }
         sourceAsMap.put("from", 0);
     }
 

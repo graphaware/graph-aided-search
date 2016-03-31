@@ -38,7 +38,7 @@ like cypher query, target user, etc...;
 
 ## Usage: Installation
 
-### Install Graph Aided Search Binary
+### Install GraphAidedSearch Binary
 
 ```bash
 $ $ES_HOME/bin/plugin install com.graphaware/graph-aided-search/2.2.1
@@ -56,7 +56,7 @@ Start elasticsearch
 
 ### Configuration
 
-Then configure indexes with the url of the neo4j. This can be done in two way:
+Then configure indexes with the url of Neo4j. This can be done in two way:
 
 ```bash
 $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.hostname=http://localhost:7474
@@ -80,7 +80,9 @@ Or add it to the settings in the index template:
 
 The query will continue to work with no issue, even with the "gas-boost" and "gas-filter" piece in the query. They will be removed automatically.
 
-    $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=false
+```bash
+$ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=false
+```
 
 ## Usage: Search Phase
 
@@ -88,18 +90,18 @@ The integration with already existing query is seamless, since the plugin requir
 
 ### Booster example
 
-Boosters allow to change the score accordingly to external score sources that could be a recommender, or a generic cypher query on graph database, 
-or whatever custom booster provider.
-The most simple query on elasticsearch could have the following structure:
+Boosters allow to change the score accordingly to external score sources that could be a `recommender`, a Cypher query or any custom booster provider.
+A simple query for Elasticsearch could have the following structure:
 
-```
+```bash
   curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
     "query" : {
         "match_all" : {}
     }';
 ```
-In this case you'll get as score value 1 for all the results. If you would like to boost results accordingly to user interest computed by Graphaware 
-Recommendation Plugin on top of Neo4j you should change the query in the following way.
+
+In this case all the Elasticsearch results hits will have a relevancy score value of `1`. If you would like to boost these results accordingly to user interest computed by Graphaware Recommendation Plugin on top of
+Neo4j you should change the query in the following way.
 
 ```bash
   curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
@@ -115,7 +117,7 @@ Recommendation Plugin on top of Neo4j you should change the query in the followi
        }
   }';
 ```
-The **_gas-booster_** clause identify the type of operation, in this case it is required a boost operation. 
+The **_gas-booster_** clause identify the type of operation, in this case it defines a boost operation.
 The **_name_** parameter is mandatory and allows to specify the Booster class. The remaining parameters depends on the type of booster.
 In the following paragraph the available boosters are described.
 
@@ -157,7 +159,7 @@ limit=2147483647&from=0&keyProperty=objectId&ids=99,166,486,478,270,172,73,84,35
 ```
 This component supposes that the results is a json array with the following structure.
 
-```
+```json
 [
   {
     nodeId: 1212,

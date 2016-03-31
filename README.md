@@ -112,8 +112,8 @@ Recommendation Plugin on top of Neo4j you should change the query in the followi
        }
   }';
 ```
-The _gas-booster_ clause identify the type of operation, in this case it is required a boost operation. 
-The _name_ parameter is mandatory and allows to specify the Booster class. The remaining parameters depends on the type of booster.
+The **_gas-booster_** clause identify the type of operation, in this case it is required a boost operation. 
+The **_name_** parameter is mandatory and allows to specify the Booster class. The remaining parameters depends on the type of booster.
 In the following paragraph the available boosters are described.
 
 #### GraphAidedSearchNeo4jBooster
@@ -122,19 +122,28 @@ This booster connects to a neo4j instance using some REST API available as plugi
 
 This is the list of the parameters available for this booster:
 
-* asda
-* asdasd
-* dasda
+* recoTarget: (mandatory) This parameter contains the identifier of the target for which the boosting values are computed. 
+Since the boosting is customized accordingly to a target, this parameter is mandatory and allow to get different results for different target.
+* maxResultSize: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window) 
+When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed accordingly to this parameter.
+This is necessary since once the bosting function is applied the order may change so that some of the results that fall out of size may be boosted and fall in the "size" window.
+* keyProperty: (Default value is uuid) the id of each document in the search results must match some property value of the nodes in the graph. 
+In order to avoid ambiguities in the results this property must identify a single node, for this reason is defined as key property.
+* operator: (Default is multiply [*]) It specifies how to compose elasticsearch score with neo4j provided score. 
+Available operators are: * (multiply), + (sum), - (substract), / (divide), replace (replace score). 
+* neo4j.endpoint:
 
 It passes information about the list of the ids that should be boosted as well as thetarget 
 The REST API should expose a POST endpoint that admit the following parameters: 
 
 * target (url parameter): 
 * limit:
+* from: 
 * keyProperty:
 * ids:
 
-This is an example of the call
+This is an example of the call:
+
 http://localhost:7474/graphaware/recommendation/movie/filter/2
 limit=2147483647&keyProperty=objectId&ids=99,166,486,478,270,172,73,84,351,120
 

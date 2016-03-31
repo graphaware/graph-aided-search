@@ -87,7 +87,7 @@ The integration with already existing query is seamless, since the plugin requir
 
 ### Booster example
 
-As stated before booster allow to change the score accordingly to external score sources that could be a recommender, or a generic cypher query on graph database, 
+Boosters allow to change the score accordingly to external score sources that could be a recommender, or a generic cypher query on graph database, 
 or whatever custom booster provider.
 The most simple query on elasticsearch could have the following structure:
 
@@ -206,7 +206,7 @@ This is an example of the usage of this booster:
     },
     "gas-booster" :{
           "name": "GraphAidedSearchCypherBooster",
-          "cypher": "MATCH (input:User) WHERE id(input) = {id}
+          "query": "MATCH (input:User) WHERE id(input) = 2
                     MATCH p=(input)-[r:RATED]->(movie)<-[r2:RATED]-(other)
                     WITH other, collect(p) as paths
                     WITH other, reduce(x=0, p in paths | x + reduce(i=0, r in rels(p) | i+r.rating)) as score
@@ -224,19 +224,65 @@ This is an example of the usage of this booster:
 
 ### Filter example
 
-The _gas-filter_ clause identify the type of operation, in this case it is required a filter operation.
+Filters allow to filter the results accordingly to information stored in the graph. 
+For example you can filter movies based on what the user friends have seen and so on.
+So if you would like to filter results accordingly to user friends evaluation, it is possible to change the elasticsearch query in the following way.
 
-The following Filter classes are alrea
+```
+  curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
+    "query" : {
+        "match_all" : {}
+    },
+    "gas-booster" :{
+          "name": "GraphAidedSearchCypherFilter",
+          "query": "MATCH (input:User) WHERE id(input) = 2
+                   MATCH (input)-[f:FRIEND_OF]->(friend)-[r:RATED]->(movie)
+                   WHERE r.rate > 3
+                   RETURN movie.objectId",
+          "shouldExclude": false
+       }
+  }';
+```
+
+The **_gas-filter_** clause identify the type of operation, in this case it is required a filter operation. 
+The **_name_** parameter is mandatory and allows to specify the Filter class. The remaining parameters depends on the type of filter.
+In the following paragraph the available filters are described.
 
 #### GraphAidedSearchCypherFilter
 
-This booster uses neo4j submitting cypher query through REST API. 
+This filter allow to filter results using a cypher query on Neo4j.
+In this case the _name_ value must be set to: GraphAidedSearchCypherFilter.
+
+This is the list of the parameters available for this filter:
+
+* **query**: (Mandatory) This parameter contains the query to submit to the neo4j instance. 
+* **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window) 
+When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed accordingly to this parameter.
+This is necessary since once the bosting function is applied the order may change so that some of the results that fall out of size may be boosted and fall in the "size" window.
+* **shouldExclude**: (Default true) This parameter allow to define the behaviour of the Filter. 
+If set to true (default) it will use the results from neo4j to filter out the results provided from elasticsearch with the results provided by neo4j query.
+
+An example is already provided in the previous sections.
 
 ## Customize the plugin
 
-The plugin allows to implement custom booster and custom filter. In order to implements ...
+The plugin allows to implement custom booster and custom filter. 
+In order to implements boosters a subclass of IGraphAidedSearchResultBooster must be implemented
+and it need to have the following annotation:
 
-Here an example
+```
+@GraphAidedSearchBooster(name = "MyCustomBooster")
+```
+Moreover it should be in the package com.graphaware.integration.es.
+
+In order to implements filters a subclass of IGraphAidedSearchResultFilter must be implemented
+and it need to have the following annotation: 
+
+```
+@GraphAidedSearchFilter(name = "MyCustomFilter")
+```
+
+Also in this case it should be in the package com.graphaware.integration.es
 
 ## Version Matrix
 

@@ -10,6 +10,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.common.settings.Settings;
 
 import javax.ws.rs.core.MediaType;
@@ -86,8 +87,16 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
         GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>() {
         };
         Map<String, Object> results = response.getEntity(type);
-        if (results.get("errors") != null && ((ArrayList) results.get("results")).size() > 1)
-            throw new RuntimeException("Error while getting response from neo4j " + results.get("errors"));
+        try {
+            System.out.println(ObjectMapper.class.newInstance().writeValueAsString(results));
+        } catch (Exception e) {
+            //
+        }
+        @SuppressWarnings("unchecked")
+        ArrayList<HashMap<String, Object>> errors = (ArrayList) results.get("errors");
+        if (errors.size() > 0) {
+            throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
+        }
 
         Map res = (Map) ((ArrayList) results.get("results")).get(0);
         ArrayList<LinkedHashMap> rows = (ArrayList) res.get("data");

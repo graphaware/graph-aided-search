@@ -7,6 +7,7 @@ import org.elasticsearch.common.settings.Settings;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @GraphAidedSearchBooster(name = "GraphAidedSearchCypherTestBooster")
 public class GraphAidedSearchCypherTestBooster extends GraphAidedSearchCypherBooster {
@@ -16,7 +17,7 @@ public class GraphAidedSearchCypherTestBooster extends GraphAidedSearchCypherBoo
     }
 
     @Override
-    protected Map<String, Float> executeCypher(String serverUrl, String... cypherStatements) {
+    protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String... cypherStatements) {
 
         Map<String, Float> results = new HashMap<>();
         for (int i = 0; i < 1000; ++i) {

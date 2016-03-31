@@ -50,7 +50,7 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
     @Override
     protected Map<String, Neo4JFilterResult> externalDoReorder(Set<String> keySet) {
         logger.warn("Query cypher for: " + keySet);
-        Map<String, Float> res = executeCypher(getNeo4jHost(), cypherQuery);
+        Map<String, Float> res = executeCypher(getNeo4jHost(), keySet, cypherQuery);
 
         HashMap<String, Neo4JFilterResult> results = new HashMap<>();
 
@@ -59,14 +59,22 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
         return results;
     }
 
-    protected Map<String, Float> executeCypher(String serverUrl, String... cypherStatements) {
-        StringBuilder stringBuilder = new StringBuilder("{\"statements\" : [");
-        for (String statement : cypherStatements) {
-            stringBuilder.append("{\"statement\" : \"").append(statement).append("\"}").append(",");
-        }
-        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+    protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String... cypherStatements) {
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            stringBuilder.append("{\"statements\" : [");
+            for (String statement : cypherStatements) {
+                stringBuilder.append("{\"statement\" : \"").append(statement).append("\"").append(",");
+                stringBuilder.append("\"parameters\":").append("{\"items\":").append(ObjectMapper.class.newInstance().writeValueAsString(resultKeySet)).append("}").append("}");
+            }
+            //stringBuilder.deleteCharAt(stringBuilder.length() - 1);
 
-        stringBuilder.append("]}");
+            stringBuilder.append("]}");
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to build the Cypher query : " + e.getMessage());
+        }
+
+        System.out.println(stringBuilder.toString());
 
         while (serverUrl.endsWith("/")) {
             serverUrl = serverUrl.substring(0, serverUrl.length() - 1);

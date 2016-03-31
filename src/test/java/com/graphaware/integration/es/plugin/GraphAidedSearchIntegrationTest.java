@@ -412,11 +412,11 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
                 + "      }"
                 + "   }"
                 + "   ,\"gas-booster\" :{"
-                + "          \"name\": \"GraphAidedSearchCypherTestBooster\","
-                + "          \"query\": \"MATCH (n:User)-[:RATED]->(m) where n.id = 2 RETURN m.id as id, size((m)<-[:RATED]-()) as score\","
+                + "          \"name\": \"GraphAidedSearchCypherBooster\","
+                + "          \"query\": \"MATCH (n:User) WHERE n.id = 2 UNWIND {items} as itemId MATCH (item:Movie) WHERE item.id = toInt(itemId) OPTIONAL MATCH p=shortestPath((n)-[r*..20]-(item)) RETURN itemId as id, length(p) as score\","
                 + "          \"scoreName\": \"score\","
-                + "          \"identifier\": \"id\""
-                //"            \"operator\": \"+\""
+                + "          \"identifier\": \"id\"," +
+                "            \"operator\": \"-\""
                 + "      }"
                 + "}";
 
@@ -427,15 +427,15 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
                 .build();
 
         SearchResult result = jestClient.execute(search);
+        float withoutBoosterMaxScore = getResultForDocWithMessage("test1").getMaxScore();
 
         assertEquals(100, result.getTotal().intValue());
         List<SearchResult.Hit<JestMsgResult, Void>> hits = getHitsForResult(result);
-        float withoutBoosterMaxScore = getResultForDocWithMessage("test1").getMaxScore();
 
         assertEquals(10, hits.size());
-        assertEquals("test 99", hits.get(0).source.getMsg());
-        assertEquals(7121, result.getMaxScore(), 1.0);
-        assertTrue(withoutBoosterMaxScore < result.getMaxScore());
+        assertEquals("test 1", hits.get(0).source.getMsg());
+        assertEquals(1.58, result.getMaxScore(), 1.0);
+        assertTrue(withoutBoosterMaxScore > result.getMaxScore());
     }
 
     private void createData() throws IOException {

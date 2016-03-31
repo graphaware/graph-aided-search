@@ -38,6 +38,8 @@ public class GraphBoosterTest {
         assertEquals("+", booster.getComposeScoreOperator());
 
         externalParameters.put("operator", "-");
+        sourceMap.put("gas-booster", externalParameters);
+        booster.parseRequest(sourceMap);
         assertEquals("-", booster.getComposeScoreOperator());
 
         externalParameters.put("operator", "/");

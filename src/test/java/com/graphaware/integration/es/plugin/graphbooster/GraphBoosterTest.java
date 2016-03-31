@@ -52,12 +52,25 @@ public class GraphBoosterTest {
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("Operator"));
         }
+    }
 
+    @Test
+    public void testExceptionIsThrownWhenQueryParameterIsMissing() {
+        HashMap<String, Object> sourceMap = new HashMap<>();
+        HashMap<String, Object> externalParameters = new HashMap<>();
+        sourceMap.put("gas-booster", externalParameters);
+        try {
+            booster.parseRequest(sourceMap);
+            assertTrue(false); // If we come here then we have a bug
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("Query Parameter cannot be null"));
+        }
     }
 
     private HashMap<String, Object> getBoosterSourceMap(String operator) {
         HashMap<String, Object> sourceMap = new HashMap<>();
         HashMap<String, Object> externalParameters = new HashMap<>();
+        externalParameters.put("query", "MATCH (n) RETURN n");
         externalParameters.put("operator", operator);
         sourceMap.put("gas-booster", externalParameters);
 

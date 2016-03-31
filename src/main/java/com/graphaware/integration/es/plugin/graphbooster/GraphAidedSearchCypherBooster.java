@@ -41,6 +41,9 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
         cypherQuery = (String) (extParams.get("query"));
         scoreResultName = extParams.get("scoreName") != null ? (String) extParams.get("scoreName") : DEFAULT_SCORE_RESULT_NAME;
         idResultName = extParams.get("identifier") != null ? (String) extParams.get("identifier") : DEFAULT_ID_RESULT_NAME;
+        if (null == cypherQuery) {
+            throw new RuntimeException("The Query Parameter cannot be null in gas-booster");
+        }
     }
 
     @Override

@@ -162,24 +162,24 @@ This component supposes that the results is a json array with the following stru
 ```json
 [
   {
-    nodeId: 1212,
-    objectId: "270",
-    score: 3
+    "nodeId": 1212,
+    "objectId": "270",
+    "score": 3
   },
   {
-    nodeId: 1041,
-    objectId: "99",
-    score: 1
+    "nodeId": 1041,
+    "objectId": "99",
+    "score": 1
   },
   {
-    nodeId: 1420,
-    objectId: "478",
-    score: 1
+    "nodeId": 1420,
+    "objectId": "478",
+    "score": 1
   },
   {
-    nodeId: 1428,
-    objectId: "486",
-    score: 1
+    "nodeId": 1428,
+    "objectId": "486",
+    "score": 1
   }
 ]
 ```

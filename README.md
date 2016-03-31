@@ -34,6 +34,7 @@ Usage examples include boosting (i) based on interest prediction (recommendation
 * **_Result Filtering_**: This feature allow to filter results removing documents from the results list. In this case, providing a cypher query, it is possible to return to the user only the document which id match results from cypher query.
 
 More in details it operates in the following way:
+
 1. Intercepts any “search” to the elasticsearch to find query extension;
 2. Processes query extension identifying the type of the extension, if an boosting or a filter, and instantiates the related class;
 3. Performs the operation required to boost or filter connecting to the neo4j rest API (or some extension to neo4j like Graphaware Recommendation Engine)
@@ -64,7 +65,7 @@ Then configure indexes with the url of the neo4j. This can be done in two way:
 Or add it to the settings in the index template:
 
 ```
-    GET  _template/template_gas
+    POST _template/template_gas
     {
       "template": "*",
       "settings": {

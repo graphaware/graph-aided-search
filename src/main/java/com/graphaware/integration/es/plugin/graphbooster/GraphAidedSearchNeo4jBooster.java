@@ -70,8 +70,8 @@ public class GraphAidedSearchNeo4jBooster extends GraphAidedSearchResultBooster 
             ids = ids.concat(id);
         }
         MultivaluedMap param = new MultivaluedMapImpl();
-        param.add("limit", Integer.MAX_VALUE);
-        param.add("from", getFrom());
+        param.add("limit", String.valueOf(Integer.MAX_VALUE));
+        param.add("from", String.valueOf(getFrom()));
         param.add("keyProperty", getKeyProperty());
         param.add("ids", ids);
         logger.warn("Call: " + recommendationEndopint);

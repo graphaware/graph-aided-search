@@ -11,33 +11,44 @@
  *
  * You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.graphaware.integration.es.plugin.util;
 
 import java.lang.annotation.Annotation;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.reflections.Reflections;
 
-public class GASServiceLoader
-{
-  
-  protected final static Logger logger = Logger.getLogger(GASServiceLoader.class.getName());
+public class GASServiceLoader {
 
-  private static final Reflections reflections = new Reflections("com.graphaware.integration.es");
+    protected final static Logger logger = Logger.getLogger(GASServiceLoader.class.getName());
 
-  public static <T, A extends Annotation> HashMap<String, Class<T>> loadClass(Class<T> type, Class<A> annotation)
-  {
-    return loadClassByAnnotation(type, annotation);
-  }
+    private static Reflections reflections;
 
-  private static <T, A extends Annotation> HashMap<String, Class<T>> loadClassByAnnotation(Class<T> type, Class<A> annotation)
-  {
-    HashMap<String, Class<T>> loader = new HashMap<>();
-    Set<Class<?>> providers = reflections.getTypesAnnotatedWith(annotation);
-    for (Class<?> item : providers)
-      loader.put(item.getName(), (Class<T>) item);
-    return loader;
-  }
+    public static <T, A extends Annotation> HashMap<String, Class<T>> loadClass(Class<T> type, Class<A> annotation) {
+        return loadClassByAnnotation(type, annotation);
+    }
+
+    private static <T, A extends Annotation> HashMap<String, Class<T>> loadClassByAnnotation(Class<T> type, Class<A> annotation) {
+        if (reflections == null)
+             loadReflections("com.graphaware.integration.es");
+        HashMap<String, Class<T>> loader = new HashMap<>();
+        Set<Class<?>> providers = reflections.getTypesAnnotatedWith(annotation);
+        for (Class<?> item : providers) {
+            loader.put(item.getName(), (Class<T>) item);
+        }
+        return loader;
+    }
+    
+    private static void loadReflections(final String packagePath) {
+        AccessController.doPrivileged(new PrivilegedAction<Void>() {
+            public Void run() {
+                reflections = new Reflections("com.graphaware.integration.es");
+                return null; // nothing to return
+            }
+        });
+    }
+
 }

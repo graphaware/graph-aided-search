@@ -50,6 +50,8 @@ import org.elasticsearch.threadpool.ThreadPool;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -403,7 +405,14 @@ public class GraphAidedSearch extends AbstractComponent {
         return filter;
     }
 
-    private IGraphAidedSearchResultBooster getBooster(String name, GASIndexInfo indexSettings) {
+    private IGraphAidedSearchResultBooster getBooster(final String name, final GASIndexInfo indexSettings) {
+        return AccessController.doPrivileged(new PrivilegedAction<IGraphAidedSearchResultBooster>() {
+            public IGraphAidedSearchResultBooster run() {
+                return getBoosterAux(name, indexSettings);
+            }
+        });
+    }
+    private IGraphAidedSearchResultBooster getBoosterAux(String name, GASIndexInfo indexSettings) {
         if (boostersClasses == null) {
             boostersClasses = loadBoosters();
         }
@@ -441,7 +450,14 @@ public class GraphAidedSearch extends AbstractComponent {
         return result;
     }
 
-    private IGraphAidedSearchResultFilter getFilter(String name, GASIndexInfo indexSettings) {
+    private IGraphAidedSearchResultFilter getFilter(final String name, final GASIndexInfo indexSettings) {
+        return AccessController.doPrivileged(new PrivilegedAction<IGraphAidedSearchResultFilter>() {
+            public IGraphAidedSearchResultFilter run() {
+                return getFilterAux(name, indexSettings);
+            }
+        });
+    }
+    private IGraphAidedSearchResultFilter getFilterAux(String name, GASIndexInfo indexSettings) {
         if (filtersClasses == null) {
             filtersClasses = loadFilters();
         }

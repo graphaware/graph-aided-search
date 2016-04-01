@@ -72,7 +72,7 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
             hitMap.put(hit.getId(), hit);
         }
         int totalHitsSize = hitMap.keySet().size();
-        Map<String, Neo4JFilterResult> remoteScore = externalDoReorderWrap(hitMap.keySet());
+        Map<String, Neo4JFilterResult> remoteScore = externalDoReorder(hitMap.keySet());
         final int arraySize = (size + from) < searchHits.length ? size
                 : (searchHits.length - from) > 0 ? (searchHits.length - from) : 0;
         if (arraySize == 0) {
@@ -147,14 +147,6 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
         return maxResultSize;
     }
 
-    private Map<String, Neo4JFilterResult> externalDoReorderWrap(final Set<String> keySet) {
-        return AccessController.doPrivileged(new PrivilegedAction<Map<String, Neo4JFilterResult>>() {
-            public Map<String, Neo4JFilterResult> run() {
-                return externalDoReorder(keySet);
-            }
-        });
-    }
-            
     protected abstract Map<String, Neo4JFilterResult> externalDoReorder(Set<String> keySet);
 
     protected String getNeo4jHost() {

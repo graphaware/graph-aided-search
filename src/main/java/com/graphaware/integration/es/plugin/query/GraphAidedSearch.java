@@ -19,6 +19,7 @@ import com.google.common.cache.CacheBuilder;
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchBooster;
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchFilter;
 import com.graphaware.integration.es.plugin.graphbooster.IGraphAidedSearchResultBooster;
+import com.graphaware.integration.es.plugin.graphbooster.Neo4JFilterResult;
 import com.graphaware.integration.es.plugin.graphfilter.IGraphAidedSearchResultFilter;
 import com.graphaware.integration.es.plugin.util.GASUtil;
 import com.graphaware.integration.es.plugin.util.GASServiceLoader;
@@ -92,8 +93,8 @@ public class GraphAidedSearch extends AbstractComponent {
             final ThreadPool threadPool) {
         super(settings);
         this.clusterService = clusterService;
-        final CacheBuilder<Object, Object> builder = 
-                CacheBuilder.newBuilder().concurrencyLevel(16);
+        final CacheBuilder<Object, Object> builder
+                = CacheBuilder.newBuilder().concurrencyLevel(16);
         builder.expireAfterAccess(120, TimeUnit.SECONDS);
         scriptInfoCache = builder.build();
     }
@@ -219,8 +220,7 @@ public class GraphAidedSearch extends AbstractComponent {
                     if (indexInfo.isEnabled()) {
                         final SearchResponse newResponse = handleResponse(response, startTime, booster, filter);
                         listener.onResponse(newResponse);
-                    }
-                    else {
+                    } else {
                         listener.onResponse(response);
                     }
                 } catch (final RetrySearchException e) {
@@ -241,7 +241,7 @@ public class GraphAidedSearch extends AbstractComponent {
         };
     }
 
-    private SearchResponse handleResponse(final SearchResponse response, final long startTime, IGraphAidedSearchResultBooster booster, IGraphAidedSearchResultFilter filter) throws IOException {
+    private SearchResponse handleResponse(final SearchResponse response, final long startTime, final IGraphAidedSearchResultBooster booster, final IGraphAidedSearchResultFilter filter) throws IOException {
         final BytesStreamOutput out = new BytesStreamOutput();
         response.writeTo(out);
 
@@ -260,24 +260,38 @@ public class GraphAidedSearch extends AbstractComponent {
         final InternalSearchHits hits = readSearchHits(in);
         InternalSearchHits newHits = hits;
         if (booster != null) {
-            newHits = booster.doReorder(hits);
+            newHits = AccessController.doPrivileged(new PrivilegedAction<InternalSearchHits>() {
+                @Override
+                public InternalSearchHits run() {
+                    return booster.doReorder(hits);
+                }
+            });
         }
         if (filter != null) {
-            newHits = filter.doFilter(newHits);
+            final InternalSearchHits newHitsFinal = newHits;
+            newHits = AccessController.doPrivileged(new PrivilegedAction<InternalSearchHits>() {
+                @Override
+                public InternalSearchHits run() {
+                    return filter.doFilter(newHitsFinal);
+                }
+            });
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug("Reading aggregations...");
         }
         InternalAggregations aggregations = null;
+
         if (in.readBoolean()) {
             aggregations = InternalAggregations
                     .readAggregations(in);
         }
+
         if (logger.isDebugEnabled()) {
             logger.debug("Reading suggest...");
         }
         Suggest suggest = null;
+
         if (in.readBoolean()) {
             suggest = Suggest.readSuggest(Suggest.Fields.SUGGEST,
                     in);
@@ -287,7 +301,8 @@ public class GraphAidedSearch extends AbstractComponent {
         Boolean terminatedEarly = in.readOptionalBoolean();
         InternalProfileShardResults profileResults;
 
-        if (in.getVersion().onOrAfter(Version.V_2_2_0) && in.readBoolean()) {
+        if (in.getVersion()
+                .onOrAfter(Version.V_2_2_0) && in.readBoolean()) {
             profileResults = new InternalProfileShardResults(in);
         } else {
             profileResults = null;
@@ -300,7 +315,8 @@ public class GraphAidedSearch extends AbstractComponent {
         final int successfulShards = in.readVInt();
         final int size = in.readVInt();
         ShardSearchFailure[] shardFailures;
-        if (size == 0) {
+        if (size
+                == 0) {
             shardFailures = ShardSearchFailure.EMPTY_ARRAY;
         } else {
             shardFailures = new ShardSearchFailure[size];
@@ -317,7 +333,8 @@ public class GraphAidedSearch extends AbstractComponent {
         final SearchResponse newResponse = new SearchResponse(
                 internalResponse, scrollId, totalShards,
                 successfulShards, tookInMillis, shardFailures);
-        if (headers != null) {
+        if (headers
+                != null) {
             for (final Map.Entry<String, Object> entry : headers
                     .entrySet()) {
                 newResponse.putHeader(entry.getKey(),
@@ -369,7 +386,7 @@ public class GraphAidedSearch extends AbstractComponent {
         }
     }
 
-    private IGraphAidedSearchResultBooster getGABoosters(Map<String, Object> sourceAsMap, GASIndexInfo indexSettings) throws Exception{
+    private IGraphAidedSearchResultBooster getGABoosters(Map<String, Object> sourceAsMap, GASIndexInfo indexSettings) throws Exception {
         HashMap extParams = (HashMap) sourceAsMap.get(GAS_BOOSTER_CLAUSE);
         if (extParams == null) {
             return null;
@@ -412,6 +429,7 @@ public class GraphAidedSearch extends AbstractComponent {
             }
         });
     }
+
     private IGraphAidedSearchResultBooster getBoosterAux(String name, GASIndexInfo indexSettings) {
         if (boostersClasses == null) {
             boostersClasses = loadBoosters();
@@ -422,9 +440,11 @@ public class GraphAidedSearch extends AbstractComponent {
         }
         Class< IGraphAidedSearchResultBooster> boosterClass = boostersClasses.get(name.toLowerCase());
         IGraphAidedSearchResultBooster newBooster = null;
+
         try {
             try {
-                Constructor<IGraphAidedSearchResultBooster> constructor = boosterClass.getConstructor(Settings.class, GASIndexInfo.class);
+                Constructor<IGraphAidedSearchResultBooster> constructor = boosterClass.getConstructor(Settings.class, GASIndexInfo.class
+                );
                 newBooster = constructor.newInstance(settings, indexSettings);
             } catch (NoSuchMethodException ex) {
                 logger.warn("No constructor with settings for class {}. Using default", boosterClass.getName());
@@ -436,15 +456,21 @@ public class GraphAidedSearch extends AbstractComponent {
         } catch (InstantiationException | IllegalAccessException ex) {
             logger.error("Error while initializing new booster", ex);
             return null;
+
         }
     }
 
     private static Map<String, Class<IGraphAidedSearchResultBooster>> loadBoosters() {
-        Collection<Class<IGraphAidedSearchResultBooster>> boosters = GASServiceLoader.loadClass(IGraphAidedSearchResultBooster.class, GraphAidedSearchBooster.class).values();
+        Collection<Class<IGraphAidedSearchResultBooster>> boosters = GASServiceLoader.loadClass(IGraphAidedSearchResultBooster.class, GraphAidedSearchBooster.class
+        ).values();
         HashMap<String, Class<IGraphAidedSearchResultBooster>> result = new HashMap<>();
+
         for (Class<IGraphAidedSearchResultBooster> boosterClass : boosters) {
-            String name = boosterClass.getAnnotation(GraphAidedSearchBooster.class).name().toLowerCase();
-            Loggers.getLogger(GraphAidedSearch.class).warn("Available booster: " + name);
+            String name = boosterClass.getAnnotation(GraphAidedSearchBooster.class
+            ).name().toLowerCase();
+            Loggers
+                    .getLogger(GraphAidedSearch.class
+                    ).warn("Available booster: " + name);
             result.put(name, boosterClass);
         }
         return result;
@@ -457,6 +483,7 @@ public class GraphAidedSearch extends AbstractComponent {
             }
         });
     }
+
     private IGraphAidedSearchResultFilter getFilterAux(String name, GASIndexInfo indexSettings) {
         if (filtersClasses == null) {
             filtersClasses = loadFilters();
@@ -467,9 +494,11 @@ public class GraphAidedSearch extends AbstractComponent {
         }
         Class< IGraphAidedSearchResultFilter> filterClass = filtersClasses.get(name.toLowerCase());
         IGraphAidedSearchResultFilter newFilter = null;
+
         try {
             try {
-                Constructor<IGraphAidedSearchResultFilter> constructor = filterClass.getConstructor(Settings.class, GASIndexInfo.class);
+                Constructor<IGraphAidedSearchResultFilter> constructor = filterClass.getConstructor(Settings.class, GASIndexInfo.class
+                );
                 newFilter = constructor.newInstance(settings, indexSettings);
             } catch (NoSuchMethodException ex) {
                 logger.warn("No constructor with settings for class {}. Using default", filterClass.getName());
@@ -481,15 +510,19 @@ public class GraphAidedSearch extends AbstractComponent {
         } catch (InstantiationException | IllegalAccessException ex) {
             logger.error("Error while initializing new booster", ex);
             return null;
+
         }
     }
 
     private static Map<String, Class<IGraphAidedSearchResultFilter>> loadFilters() {
-        Collection<Class<IGraphAidedSearchResultFilter>> filters = GASServiceLoader.loadClass(IGraphAidedSearchResultFilter.class, GraphAidedSearchFilter.class).values();
+        Collection<Class<IGraphAidedSearchResultFilter>> filters = GASServiceLoader.loadClass(IGraphAidedSearchResultFilter.class, GraphAidedSearchFilter.class
+        ).values();
 
         HashMap<String, Class<IGraphAidedSearchResultFilter>> result = new HashMap<>();
+
         for (Class<IGraphAidedSearchResultFilter> filterClass : filters) {
-            String name = filterClass.getAnnotation(GraphAidedSearchFilter.class).name().toLowerCase();
+            String name = filterClass.getAnnotation(GraphAidedSearchFilter.class
+            ).name().toLowerCase();
             result.put(name, filterClass);
         }
         return result;

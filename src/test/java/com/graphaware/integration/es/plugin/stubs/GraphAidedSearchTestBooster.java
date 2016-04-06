@@ -24,10 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import org.elasticsearch.common.settings.Settings;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 @GraphAidedSearchBooster(name = "GraphAidedSearchTestBooster")
 public class GraphAidedSearchTestBooster extends GraphAidedSearchResultBooster {
 

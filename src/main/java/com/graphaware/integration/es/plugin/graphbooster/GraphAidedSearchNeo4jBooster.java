@@ -37,10 +37,6 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 @GraphAidedSearchBooster(name = "GraphAidedSearchNeo4jBooster")
 public class GraphAidedSearchNeo4jBooster extends GraphAidedSearchResultBooster {
 

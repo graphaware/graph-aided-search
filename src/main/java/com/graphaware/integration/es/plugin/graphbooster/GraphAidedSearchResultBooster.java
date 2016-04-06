@@ -27,10 +27,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearchResultBooster {
 
     private final String neo4jHost;

@@ -24,10 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import org.elasticsearch.common.settings.Settings;
 
-/**
- *
- * @author ale
- */
 @GraphAidedSearchBooster(name = "GraphAidedSearchReplaceBooster")
 public class GraphAidedSearchReplaceBooster extends GraphAidedSearchResultScoreReplace {
 

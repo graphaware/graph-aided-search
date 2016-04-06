@@ -17,10 +17,6 @@ package com.graphaware.integration.es.plugin;
 
 import io.searchbox.annotations.JestId;
 
-/**
- *
- * @author ale
- */
 public class JestMsgResult
 {
 

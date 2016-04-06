@@ -17,10 +17,6 @@ package com.graphaware.integration.es.plugin.graphbooster;
 
 import java.util.Comparator;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 public class Neo4JFilterResult {
 
     private long nodeId;

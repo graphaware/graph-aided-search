@@ -31,10 +31,6 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 public class GraphAidedSearchFilter extends AbstractComponent
         implements ActionFilter
 {

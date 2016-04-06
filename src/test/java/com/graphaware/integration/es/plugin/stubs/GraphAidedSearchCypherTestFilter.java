@@ -22,10 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 import org.elasticsearch.common.settings.Settings;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 @GraphAidedSearchFilter(name = "GraphAidedSearchCypherTestFilter")
 public class GraphAidedSearchCypherTestFilter extends GraphAidedSearchCypherFilter {
 

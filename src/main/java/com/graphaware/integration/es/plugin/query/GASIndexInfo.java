@@ -15,10 +15,6 @@
  */
 package com.graphaware.integration.es.plugin.query;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 public class GASIndexInfo {
 
     protected final static GASIndexInfo NO_SCRIPT_INFO = new GASIndexInfo();

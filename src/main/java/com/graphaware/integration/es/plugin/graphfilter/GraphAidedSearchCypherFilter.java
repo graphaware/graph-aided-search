@@ -36,10 +36,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 @GraphAidedSearchFilter(name = "GraphAidedSearchCypherFilter")
 public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilter {
 

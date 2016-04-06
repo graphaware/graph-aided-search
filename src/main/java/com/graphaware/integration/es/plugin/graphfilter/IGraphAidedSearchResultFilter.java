@@ -19,13 +19,9 @@ package com.graphaware.integration.es.plugin.graphfilter;
 import java.util.Map;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 public interface IGraphAidedSearchResultFilter {
 
-    public InternalSearchHits doFilter(final InternalSearchHits hits);
+    InternalSearchHits doFilter(final InternalSearchHits hits);
 
-    public void parseRequest(Map<String, Object> sourceAsMap);
+    void parseRequest(Map<String, Object> sourceAsMap);
 }

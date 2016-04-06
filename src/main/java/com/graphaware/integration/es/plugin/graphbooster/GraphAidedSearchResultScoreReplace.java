@@ -18,10 +18,6 @@ package com.graphaware.integration.es.plugin.graphbooster;
 import com.graphaware.integration.es.plugin.query.GASIndexInfo;
 import org.elasticsearch.common.settings.Settings;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 public abstract class GraphAidedSearchResultScoreReplace extends GraphAidedSearchResultBooster {
 
     public GraphAidedSearchResultScoreReplace(Settings settings, GASIndexInfo indexSettings) {

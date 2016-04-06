@@ -15,10 +15,6 @@
  */
 package com.graphaware.integration.es.plugin.util;
 
-/**
- *
- * @author alessandro@graphaware.com
- */
 public class GASUtil
 {
   public static int getInt(final Object value, final int defaultValue)

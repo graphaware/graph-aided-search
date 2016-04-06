@@ -34,8 +34,9 @@ public class GASServiceLoader {
     }
 
     private static <T, A extends Annotation> HashMap<String, Class<T>> loadClassByAnnotation(Class<T> type, Class<A> annotation) {
-        if (reflections == null)
-             loadReflections("com.graphaware.integration.es");
+        if (reflections == null) {
+            loadReflections("com.graphaware.integration.es");
+        }
         HashMap<String, Class<T>> loader = new HashMap<>();
         Set<Class<?>> providers = reflections.getTypesAnnotatedWith(annotation);
         for (Class<?> item : providers) {
@@ -43,7 +44,7 @@ public class GASServiceLoader {
         }
         return loader;
     }
-    
+
     private static void loadReflections(final String packagePath) {
         AccessController.doPrivileged(new PrivilegedAction<Void>() {
             public Void run() {

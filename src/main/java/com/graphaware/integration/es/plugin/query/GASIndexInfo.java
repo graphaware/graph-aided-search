@@ -54,6 +54,5 @@ public class GASIndexInfo {
     public void setMaxResultWindow(int maxResultWindow) {
         this.maxResultWindow = maxResultWindow;
     }
-    
-    
+
 }

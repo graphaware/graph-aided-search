@@ -13,7 +13,6 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-
 package com.graphaware.integration.es.plugin.graphbooster;
 
 import com.graphaware.integration.es.plugin.GraphAidedSearchPlugin;
@@ -51,8 +50,6 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
         this.logger = Loggers.getLogger(GraphAidedSearchPlugin.INDEX_LOGGER_NAME, settings);
     }
 
-    
-
     @Override
     protected void extendedParseRequest(HashMap extParams) {
         cypherQuery = (String) (extParams.get("query"));
@@ -70,8 +67,9 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
 
         HashMap<String, Neo4JFilterResult> results = new HashMap<>();
 
-        for (Map.Entry<String, Float> item : res.entrySet()) 
+        for (Map.Entry<String, Float> item : res.entrySet()) {
             results.put(item.getKey(), new Neo4JFilterResult(item.getKey(), item.getValue()));
+        }
         return results;
     }
 
@@ -132,7 +130,7 @@ public class GraphAidedSearchCypherBooster extends GraphAidedSearchResultBooster
         Map<String, Float> resultRows = new HashMap<>();
         for (Iterator<LinkedHashMap> it = rows.iterator(); it.hasNext();) {
             LinkedHashMap r = it.next();
-            ArrayList row = (ArrayList)r.get("row");
+            ArrayList row = (ArrayList) r.get("row");
             String key = String.valueOf(row.get(columnsMap.get(idResultName)));
             float value = Float.parseFloat(String.valueOf(row.get(columnsMap.get(scoreResultName))));
             resultRows.put(key, value);

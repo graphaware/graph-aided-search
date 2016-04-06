@@ -85,7 +85,7 @@ public class GraphAidedSearchCypherFilter implements IGraphAidedSearchResultFilt
         int k = 0;
         float maxScore = -1;
         for (Map.Entry<String, InternalSearchHit> item : hitMap.entrySet()) {
-            if ((shouldExclude && !remoteFilter.contains(item.getKey())) 
+            if ((shouldExclude && !remoteFilter.contains(item.getKey()))
                     || (!shouldExclude && remoteFilter.contains(item.getKey()))) {
                 tmpSearchHits[k] = item.getValue();
                 k++;

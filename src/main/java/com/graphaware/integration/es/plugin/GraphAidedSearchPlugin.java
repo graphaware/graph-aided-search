@@ -49,7 +49,6 @@ public class GraphAidedSearchPlugin extends Plugin {
         module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_HOST, Validator.EMPTY);
     }
 
-
     @Override
     public Collection<Module> nodeModules() {
         final Collection<Module> modules = new ArrayList<>();

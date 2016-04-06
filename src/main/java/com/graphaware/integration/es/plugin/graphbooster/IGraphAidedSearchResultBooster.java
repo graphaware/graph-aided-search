@@ -13,14 +13,14 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-
 package com.graphaware.integration.es.plugin.graphbooster;
 
 import java.util.Map;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
-public interface IGraphAidedSearchResultBooster
-{
-  InternalSearchHits doReorder(final InternalSearchHits hits);
-  void parseRequest(Map<String, Object> sourceAsMap) throws Exception;
+public interface IGraphAidedSearchResultBooster {
+
+    InternalSearchHits doReorder(final InternalSearchHits hits);
+
+    void parseRequest(Map<String, Object> sourceAsMap) throws Exception;
 }

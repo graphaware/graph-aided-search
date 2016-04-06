@@ -110,7 +110,7 @@ public class GraphAidedSearchNeo4jBooster extends GraphAidedSearchResultBooster 
         }
         return endpoint;
     }
-    
+
     protected String getTargetId() {
         return targetId;
     }

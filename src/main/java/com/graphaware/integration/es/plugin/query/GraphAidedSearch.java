@@ -21,7 +21,6 @@ import com.google.common.cache.CacheBuilder;
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchBooster;
 import com.graphaware.integration.es.plugin.annotation.GraphAidedSearchFilter;
 import com.graphaware.integration.es.plugin.graphbooster.IGraphAidedSearchResultBooster;
-import com.graphaware.integration.es.plugin.graphbooster.Neo4JFilterResult;
 import com.graphaware.integration.es.plugin.graphfilter.IGraphAidedSearchResultFilter;
 import com.graphaware.integration.es.plugin.util.GASUtil;
 import com.graphaware.integration.es.plugin.util.GASServiceLoader;

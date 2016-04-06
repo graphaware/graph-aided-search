@@ -297,8 +297,6 @@ The following version are currently supported
 |:---------:|:-------------:|
 | master    | 2.3.x         |
 | 2.2.1.x   | 2.2.1         |
-| 2.2.0.x   | 2.2.0         |
-| 2.1.1.x   | 2.1.1         |
 
 ### Issues/Questions
 

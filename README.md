@@ -2,7 +2,7 @@
 
 ## ElasticSearch Plugin providing integration with Neo4j
 
-[![Build Status](https://magnum.travis-ci.com/graphaware/elasticsearch-to-neo4j.svg?token=tFjWxABA1S1VaGsxdhvX)](https://magnum.travis-ci.org/graphaware/elasticsearch-to-neo4j) | Latest Release: none yet!
+[![Build Status](https://travis-ci.org/graphaware/graph-aided-search.svg?branch=master)](https://travis-ci.org/graphaware/graph-aided-search) | Latest Release: none yet!
 
 GraphAware GraphAidedSearch is an enterprise-grade bi-directional integration between Neo4j and Elasticsearch. It consists of two independent modules plus a test suite.
 Both modules can be used independently or together to achieve full integration.

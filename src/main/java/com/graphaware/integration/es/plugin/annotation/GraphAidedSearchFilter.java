@@ -13,7 +13,6 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-
 package com.graphaware.integration.es.plugin.annotation;
 
 import java.lang.annotation.ElementType;
@@ -21,10 +20,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface GraphAidedSearchFilter
-{
-  String name();
+public @interface GraphAidedSearchFilter {
+
+    String name();
 }

@@ -1,5 +1,12 @@
 language: java
 
+before_install:
+    - sudo apt-get update > /dev/null
+    # install Oracle JDK8
+    - sh -c ./build/install-jdk8.sh
+    # install and launch neo4j
+    - sh -c ./build/install-neo.sh
+
 branches:
   only:
     - master

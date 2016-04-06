@@ -15,18 +15,14 @@
  */
 package com.graphaware.integration.es.plugin.util;
 
-public class GASUtil
-{
-  public static int getInt(final Object value, final int defaultValue)
-  {
-    if (value instanceof Number)
-    {
-      return ((Number) value).intValue();
+public class GASUtil {
+
+    public static int getInt(final Object value, final int defaultValue) {
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        } else if (value instanceof String) {
+            return Integer.parseInt(value.toString());
+        }
+        return defaultValue;
     }
-    else if (value instanceof String)
-    {
-      return Integer.parseInt(value.toString());
-    }
-    return defaultValue;
-  }
 }

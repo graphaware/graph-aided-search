@@ -2,7 +2,7 @@
 
 ## ElasticSearch Plugin providing integration with Neo4j
 
-[![Build Status](https://travis-ci.org/graphaware/neo4j-framework.png)](https://travis-ci.org/graphaware/graph-aided-search) | <a href="http://graphaware.com/downloads/" target="_blank">Downloads</a> | <a href="http://graphaware.com/site/graph-aided-search/latest/apidocs/" target="_blank">Javadoc</a> | Latest Release: none yet
+[![Build Status](https://travis-ci.org/graphaware/graph-aided-search.svg?branch=master)](https://travis-ci.org/graphaware/graph-aided-search) | Latest Release: none yet!
 
 GraphAware Graph-Aided Search is an enterprise-grade bi-directional integration between Neo4j and Elasticsearch. It consists
 of two independent modules plus a test suite. Both modules can be used independently or together to achieve full integration.
@@ -35,6 +35,10 @@ Detailed workflow:
 3. Perform the operation required to boost or filter by calling the Neo4j REST API (or a Neo4j extension like [Graphaware Recommendation Engine](https://github.com/graphaware/neo4j-reco), passing all necessary information,
 e.g. Cypher query, target user, etc...;
 4. Return the filtered/boosted result set back to the user;
+
+![overview](https://s3-eu-west-1.amazonaws.com/graphaware/assets/graphAidedSearchIntro2.png)
+
+---
 
 ## Usage: Installation
 
@@ -303,8 +307,6 @@ The following version are currently supported
 |:---------:|:-------------:|
 | master    | 2.3.x         |
 | 2.2.1.x   | 2.2.1         |
-| 2.2.0.x   | 2.2.0         |
-| 2.1.1.x   | 2.1.1         |
 
 ### Issues/Questions
 

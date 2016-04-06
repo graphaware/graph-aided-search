@@ -18,8 +18,6 @@ package com.graphaware.integration.es.plugin.graphbooster;
 import com.graphaware.integration.es.plugin.query.GASIndexInfo;
 import com.graphaware.integration.es.plugin.query.GraphAidedSearch;
 import com.graphaware.integration.es.plugin.util.GASUtil;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 import java.util.*;
 
@@ -154,7 +152,6 @@ public abstract class GraphAidedSearchResultBooster implements IGraphAidedSearch
     protected int getMaxResultWindow() {
         return maxResultWindow;
     }
-
 
     protected void extendedParseRequest(HashMap extParams) {
 

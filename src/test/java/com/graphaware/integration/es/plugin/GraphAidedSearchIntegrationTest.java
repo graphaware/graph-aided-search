@@ -189,7 +189,7 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         assertEquals(33, result.getTotal().intValue());
         List<SearchResult.Hit<JestMsgResult, Void>> hits = getHitsForResult(result);
         assertEquals(10, hits.size());
-        assertEquals("test 90", hits.get(0).source.getMsg());
+        assertEquals("test 36", hits.get(0).source.getMsg());
         assertEquals(2.6, result.getMaxScore(), 0.1);
     }
 
@@ -257,7 +257,7 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         assertEquals(67, result.getTotal().intValue());
         List<SearchResult.Hit<JestMsgResult, Void>> hits = getHitsForResult(result);
         assertEquals(10, hits.size());
-        assertEquals("test 88", hits.get(0).source.getMsg());
+        assertEquals("test 35", hits.get(0).source.getMsg());
         assertEquals(2.5, result.getMaxScore(), 0.1);
     }
 

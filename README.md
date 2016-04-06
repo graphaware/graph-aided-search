@@ -196,23 +196,26 @@ This component supposes that the results are a json array with the following str
 
 #### GraphAidedSearchCypherBooster
 
-This booster uses neo4j throught some REST API available as plugin for the database. 
-In this case the _name_ value must be set to: GraphAidedSearchCypherBooster.
+This booster uses Neo4j through custom REST APIs available as plugins for the database. In this case the _name_ value must be set to `GraphAidedSearchCypherBooster`.
 
-This is the list of the parameters available for this booster:
+The following parameters are available for this booster:
 
-* **query**: (Mandatory) This parameter contains the query to submit to the neo4j instance. 
-* **scoreName**: (Default value is "score") The name of the returned value that is used as scoring function
-* **identifier**: (Default value is "id") The name of the returned value that is used as id matching
-* **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window) 
-When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed accordingly to this parameter.
-This is necessary since once the bosting function is applied the order may change so that some of the results that fall out of size may be boosted and fall in the "size" window.
-* **operator**: (Default is multiply `*`) It specifies how to compose elasticsearch score with neo4j provided score.
-Available operators are: `*` (multiply), `+` (sum), `-` (substract), `/` (divide), `replace` (replace score).
+* **query**: (Mandatory) This parameter contains the query to submit to the Neo4j instance.
+
+* **scoreName**: (Default value is "score") The name of the returned value that is used as scoring function.
+
+* **identifier**: (Default value is "id") The name of the returned value that is used for matching IDs.
+
+* **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window)
+When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed according to this parameter.
+This is necessary since once the boosting function is applied, the order may change. Some of the results that wouldn't "make it" may be boosted and fall into the "size" window.
+
+* **operator**: (Default is multiply [*]) It specifies how to combine the Elasticsearch score with the score provided by Neo4j.
+Available operators are: * (multiply), + (sum), - (substract), / (divide), replace (replace score).
 
 The Elasticsearch result hits ids are passed as Cypher query parameter as a `List` of strings named `items`.
 
-This is an example of the usage of this booster:
+Example Use:
 
 ```
   curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
@@ -237,11 +240,10 @@ This is an example of the usage of this booster:
   }';
 ```
 
-### Filter example
+### Filter Example
 
-Filters allow to filter the results accordingly to information stored in the graph. 
-For example you can filter movies based on what the user friends have seen and so on.
-So if you would like to filter results accordingly to user friends evaluation, it is possible to change the elasticsearch query in the following way.
+Filters allow to filter the results using information stored in the graph. For example, you can filter movies based on what the user's friends have seen.
+If you would like to filter results according to a user's friends evaluation, it is possible to change the Elasticsearch query as follows:
 
 ```
   curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
@@ -259,58 +261,56 @@ So if you would like to filter results accordingly to user friends evaluation, i
   }';
 ```
 
-The **_gas-filter_** clause identify the type of operation, in this case it is required a filter operation. 
+The **_gas-filter_** clause identifies the type of the operation; in this case a filter operation.
 The **_name_** parameter is mandatory and allows to specify the Filter class. The remaining parameters depends on the type of filter.
 In the following paragraph the available filters are described.
 
 #### GraphAidedSearchCypherFilter
 
-This filter allow to filter results using a cypher query on Neo4j.
-In this case the _name_ value must be set to: GraphAidedSearchCypherFilter.
+This filter allows to filter results using a Cypher query on Neo4j. In this case the _name_ value must be set to `GraphAidedSearchCypherFilter`.
 
-This is the list of the parameters available for this filter:
+The following parameters are available for this filter:
 
-* **query**: (Mandatory) This parameter contains the query to submit to the neo4j instance. 
-* **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window) 
-When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed accordingly to this parameter.
-This is necessary since once the bosting function is applied the order may change so that some of the results that fall out of size may be boosted and fall in the "size" window.
-* **shouldExclude**: (Default true) This parameter allow to define the behaviour of the Filter. 
-If set to true (default) it will use the results from neo4j to filter out the results provided from elasticsearch with the results provided by neo4j query.
+* **query**: (Mandatory) This parameter contains the query to submit to the Neo4j instance.
 
-An example is already provided in the previous sections.
+* **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window)
+When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed according to this parameter.
+This is necessary since once the filtering function is applied, some of the results that wouldn't "make it" may fall into the "size" window.
+
+* **shouldExclude**: (Default true) This parameter allows to define the behaviour of the Filter.
+If set to true (default), it will filter out the Neo4j results from the results provided by Elasticsearch. If set to false, it will
+keep the intersection of Neo4j and Elasticsearch results, i.e. exclude everything that has not been returned by Neo4j.
 
 ## Customize the plugin
 
-The plugin allows to implement custom booster and custom filter. 
-In order to implements boosters a subclass of IGraphAidedSearchResultBooster must be implemented
-and it need to have the following annotation:
+The plugin allows to implement custom boosters and filters. In order to implement a booster, `IGraphAidedSearchResultBooster` must be implemented
+and it needs to have the following annotation:
 
 ```
 @GraphAidedSearchBooster(name = "MyCustomBooster")
 ```
-Moreover it should be in the package com.graphaware.integration.es.
+Moreover, it should be in the package `com.graphaware.integration.es`.
 
-In order to implements filters a subclass of IGraphAidedSearchResultFilter must be implemented
-and it need to have the following annotation: 
+In order to implement a filter, `IGraphAidedSearchResultFilter` must be implemented and it needs to have the following annotation:
 
 ```
 @GraphAidedSearchFilter(name = "MyCustomFilter")
 ```
 
-Also in this case it should be in the package com.graphaware.integration.es
+Also in this case, it should be in the package `com.graphaware.integration.es`.
 
 ## Version Matrix
 
 The following version are currently supported
 
-| Version   | Elasticsearch |
+| Version (this project)   | Elasticsearch |
 |:---------:|:-------------:|
 | master    | 2.3.x         |
 | 2.2.1.x   | 2.2.1         |
 
 ### Issues/Questions
 
-Please file an [issue](https://github.com/graphaware/elasticsearch-to-neo4j/issues "issue").
+Please file an [issue](https://github.com/graphaware/graph-aided-search/issues "issue").
 
 License
 -------

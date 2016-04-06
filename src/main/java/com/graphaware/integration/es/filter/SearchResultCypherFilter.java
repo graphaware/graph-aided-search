@@ -18,7 +18,7 @@ package com.graphaware.integration.es.filter;
 import com.graphaware.integration.es.annotation.SearchFilter;
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.GraphAidedSearch;
-import com.graphaware.integration.es.util.Numbers;
+import com.graphaware.integration.es.util.NumberUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -36,10 +36,10 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
-@SearchFilter(name = "CypherSearchResultFilter")
-public class CypherSearchResultFilter implements SearchResultFilter {
+@SearchFilter(name = "SearchResultCypherFilter")
+public class SearchResultCypherFilter implements SearchResultFilter {
 
-    private static final Logger logger = Logger.getLogger(CypherSearchResultFilter.class.getName());
+    private static final Logger logger = Logger.getLogger(SearchResultCypherFilter.class.getName());
     private final String neo4jHost;
     private final int maxResultWindow;
 
@@ -49,19 +49,19 @@ public class CypherSearchResultFilter implements SearchResultFilter {
     private String cypher;
     private boolean shouldExclude = true;
 
-    public CypherSearchResultFilter(Settings settings, IndexInfo indexSettings) {
+    public SearchResultCypherFilter(Settings settings, IndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
         this.maxResultWindow = indexSettings.getMaxResultWindow();
     }
 
     public void parseRequest(Map<String, Object> sourceAsMap) {
-        size = Numbers.getInt(sourceAsMap.get("size"), 10);
-        from = Numbers.getInt(sourceAsMap.get("from"), 0);
+        size = NumberUtil.getInt(sourceAsMap.get("size"), 10);
+        from = NumberUtil.getInt(sourceAsMap.get("from"), 0);
 
         HashMap extParams = (HashMap) sourceAsMap.get(GraphAidedSearch.GAS_FILTER_CLAUSE);
         if (extParams != null) {
             cypher = (String) extParams.get("query");
-            maxResultSize = Numbers.getInt(extParams.get("maxResultSize"), maxResultWindow);
+            maxResultSize = NumberUtil.getInt(extParams.get("maxResultSize"), maxResultWindow);
             shouldExclude = extParams.containsKey("exclude") && String.valueOf(extParams.get("exclude")).equalsIgnoreCase("true");
         }
         if (maxResultSize > 0) {

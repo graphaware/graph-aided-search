@@ -34,8 +34,8 @@ import java.util.*;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 
-@SearchBooster(name = "CypherSearchResultBooster")
-public class CypherSearchResultBooster extends ExternalSearchResultBooster {
+@SearchBooster(name = "SearchResultCypherBooster")
+public class SearchResultCypherBooster extends SearchResultExternalBooster {
 
     private final ESLogger logger;
 
@@ -46,7 +46,7 @@ public class CypherSearchResultBooster extends ExternalSearchResultBooster {
     private String scoreResultName;
     private String idResultName;
 
-    public CypherSearchResultBooster(Settings settings, IndexInfo indexInfo) {
+    public SearchResultCypherBooster(Settings settings, IndexInfo indexInfo) {
         super(settings, indexInfo);
         this.logger = Loggers.getLogger(GraphAidedSearchPlugin.INDEX_LOGGER_NAME, settings);
     }

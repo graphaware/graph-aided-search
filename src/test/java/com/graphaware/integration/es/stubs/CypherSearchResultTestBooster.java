@@ -16,7 +16,7 @@
 
 package com.graphaware.integration.es.stubs;
 
-import com.graphaware.integration.es.booster.CypherSearchResultBooster;
+import com.graphaware.integration.es.booster.SearchResultCypherBooster;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.IndexInfo;
 import org.elasticsearch.common.settings.Settings;
@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 @SearchBooster(name = "CypherSearchResultTestBooster")
-public class CypherSearchResultTestBooster extends CypherSearchResultBooster {
+public class CypherSearchResultTestBooster extends SearchResultCypherBooster {
 
     public CypherSearchResultTestBooster(Settings settings, IndexInfo indexInfo) {
         super(settings, indexInfo);

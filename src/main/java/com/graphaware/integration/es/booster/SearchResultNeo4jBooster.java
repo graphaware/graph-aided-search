@@ -37,8 +37,8 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
-@SearchBooster(name = "Neo4jSearchResultBooster")
-public class Neo4jSearchResultBooster extends ExternalSearchResultBooster {
+@SearchBooster(name = "SearchResultNeo4jBooster")
+public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
     private final static String DEFAULT_KEY_PROPERTY = "uuid";
     private String restEndpoint = null;
@@ -46,7 +46,7 @@ public class Neo4jSearchResultBooster extends ExternalSearchResultBooster {
     private String targetId;
     private String keyProperty;
 
-    public Neo4jSearchResultBooster(Settings settings, IndexInfo indexSettings) {
+    public SearchResultNeo4jBooster(Settings settings, IndexInfo indexSettings) {
         super(settings, indexSettings);
         this.logger = Loggers.getLogger(GraphAidedSearchPlugin.INDEX_LOGGER_NAME, settings);
     }

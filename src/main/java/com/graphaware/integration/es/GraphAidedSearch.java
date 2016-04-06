@@ -23,8 +23,8 @@ import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.annotation.SearchFilter;
 import com.graphaware.integration.es.booster.SearchResultBooster;
 import com.graphaware.integration.es.query.RetrySearchException;
-import com.graphaware.integration.es.util.Numbers;
-import com.graphaware.integration.es.util.ServiceLoader;
+import com.graphaware.integration.es.util.NumberUtil;
+import com.graphaware.integration.es.util.PluginClassLoader;
 import org.elasticsearch.Version;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.search.SearchRequest;
@@ -146,8 +146,8 @@ public class GraphAidedSearch extends AbstractComponent {
                 String query = new String((byte[]) sourceAsMap.get("query_binary"));
                 logger.warn("Binary query not supported: \n" + query);
             }
-            final int size = Numbers.getInt(sourceAsMap.get("size"), 10);
-            final int from = Numbers.getInt(sourceAsMap.get("from"), 0);
+            final int size = NumberUtil.getInt(sourceAsMap.get("size"), 10);
+            final int from = NumberUtil.getInt(sourceAsMap.get("from"), 0);
 //
             if (size < 0 || from < 0) {
                 return null;
@@ -463,7 +463,7 @@ public class GraphAidedSearch extends AbstractComponent {
     }
 
     private static Map<String, Class<SearchResultBooster>> loadBoosters() {
-        Collection<Class<SearchResultBooster>> boosters = ServiceLoader.loadClass(SearchResultBooster.class, SearchBooster.class
+        Collection<Class<SearchResultBooster>> boosters = PluginClassLoader.loadClass(SearchResultBooster.class, SearchBooster.class
         ).values();
         HashMap<String, Class<SearchResultBooster>> result = new HashMap<>();
 
@@ -517,7 +517,7 @@ public class GraphAidedSearch extends AbstractComponent {
     }
 
     private static Map<String, Class<SearchResultFilter>> loadFilters() {
-        Collection<Class<SearchResultFilter>> filters = ServiceLoader.loadClass(SearchResultFilter.class, SearchFilter.class
+        Collection<Class<SearchResultFilter>> filters = PluginClassLoader.loadClass(SearchResultFilter.class, SearchFilter.class
         ).values();
 
         HashMap<String, Class<SearchResultFilter>> result = new HashMap<>();

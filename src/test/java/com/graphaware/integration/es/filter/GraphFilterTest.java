@@ -28,13 +28,13 @@ import static org.junit.Assert.*;
 
 public class GraphFilterTest {
 
-    private CypherSearchResultFilter filter;
+    private SearchResultCypherFilter filter;
 
     @Before
     public void setUp() {
         Settings.Builder builder = Settings.builder();
         IndexInfo indexInfo = TestIndexInfo.newInstance();
-        filter = new CypherSearchResultFilter(builder.build(), indexInfo);
+        filter = new SearchResultCypherFilter(builder.build(), indexInfo);
     }
 
     @Test

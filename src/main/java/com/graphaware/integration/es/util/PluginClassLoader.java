@@ -23,9 +23,9 @@ import java.util.Set;
 import java.util.logging.Logger;
 import org.reflections.Reflections;
 
-public class ServiceLoader {
+public class PluginClassLoader {
 
-    protected final static Logger logger = Logger.getLogger(ServiceLoader.class.getName());
+    protected final static Logger logger = Logger.getLogger(PluginClassLoader.class.getName());
 
     private static Reflections reflections;
 

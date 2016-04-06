@@ -15,7 +15,7 @@
  */
 package com.graphaware.integration.es.util;
 
-public class Numbers {
+public class NumberUtil {
 
     public static int getInt(final Object value, final int defaultValue) {
         if (value instanceof Number) {

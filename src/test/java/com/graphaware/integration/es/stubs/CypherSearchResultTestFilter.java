@@ -16,7 +16,7 @@
 package com.graphaware.integration.es.stubs;
 
 import com.graphaware.integration.es.annotation.SearchFilter;
-import com.graphaware.integration.es.filter.CypherSearchResultFilter;
+import com.graphaware.integration.es.filter.SearchResultCypherFilter;
 import com.graphaware.integration.es.IndexInfo;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +24,7 @@ import java.util.Set;
 import org.elasticsearch.common.settings.Settings;
 
 @SearchFilter(name = "CypherSearchResultTestFilter")
-public class CypherSearchResultTestFilter extends CypherSearchResultFilter {
+public class CypherSearchResultTestFilter extends SearchResultCypherFilter {
 
     public CypherSearchResultTestFilter(Settings settings, IndexInfo indexSettings) {
         super(settings, indexSettings);

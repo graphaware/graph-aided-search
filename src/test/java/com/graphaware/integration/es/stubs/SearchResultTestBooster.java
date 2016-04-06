@@ -16,7 +16,7 @@
 package com.graphaware.integration.es.stubs;
 
 import com.graphaware.integration.es.annotation.SearchBooster;
-import com.graphaware.integration.es.booster.ExternalSearchResultBooster;
+import com.graphaware.integration.es.booster.SearchResultExternalBooster;
 import com.graphaware.integration.es.result.ExternalResult;
 import com.graphaware.integration.es.IndexInfo;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.util.Set;
 import org.elasticsearch.common.settings.Settings;
 
 @SearchBooster(name = "SearchResultTestBooster")
-public class SearchResultTestBooster extends ExternalSearchResultBooster {
+public class SearchResultTestBooster extends SearchResultExternalBooster {
 
 
     public SearchResultTestBooster(Settings settings, IndexInfo indexSettings) {

@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 
 public class GraphBoosterTest {
 
-    private ExternalSearchResultBooster booster;
+    private SearchResultExternalBooster booster;
 
     @Before
     public void setUp() {

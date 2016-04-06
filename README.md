@@ -36,6 +36,8 @@ Detailed workflow :
 like cypher query, target user, etc...;
 4. Returns the filtered/boosted result set back to the user;
 
+![overview](https://s3-eu-west-1.amazonaws.com/graphaware/assets/graphAidedSearchIntro2.png)
+
 ## Usage: Installation
 
 ### Install GraphAidedSearch Binary

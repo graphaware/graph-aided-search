@@ -38,6 +38,8 @@ like cypher query, target user, etc...;
 
 ![overview](https://s3-eu-west-1.amazonaws.com/graphaware/assets/graphAidedSearchIntro2.png)
 
+---
+
 ## Usage: Installation
 
 ### Install GraphAidedSearch Binary

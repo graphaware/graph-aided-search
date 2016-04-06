@@ -16,24 +16,26 @@
   ~ <http://www.gnu.org/licenses/>.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.graphaware.integration.es</groupId>
-    <artifactId>elasticsearch-to-neo4j</artifactId>
+    <artifactId>graph-aided-search</artifactId>
     <version>2.2.1.1-SNAPSHOT</version>
 
     <properties>
         <java.version>1.7</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <elasticsearch.version>2.2.1</elasticsearch.version>
-        <elasticsearch.plugin.classname>com.graphaware.integration.es.plugin.GraphAidedSearchPlugin</elasticsearch.plugin.classname>
+        <elasticsearch.plugin.classname>com.graphaware.integration.es.plugin.GraphAidedSearchPlugin
+        </elasticsearch.plugin.classname>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
-    <name>GraphAware Neo4j Integration for Elasticsearch</name>
-    <description>Elasticsearch Plugin for Integration with Neo4j</description>
+    <name>Graph-Aided Search</name>
+    <description>GraphAware Elasticsearch Plugin for Integration with Neo4j</description>
     <url>http://graphaware.com</url>
 
     <licenses>
@@ -44,10 +46,15 @@
         </license>
     </licenses>
 
+    <organization>
+        <name>Graph Aware Limited</name>
+        <url>http://graphaware.com</url>
+    </organization>
+
     <scm>
-        <connection>scm:git:git@github.com:graphaware/elasticsearch-to-neo4j.git</connection>
-        <developerConnection>scm:git:git@github.com:graphaware/elasticsearch-to-neo4j.git</developerConnection>
-        <url>git@github.com:graphaware/elasticsearch-to-neo4j.git</url>
+        <connection>scm:git:git@github.com:graphaware/graph-aided-search.git</connection>
+        <developerConnection>scm:git:git@github.com:graphaware/graph-aided-search.git</developerConnection>
+        <url>git@github.com:graphaware/graph-aided-search.git</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -122,7 +129,7 @@
         <developer>
             <id>bachmanm</id>
             <name>Michal Bachman</name>
-            <email>neo4j-es@graphaware.com</email>
+            <email>graph-aided-search@graphaware.com</email>
         </developer>
         <developer>
             <id>ikwattro</id>
@@ -132,7 +139,7 @@
     </developers>
 
     <ciManagement>
-        <url>https://travis-ci.org/graphaware/elasticsearch-to-neo4j</url>
+        <url>https://travis-ci.org/graphaware/graph-aided-search</url>
         <system>Travis CI</system>
     </ciManagement>
 
@@ -142,11 +149,6 @@
         <system>GitHub</system>
         <url>https://github.com/graphaware/elasticsearch-to-neo4j/issues</url>
     </issueManagement>
-
-    <organization>
-        <name>Graph Aware Limited</name>
-        <url>http://graphaware.com</url>
-    </organization>
 
     <dependencies>
 

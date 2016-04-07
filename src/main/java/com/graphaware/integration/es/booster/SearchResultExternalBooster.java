@@ -39,7 +39,6 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
 
     protected String composeScoreOperator;
 
-    protected static final String DEFAULT_SCORE_OPERATOR = "*";
 
     public SearchResultExternalBooster(Settings settings, IndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
@@ -50,7 +49,7 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
         size = NumberUtil.getInt(sourceAsMap.get(SIZE), 10);
         from = NumberUtil.getInt(sourceAsMap.get(FROM), 0);
 
-        Map<String, String> extParams = (Map<String, String>) sourceAsMap.get(GraphAidedSearch.GAS_BOOSTER_CLAUSE);
+        Map<String, String> extParams = (Map<String, String>) sourceAsMap.get(GAS_BOOSTER_CLAUSE);
         if (extParams != null) {
             maxResultSize = NumberUtil.getInt(extParams.get(MAX_RESULT_SIZE), maxResultWindow);
             composeScoreOperator = extParams.get(OPERATOR) != null ? extParams.get(OPERATOR) : DEFAULT_SCORE_OPERATOR;

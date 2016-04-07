@@ -44,7 +44,7 @@ public class GraphFilterTest {
 
         try {
             filter.parseRequest(sourceMap);
-            assertTrue(false); // if we reach this line it is a bug
+            fail();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("Query Parameter is required"));
         }

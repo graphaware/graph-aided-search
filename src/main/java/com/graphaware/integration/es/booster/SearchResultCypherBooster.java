@@ -15,7 +15,6 @@
  */
 package com.graphaware.integration.es.booster;
 
-import com.graphaware.integration.es.GraphAidedSearchPlugin;
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.domain.ExternalResult;
@@ -47,11 +46,11 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
 
     public SearchResultCypherBooster(Settings settings, IndexInfo indexInfo) {
         super(settings, indexInfo);
-        this.logger = Loggers.getLogger(GraphAidedSearchPlugin.INDEX_LOGGER_NAME, settings);
+        this.logger = Loggers.getLogger(INDEX_LOGGER_NAME, settings);
     }
 
     @Override
-    protected void extendedParseRequest(Map<String, String>  extParams) {
+    protected void extendedParseRequest(Map<String, String> extParams) {
         cypherQuery = extParams.get(QUERY);
         scoreResultName = extParams.get(SCORE_NAME) != null ? extParams.get(SCORE_NAME) : DEFAULT_SCORE_RESULT_NAME;
         idResultName = extParams.get(IDENTIFIER) != null ? extParams.get(IDENTIFIER) : DEFAULT_ID_RESULT_NAME;
@@ -104,22 +103,23 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
                 .type(MediaType.APPLICATION_JSON)
                 .entity(json)
                 .post(ClientResponse.class);
-        GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>() {
-        };
+        GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>() {};
         Map<String, Object> results = response.getEntity(type);
+
         try {
             System.out.println(ObjectMapper.class.newInstance().writeValueAsString(results)); //todo log instead of System.out?
         } catch (Exception e) {
             //
         }
+
         @SuppressWarnings("unchecked")
-        ArrayList<HashMap<String, Object>> errors = (ArrayList) results.get(ERRORS);
+        List<Map<String, Object>> errors = (List) results.get(ERRORS);
         if (errors.size() > 0) {
             throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
         }
 
-        Map res = (Map) ((ArrayList) results.get(RESULTS)).get(0);
-        ArrayList<LinkedHashMap> rows = (ArrayList) res.get(DATA);
+        Map res = (Map) ((List) results.get(RESULTS)).get(0);
+        List<Map> rows = (List) res.get(DATA);
         List<String> columns = (List) res.get(COLUMNS);
         response.close();
         int k = 0;
@@ -129,8 +129,8 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
             ++k;
         }
         Map<String, Float> resultRows = new HashMap<>();
-        for (LinkedHashMap r : rows) {
-            ArrayList row = (ArrayList) r.get(ROW);
+        for (Map r : rows) {
+            List row = (List) r.get(ROW);
             String key = String.valueOf(row.get(columnsMap.get(idResultName)));
             float value = Float.parseFloat(String.valueOf(row.get(columnsMap.get(scoreResultName))));
             resultRows.put(key, value);

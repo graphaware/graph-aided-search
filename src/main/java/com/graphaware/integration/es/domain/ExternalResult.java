@@ -64,6 +64,7 @@ public class ExternalResult {
         this.score = score;
     }
 
+    ///todo this is not used anywhere:
     class Neo4JResultComparator implements Comparator<ExternalResult> {
 
         @Override

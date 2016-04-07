@@ -15,20 +15,19 @@
  */
 package com.graphaware.integration.es;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.elasticsearch.action.ActionModule;
 import org.elasticsearch.cluster.ClusterModule;
 import org.elasticsearch.cluster.settings.Validator;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.plugins.Plugin;
 
-import static com.graphaware.integration.es.domain.Constants.*;
+import java.util.Collection;
+import java.util.Collections;
+
+import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_ENABLED;
+import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_HOST;
 
 public class GraphAidedSearchPlugin extends Plugin {
-
-    public static final String INDEX_LOGGER_NAME = "index.graph-aided-search";
 
     @Override
     public String name() {
@@ -37,7 +36,7 @@ public class GraphAidedSearchPlugin extends Plugin {
 
     @Override
     public String description() {
-        return "This is Graphaware Graph Aided Search Plugin for Neo4j.";
+        return "GraphAware Graph-Aided Search Plugin for Neo4j.";
     }
 
     public void onModule(final ActionModule module) {
@@ -51,9 +50,7 @@ public class GraphAidedSearchPlugin extends Plugin {
 
     @Override
     public Collection<Module> nodeModules() {
-        final Collection<Module> modules = new ArrayList<>();
-        modules.add(new GraphAidedSearchModule());
-        return modules;
+        return Collections.<Module>singleton(new GraphAidedSearchModule());
     }
 
 }

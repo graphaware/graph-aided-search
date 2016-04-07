@@ -18,11 +18,12 @@ package com.graphaware.integration.es;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.graphaware.integration.es.filter.SearchResultFilter;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.annotation.SearchFilter;
 import com.graphaware.integration.es.booster.SearchResultBooster;
 import com.graphaware.integration.es.domain.RetrySearchException;
+import com.graphaware.integration.es.domain.SearchResultModifier;
+import com.graphaware.integration.es.filter.SearchResultFilter;
 import com.graphaware.integration.es.util.NumberUtil;
 import com.graphaware.integration.es.util.PluginClassLoader;
 import org.elasticsearch.Version;
@@ -33,13 +34,13 @@ import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.cluster.ClusterService;
+import org.elasticsearch.cluster.metadata.AliasOrIndex;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.io.stream.BytesStreamOutput;
-import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -47,12 +48,16 @@ import org.elasticsearch.search.aggregations.InternalAggregations;
 import org.elasticsearch.search.internal.InternalSearchHits;
 import org.elasticsearch.search.internal.InternalSearchResponse;
 import org.elasticsearch.search.lookup.SourceLookup;
+import org.elasticsearch.search.profile.InternalProfileShardResults;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.threadpool.ThreadPool;
+import org.elasticsearch.transport.netty.ChannelBufferStreamInput;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Collection;
@@ -63,41 +68,29 @@ import java.util.concurrent.TimeUnit;
 
 import static com.graphaware.integration.es.domain.Constants.*;
 import static org.elasticsearch.action.search.ShardSearchFailure.readShardSearchFailure;
-import org.elasticsearch.cluster.metadata.AliasOrIndex;
 import static org.elasticsearch.search.internal.InternalSearchHits.readSearchHits;
-import org.elasticsearch.search.profile.InternalProfileShardResults;
-import org.elasticsearch.transport.netty.ChannelBufferStreamInput;
 
 public class GraphAidedSearch extends AbstractComponent {
 
-    private static final String GAS_REQUEST = "_gas";
-
-    public static final String GAS_BOOSTER_CLAUSE = "gas-booster";
-    public static final String GAS_FILTER_CLAUSE = "gas-filter";
-
     private final ClusterService clusterService;
     private final Cache<String, IndexInfo> scriptInfoCache;
+    private final Map<Class<? extends SearchResultModifier>, Map<String, ?>> classCache = new HashMap<>();
 
     private Client client;
 
-    private Map<String, Class<SearchResultBooster>> boostersClasses;
-    private Map<String, Class<SearchResultFilter>> filtersClasses;
-
     @Inject
-    public GraphAidedSearch(final Settings settings,
-            final ClusterService clusterService,
-            final ThreadPool threadPool) {
+    public GraphAidedSearch(final Settings settings, final ClusterService clusterService, final ThreadPool threadPool) {
         super(settings);
         this.clusterService = clusterService;
-        final CacheBuilder<Object, Object> builder
-                = CacheBuilder.newBuilder().concurrencyLevel(16);
-        builder.expireAfterAccess(120, TimeUnit.SECONDS);
-        scriptInfoCache = builder.build();
+
+        scriptInfoCache = CacheBuilder
+                .newBuilder()
+                .concurrencyLevel(16)
+                .expireAfterAccess(120, TimeUnit.SECONDS)
+                .build();
     }
 
-    public ActionListener<SearchResponse> wrapActionListener(
-            final String action, final SearchRequest request,
-            final ActionListener<SearchResponse> listener) {
+    public ActionListener<SearchResponse> wrapActionListener(final String action, final SearchRequest request, final ActionListener<SearchResponse> listener) {
         switch (request.searchType()) {
             case DFS_QUERY_AND_FETCH:
             case QUERY_AND_FETCH:
@@ -136,32 +129,31 @@ public class GraphAidedSearch extends AbstractComponent {
         try {
             final long startTime = System.nanoTime();
             final Map<String, Object> sourceAsMap = SourceLookup.sourceAsMap(source);
-            if (sourceAsMap.get("query_binary") != null) {
-                String query = new String((byte[]) sourceAsMap.get("query_binary"));
+            if (sourceAsMap.get(QUERY_BINARY) != null) {
+                String query = new String((byte[]) sourceAsMap.get(QUERY_BINARY));
                 logger.warn("Binary query not supported: \n" + query);
             }
-            final int size = NumberUtil.getInt(sourceAsMap.get("size"), 10);
-            final int from = NumberUtil.getInt(sourceAsMap.get("from"), 0);
-//
+            final int size = NumberUtil.getInt(sourceAsMap.get(SIZE), 10);
+            final int from = NumberUtil.getInt(sourceAsMap.get(FROM), 0);
+
             if (size < 0 || from < 0) {
                 return null;
             }
 
-            SearchResultBooster booster = getGABoosters(sourceAsMap, scriptInfo);
-            SearchResultFilter filter = getGAFilters(sourceAsMap, scriptInfo);
+            SearchResultBooster booster = get(sourceAsMap, scriptInfo, SearchResultBooster.class, SearchBooster.class, GAS_BOOSTER_CLAUSE);
+            SearchResultFilter filter = get(sourceAsMap, scriptInfo, SearchResultFilter.class, SearchFilter.class, GAS_FILTER_CLAUSE);
 
             if (booster == null && filter == null) {
                 return null;
             }
 
-            final XContentBuilder builder = XContentFactory
-                    .contentBuilder(Requests.CONTENT_TYPE);
+            final XContentBuilder builder = XContentFactory.contentBuilder(Requests.CONTENT_TYPE);
 
             builder.map(sourceAsMap);
             request.source(builder.bytes());
 
-            final ActionListener<SearchResponse> searchResponseListener
-                    = createSearchResponseListener(listener, startTime, booster, filter, scriptInfo);
+            final ActionListener<SearchResponse> searchResponseListener = createSearchResponseListener(listener, startTime, booster, filter, scriptInfo);
+
             return new ActionListener<SearchResponse>() {
                 @Override
                 public void onResponse(SearchResponse response) {
@@ -172,8 +164,8 @@ public class GraphAidedSearch extends AbstractComponent {
                         if (newSourceAsMap == null) {
                             throw new RuntimeException("Failed to rewrite source: " + sourceAsMap);
                         }
-                        newSourceAsMap.put("size", size);
-                        newSourceAsMap.put("from", from);
+                        newSourceAsMap.put(SIZE, size);
+                        newSourceAsMap.put(FROM, from);
                         if (logger.isDebugEnabled()) {
                             logger.debug("Original Query: \n{}\nNew Query: \n{}", sourceAsMap, newSourceAsMap);
                         }
@@ -199,8 +191,7 @@ public class GraphAidedSearch extends AbstractComponent {
         }
     }
 
-    private ActionListener<SearchResponse> createSearchResponseListener(
-            final ActionListener<SearchResponse> listener, final long startTime, final SearchResultBooster booster, final SearchResultFilter filter, final IndexInfo indexInfo) {
+    private ActionListener<SearchResponse> createSearchResponseListener(final ActionListener<SearchResponse> listener, final long startTime, final SearchResultBooster booster, final SearchResultFilter filter, final IndexInfo indexInfo) {
         return new ActionListener<SearchResponse>() {
             @Override
             public void onResponse(final SearchResponse response) {
@@ -225,8 +216,7 @@ public class GraphAidedSearch extends AbstractComponent {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Failed to parse a search response.", e);
                     }
-                    throw new RuntimeException(
-                            "Failed to parse a search response.", e);
+                    throw new RuntimeException("Failed to parse a search response.", e);
                 }
             }
 
@@ -244,15 +234,18 @@ public class GraphAidedSearch extends AbstractComponent {
         if (logger.isDebugEnabled()) {
             logger.debug("Reading headers...");
         }
-        final ChannelBufferStreamInput in = new ChannelBufferStreamInput(
-                out.bytes().toChannelBuffer());
+
+        final ChannelBufferStreamInput in = new ChannelBufferStreamInput(out.bytes().toChannelBuffer());
+
         Map<String, Object> headers = null;
         if (in.readBoolean()) {
             headers = in.readMap();
         }
+
         if (logger.isDebugEnabled()) {
             logger.debug("Reading hits...");
         }
+
         final InternalSearchHits hits = readSearchHits(in);
         InternalSearchHits newHits = hits;
         if (booster != null) {
@@ -276,6 +269,7 @@ public class GraphAidedSearch extends AbstractComponent {
         if (logger.isDebugEnabled()) {
             logger.debug("Reading aggregations...");
         }
+
         InternalAggregations aggregations = null;
 
         if (in.readBoolean()) {
@@ -297,22 +291,18 @@ public class GraphAidedSearch extends AbstractComponent {
         Boolean terminatedEarly = in.readOptionalBoolean();
         InternalProfileShardResults profileResults;
 
-        if (in.getVersion()
-                .onOrAfter(Version.V_2_2_0) && in.readBoolean()) {
+        if (in.getVersion().onOrAfter(Version.V_2_2_0) && in.readBoolean()) {
             profileResults = new InternalProfileShardResults(in);
         } else {
             profileResults = null;
         }
 
-        final InternalSearchResponse internalResponse = new InternalSearchResponse(
-                newHits, aggregations, suggest, profileResults, timedOut,
-                terminatedEarly);
+        final InternalSearchResponse internalResponse = new InternalSearchResponse(newHits, aggregations, suggest, profileResults, timedOut, terminatedEarly);
         final int totalShards = in.readVInt();
         final int successfulShards = in.readVInt();
         final int size = in.readVInt();
         ShardSearchFailure[] shardFailures;
-        if (size
-                == 0) {
+        if (size == 0) {
             shardFailures = ShardSearchFailure.EMPTY_ARRAY;
         } else {
             shardFailures = new ShardSearchFailure[size];
@@ -326,11 +316,8 @@ public class GraphAidedSearch extends AbstractComponent {
         if (logger.isDebugEnabled()) {
             logger.debug("Creating new SearchResponse...");
         }
-        final SearchResponse newResponse = new SearchResponse(
-                internalResponse, scrollId, totalShards,
-                successfulShards, tookInMillis, shardFailures);
-        if (headers
-                != null) {
+        final SearchResponse newResponse = new SearchResponse(internalResponse, scrollId, totalShards, successfulShards, tookInMillis, shardFailures);
+        if (headers != null) {
             for (final Map.Entry<String, Object> entry : headers
                     .entrySet()) {
                 newResponse.putHeader(entry.getKey(),
@@ -339,10 +326,9 @@ public class GraphAidedSearch extends AbstractComponent {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Rewriting overhead time: {} - {} = {}ms",
-                    tookInMillis, response.getTookInMillis(),
-                    tookInMillis - response.getTookInMillis());
+            logger.debug("Rewriting overhead time: {} - {} = {}ms", tookInMillis, response.getTookInMillis(), tookInMillis - response.getTookInMillis());
         }
+
         return newResponse;
     }
 
@@ -359,8 +345,7 @@ public class GraphAidedSearch extends AbstractComponent {
                     Settings indexSettings = null;
                     for (IndexMetaData indexMD : aliasOrIndex.getIndices()) {
                         final Settings scriptSettings = indexMD.getSettings();
-                        final String script = scriptSettings
-                                .get(INDEX_GA_ES_NEO4J_HOST);
+                        final String script = scriptSettings.get(INDEX_GA_ES_NEO4J_HOST);
                         if (script != null && script.length() > 0) {
                             indexSettings = scriptSettings;
                         }
@@ -370,10 +355,7 @@ public class GraphAidedSearch extends AbstractComponent {
                         return IndexInfo.NO_SCRIPT_INFO;
                     }
 
-                    final IndexInfo scriptInfo = new IndexInfo(indexSettings.get(INDEX_GA_ES_NEO4J_HOST),
-                            indexSettings.getAsBoolean(INDEX_GA_ES_NEO4J_ENABLED, false), indexSettings.getAsInt(INDEX_MAX_RESULT_WINDOW, 10000));
-
-                    return scriptInfo;
+                    return new IndexInfo(indexSettings.get(INDEX_GA_ES_NEO4J_HOST), indexSettings.getAsBoolean(INDEX_GA_ES_NEO4J_ENABLED, false), indexSettings.getAsInt(INDEX_MAX_RESULT_WINDOW, DEFAULT_MAX_RESULT_WINDOW));
                 }
             });
         } catch (final Exception e) {
@@ -382,145 +364,86 @@ public class GraphAidedSearch extends AbstractComponent {
         }
     }
 
-    private SearchResultBooster getGABoosters(Map<String, Object> sourceAsMap, IndexInfo indexSettings) throws Exception {
-        HashMap extParams = (HashMap) sourceAsMap.get(GAS_BOOSTER_CLAUSE);
+    private <T extends SearchResultModifier> T get(Map<String, Object> sourceAsMap, IndexInfo indexSettings, final Class<T> clazz, final Class<? extends Annotation> annotationClass, String clause) throws Exception {
+        HashMap extParams = (HashMap) sourceAsMap.get(clause);
         if (extParams == null) {
             return null;
         }
-        String name = (String) extParams.get("name");
-        SearchResultBooster booster = getBooster(name, indexSettings);
+        String name = (String) extParams.get(NAME);
+        T booster = getPrivileged(name, indexSettings, clazz, annotationClass);
         if (booster == null) {
-            logger.warn("No booster found with name " + name);
-            sourceAsMap.remove(GAS_BOOSTER_CLAUSE);
+            logger.warn("No {} found with name {}", clazz.getName(), name);
+            sourceAsMap.remove(clause);
             return null;
         }
 
         booster.parseRequest(sourceAsMap);
-        sourceAsMap.remove(GAS_BOOSTER_CLAUSE);
+        sourceAsMap.remove(clause);
         return booster;
     }
 
-    private SearchResultFilter getGAFilters(Map<String, Object> sourceAsMap, IndexInfo indexSettings) {
-        HashMap extParams = (HashMap) sourceAsMap.get(GAS_FILTER_CLAUSE);
-        if (extParams == null) {
-            return null;
-        }
-        String name = (String) extParams.get("name");
-        SearchResultFilter filter = getFilter(name, indexSettings);
-        if (filter == null) {
-            logger.warn("No booster found with name " + name);
-            sourceAsMap.remove(GAS_FILTER_CLAUSE);
-            return null;
-        }
-
-        filter.parseRequest(sourceAsMap);
-        sourceAsMap.remove(GAS_FILTER_CLAUSE);
-        return filter;
-    }
-
-    private SearchResultBooster getBooster(final String name, final IndexInfo indexSettings) {
-        return AccessController.doPrivileged(new PrivilegedAction<SearchResultBooster>() {
-            public SearchResultBooster run() {
-                return getBoosterAux(name, indexSettings);
+    private <T extends SearchResultModifier> T getPrivileged(final String name, final IndexInfo indexSettings, final Class<T> clazz, final Class<? extends Annotation> annotationClass) {
+        return AccessController.doPrivileged(new PrivilegedAction<T>() {
+            public T run() {
+                return instantiate(name, indexSettings, clazz, annotationClass);
             }
         });
     }
 
-    private SearchResultBooster getBoosterAux(String name, IndexInfo indexSettings) {
-        if (boostersClasses == null) {
-            boostersClasses = loadBoosters();
-        }
+    private <T extends SearchResultModifier> T instantiate(String name, IndexInfo indexSettings, Class<T> clazz, Class<? extends Annotation> annotationClass) {
+        Map<String, Class<T>> classes = loadCachedClasses(clazz, annotationClass);
 
-        if (boostersClasses.isEmpty() || !boostersClasses.containsKey(name.toLowerCase())) {
+        if (classes.isEmpty() || !classes.containsKey(name.toLowerCase())) {
             return null;
         }
-        Class<SearchResultBooster> boosterClass = boostersClasses.get(name.toLowerCase());
-        SearchResultBooster newBooster = null;
+
+        Class<T> filterClass = classes.get(name.toLowerCase());
+        T result = null;
 
         try {
             try {
-                Constructor<SearchResultBooster> constructor = boosterClass.getConstructor(Settings.class, IndexInfo.class
-                );
-                newBooster = constructor.newInstance(settings, indexSettings);
-            } catch (NoSuchMethodException ex) {
-                logger.warn("No constructor with settings for class {}. Using default", boosterClass.getName());
-                newBooster = boosterClass.newInstance();
-            } catch (IllegalArgumentException | InvocationTargetException | SecurityException ex) {
-                logger.error("Error while creating new instance for booster {}", boosterClass.getName(), ex);
-            }
-            return newBooster;
-        } catch (InstantiationException | IllegalAccessException ex) {
-            logger.error("Error while initializing new booster", ex);
-            return null;
-
-        }
-    }
-
-    private static Map<String, Class<SearchResultBooster>> loadBoosters() {
-        Collection<Class<SearchResultBooster>> boosters = PluginClassLoader.loadClass(SearchResultBooster.class, SearchBooster.class
-        ).values();
-        HashMap<String, Class<SearchResultBooster>> result = new HashMap<>();
-
-        for (Class<SearchResultBooster> boosterClass : boosters) {
-            String name = boosterClass.getAnnotation(SearchBooster.class
-            ).name().toLowerCase();
-            Loggers
-                    .getLogger(GraphAidedSearch.class
-                    ).warn("Available booster: " + name);
-            result.put(name, boosterClass);
-        }
-        return result;
-    }
-
-    private SearchResultFilter getFilter(final String name, final IndexInfo indexSettings) {
-        return AccessController.doPrivileged(new PrivilegedAction<SearchResultFilter>() {
-            public SearchResultFilter run() {
-                return getFilterAux(name, indexSettings);
-            }
-        });
-    }
-
-    private SearchResultFilter getFilterAux(String name, IndexInfo indexSettings) {
-        if (filtersClasses == null) {
-            filtersClasses = loadFilters();
-        }
-
-        if (filtersClasses.isEmpty() || !filtersClasses.containsKey(name.toLowerCase())) {
-            return null;
-        }
-        Class<SearchResultFilter> filterClass = filtersClasses.get(name.toLowerCase());
-        SearchResultFilter newFilter = null;
-
-        try {
-            try {
-                Constructor<SearchResultFilter> constructor = filterClass.getConstructor(Settings.class, IndexInfo.class
-                );
-                newFilter = constructor.newInstance(settings, indexSettings);
+                Constructor<T> constructor = filterClass.getConstructor(Settings.class, IndexInfo.class);
+                result = constructor.newInstance(settings, indexSettings);
             } catch (NoSuchMethodException ex) {
                 logger.warn("No constructor with settings for class {}. Using default", filterClass.getName());
-                newFilter = filterClass.newInstance();
+                result = filterClass.newInstance();
             } catch (IllegalArgumentException | InvocationTargetException | SecurityException ex) {
-                logger.error("Error while creating new instance for booster {}", filterClass.getName(), ex);
+                logger.error("Error while creating new instance for {}", filterClass.getName(), ex);
             }
-            return newFilter;
+            return result;
         } catch (InstantiationException | IllegalAccessException ex) {
-            logger.error("Error while initializing new booster", ex);
+            logger.error("Error while initializing new {}", filterClass.getName(), ex);
             return null;
-
         }
     }
 
-    private static Map<String, Class<SearchResultFilter>> loadFilters() {
-        Collection<Class<SearchResultFilter>> filters = PluginClassLoader.loadClass(SearchResultFilter.class, SearchFilter.class
-        ).values();
+    private <T extends SearchResultModifier> Map<String, Class<T>> loadCachedClasses(Class<T> clazz, Class<? extends Annotation> annotationClass) {
+        @SuppressWarnings("unchecked")
+        Map<String, Class<T>> cachedMap = (Map<String, Class<T>>) classCache.get(clazz);
 
-        HashMap<String, Class<SearchResultFilter>> result = new HashMap<>();
-
-        for (Class<SearchResultFilter> filterClass : filters) {
-            String name = filterClass.getAnnotation(SearchFilter.class
-            ).name().toLowerCase();
-            result.put(name, filterClass);
+        if (cachedMap == null) {
+            cachedMap = loadClasses(clazz, annotationClass);
+            classCache.put(clazz, cachedMap);
         }
+
+        return cachedMap;
+    }
+
+    private <T> Map<String, Class<T>> loadClasses(Class<T> clazz, Class<? extends Annotation> annotationClass) {
+        Collection<Class<T>> classes = PluginClassLoader.loadClass(clazz, annotationClass).values();
+
+        Map<String, Class<T>> result = new HashMap<>();
+
+        for (Class<T> cls : classes) {
+            Annotation annotation = cls.getAnnotation(annotationClass);
+            try {
+                Method nameMethod = annotationClass.getDeclaredMethod("name");
+                result.put(((String) nameMethod.invoke(annotation)).toLowerCase(), cls);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         return result;
     }
 }

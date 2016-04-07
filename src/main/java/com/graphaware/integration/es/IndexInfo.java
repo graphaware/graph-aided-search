@@ -17,26 +17,22 @@ package com.graphaware.integration.es;
 
 public class IndexInfo {
 
-    protected final static IndexInfo NO_SCRIPT_INFO = new IndexInfo();
-    private String neo4jHost;
-    private boolean enabled;
-    private int maxResultWindow;
+    public final static IndexInfo NO_SCRIPT_INFO = new IndexInfo();
+
+    private final String neo4jHost;
+    private final boolean enabled;
+    private final int maxResultWindow;
 
     IndexInfo() {
+        this.neo4jHost = null;
         this.enabled = false;
+        this.maxResultWindow = 0;
     }
 
-    IndexInfo(final String hostname, boolean enabled, int maxResultWindow) {
+    public IndexInfo(final String hostname, boolean enabled, int maxResultWindow) {
         this.neo4jHost = hostname;
         this.enabled = enabled;
         this.maxResultWindow = maxResultWindow;
-    }
-
-    @Override
-    public String toString() {
-        return "ScriptInfo ["
-                + " neo4jHost=" + neo4jHost + ", enabled=" + enabled + ", maxResultWindow=" + maxResultWindow
-                + "]";
     }
 
     public String getNeo4jHost() {
@@ -51,8 +47,8 @@ public class IndexInfo {
         return maxResultWindow;
     }
 
-    public void setMaxResultWindow(int maxResultWindow) {
-        this.maxResultWindow = maxResultWindow;
+    @Override
+    public String toString() {
+        return "ScriptInfo [neo4jHost=" + neo4jHost + ", enabled=" + enabled + ", maxResultWindow=" + maxResultWindow + "]";
     }
-
 }

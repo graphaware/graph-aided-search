@@ -61,7 +61,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         size = NumberUtil.getInt(sourceAsMap.get(SIZE), 10);
         from = NumberUtil.getInt(sourceAsMap.get(FROM), 0);
 
-        HashMap extParams = (HashMap) sourceAsMap.get(GraphAidedSearch.GAS_FILTER_CLAUSE);
+        HashMap extParams = (HashMap) sourceAsMap.get(GAS_FILTER_CLAUSE);
         if (extParams != null) {
             cypher = (String) extParams.get(QUERY);
             maxResultSize = NumberUtil.getInt(extParams.get(MAX_RESULT_SIZE), maxResultWindow);

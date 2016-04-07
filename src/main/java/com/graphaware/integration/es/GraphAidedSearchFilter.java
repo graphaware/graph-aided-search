@@ -29,20 +29,18 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
-public class GraphAidedSearchFilter extends AbstractComponent
-        implements ActionFilter {
+public class GraphAidedSearchFilter extends AbstractComponent implements ActionFilter {
 
     private static final String SEARCH_REQUEST_INVOKED = "filter.graphaware.neo4j.Invoked";
 
     protected final ESLogger logger;
 
-    private int order;
+    private int order; //todo this field is never assigned to, how does it work?
 
     private final GraphAidedSearch graphAidedSearch;
 
     @Inject
-    public GraphAidedSearchFilter(final Settings settings,
-            final GraphAidedSearch graphAidedSearch) {
+    public GraphAidedSearchFilter(final Settings settings, final GraphAidedSearch graphAidedSearch) {
         super(settings);
         this.graphAidedSearch = graphAidedSearch;
         logger = Loggers.getLogger(GraphAidedSearchFilter.class.getName(), settings);
@@ -54,10 +52,7 @@ public class GraphAidedSearchFilter extends AbstractComponent
     }
 
     @Override
-    public void apply(final String action,
-            @SuppressWarnings("rawtypes") final ActionRequest request,
-            @SuppressWarnings("rawtypes") final ActionListener listener,
-            final ActionFilterChain chain) {
+    public void apply(final String action, final ActionRequest request, final ActionListener listener, final ActionFilterChain chain) {
         if (!SearchAction.INSTANCE.name().equals(action)) {
             chain.proceed(action, request, listener);
             return;
@@ -67,10 +62,8 @@ public class GraphAidedSearchFilter extends AbstractComponent
         final Boolean invoked = searchRequest.getHeader(SEARCH_REQUEST_INVOKED);
         if (invoked != null && invoked) {
             @SuppressWarnings("unchecked")
-            final ActionListener<SearchResponse> wrappedListener = graphAidedSearch
-                    .wrapActionListener(action, searchRequest, listener);
-            chain.proceed(action, request,
-                    wrappedListener == null ? listener : wrappedListener);
+            final ActionListener<SearchResponse> wrappedListener = graphAidedSearch.wrapActionListener(action, searchRequest, listener);
+            chain.proceed(action, request, wrappedListener == null ? listener : wrappedListener);
         } else {
             searchRequest.putHeader(SEARCH_REQUEST_INVOKED, Boolean.TRUE);
             chain.proceed(action, request, listener);
@@ -79,8 +72,7 @@ public class GraphAidedSearchFilter extends AbstractComponent
     }
 
     @Override
-    public void apply(final String action, final ActionResponse response,
-            @SuppressWarnings("rawtypes") final ActionListener listener, final ActionFilterChain chain) {
+    public void apply(final String action, final ActionResponse response, final ActionListener listener, final ActionFilterChain chain) {
         chain.proceed(action, response, listener);
     }
 

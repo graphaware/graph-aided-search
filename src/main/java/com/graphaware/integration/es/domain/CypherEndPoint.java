@@ -1,7 +1,17 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2013-2016 GraphAware
+ *
+ * This file is part of the GraphAware Framework.
+ *
+ * GraphAware Framework is free software: you can redistribute it and/or modify it under the terms of
+ * the GNU General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details. You should have received a copy of
+ * the GNU General Public License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package com.graphaware.integration.es.domain;
 
@@ -36,30 +46,41 @@ public class CypherEndPoint {
 
     public Map<String, Object> post(String url, String json) {
         WebResource resource = Client.create(cfg).resource(url);
-        ClientResponse response = resource
-                .accept(MediaType.APPLICATION_JSON)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(json)
-                .post(ClientResponse.class);
-        GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>() {
-        };
-        Map<String, Object> results = response.getEntity(type);
-        response.close();
-        
+        ClientResponse response = null;
+        Map<String, Object> results = null;
+        try {
+            response = resource
+                    .accept(MediaType.APPLICATION_JSON)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(json)
+                    .post(ClientResponse.class);
+            GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>() {
+            };
+            results = response.getEntity(type);
+        } finally {
+            if (response != null)
+                response.close();
+        }
+
         if (logger.isDebugEnabled()) {
             try {
                 ObjectMapper oWrapper = ObjectMapper.class.newInstance();
-                logger.debug(oWrapper.writeValueAsString(results)); //todo log instead of System.out?
+                logger.debug(oWrapper.writeValueAsString(results));
             } catch (InstantiationException | IllegalAccessException | IOException e) {
                 //
             }
         }
-
+        if (results == null) {
+            logger.error("Null results from cypher endpoint for json:\n" + json);
+            throw new RuntimeException("Cypher Execution Error. No results returned");
+        }
+            
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> errors = (List) results.get(ERRORS);
         if (errors.size() > 0) {
             throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
         }
+        
         return results;
     }
 }

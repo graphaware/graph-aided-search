@@ -18,7 +18,8 @@ package com.graphaware.integration.es.booster;
 import com.graphaware.integration.es.GraphAidedSearchPlugin;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.result.ExternalResult;
+import com.graphaware.integration.es.domain.Constants;
+import com.graphaware.integration.es.domain.ExternalResult;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -37,10 +38,13 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
+import static com.graphaware.integration.es.domain.Constants.*;
+
 @SearchBooster(name = "SearchResultNeo4jBooster")
 public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
-    private final static String DEFAULT_KEY_PROPERTY = "uuid";
+
+
     private String restEndpoint = null;
     private final ESLogger logger;
     private String targetId;
@@ -53,7 +57,7 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
     @Override
     protected Map<String, ExternalResult> externalDoReorder(Set<String> keySet) {
-        logger.warn("Query cypher for: " + keySet);
+        logger.debug("Query cypher for: " + keySet);
 
         String recommendationEndopint = getRestURL()
                 + getTargetId();
@@ -68,11 +72,12 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
             ids = ids.concat(id);
         }
         MultivaluedMap param = new MultivaluedMapImpl();
-        param.add("limit", String.valueOf(Integer.MAX_VALUE));
-        param.add("from", String.valueOf(getFrom()));
-        param.add("keyProperty", getKeyProperty());
-        param.add("ids", ids);
-        logger.warn("Call: " + recommendationEndopint);
+        param.add(LIMIT, String.valueOf(Integer.MAX_VALUE));
+        param.add(FROM, String.valueOf(getFrom()));
+        param.add(KEY_PROPERTY, getKeyProperty());
+        param.add(IDS, ids);
+
+        logger.debug("Call: " + recommendationEndopint);
 
         ClientConfig cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
@@ -95,10 +100,10 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
     }
 
     @Override
-    protected void extendedParseRequest(HashMap extParams) {
-        targetId = (String) extParams.get("recoTarget");
-        keyProperty = (String) (extParams.get("keyProperty") != null ? extParams.get("keyProperty") : DEFAULT_KEY_PROPERTY);
-        restEndpoint = (String) (extParams.get("neo4j.endpoint"));
+    protected void extendedParseRequest(Map<String, String>  extParams) {
+        targetId = extParams.get(RECO_TARGET);
+        keyProperty = extParams.get(KEY_PROPERTY) != null ? extParams.get(KEY_PROPERTY) : DEFAULT_KEY_PROPERTY;
+        restEndpoint = extParams.get(NEO4J_ENDPOINT);
     }
 
     private String getRestURL() {
@@ -106,7 +111,7 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
         if (restEndpoint != null) {
             endpoint += restEndpoint;
         } else {
-            endpoint += "/graphaware/recommendation/filter";
+            endpoint += ENDPOINT;
         }
         return endpoint;
     }

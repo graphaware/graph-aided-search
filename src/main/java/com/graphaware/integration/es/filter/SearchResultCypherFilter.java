@@ -36,10 +36,13 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
+import static com.graphaware.integration.es.domain.Constants.*;
+
 @SearchFilter(name = "SearchResultCypherFilter")
 public class SearchResultCypherFilter implements SearchResultFilter {
 
     private static final Logger logger = Logger.getLogger(SearchResultCypherFilter.class.getName());
+
     private final String neo4jHost;
     private final int maxResultWindow;
 
@@ -55,25 +58,25 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     }
 
     public void parseRequest(Map<String, Object> sourceAsMap) {
-        size = NumberUtil.getInt(sourceAsMap.get("size"), 10);
-        from = NumberUtil.getInt(sourceAsMap.get("from"), 0);
+        size = NumberUtil.getInt(sourceAsMap.get(SIZE), 10);
+        from = NumberUtil.getInt(sourceAsMap.get(FROM), 0);
 
         HashMap extParams = (HashMap) sourceAsMap.get(GraphAidedSearch.GAS_FILTER_CLAUSE);
         if (extParams != null) {
-            cypher = (String) extParams.get("query");
-            maxResultSize = NumberUtil.getInt(extParams.get("maxResultSize"), maxResultWindow);
-            shouldExclude = extParams.containsKey("exclude") && String.valueOf(extParams.get("exclude")).equalsIgnoreCase("true");
+            cypher = (String) extParams.get(QUERY);
+            maxResultSize = NumberUtil.getInt(extParams.get(MAX_RESULT_SIZE), maxResultWindow);
+            shouldExclude = extParams.containsKey(EXCLUDE) && String.valueOf(extParams.get(EXCLUDE)).equalsIgnoreCase(TRUE);
         }
         if (maxResultSize > 0) {
-            sourceAsMap.put("size", maxResultSize);
+            sourceAsMap.put(SIZE, maxResultSize);
         }
         if (null == cypher) {
             throw new RuntimeException("The Query Parameter is required in gas-filter");
         }
-        sourceAsMap.put("from", 0);
+        sourceAsMap.put(FROM, 0);
     }
 
-    public InternalSearchHits doFilter(final InternalSearchHits hits) {
+    public InternalSearchHits modify(final InternalSearchHits hits) {
         Set<String> remoteFilter = executeCypher(neo4jHost, cypher);
         final InternalSearchHit[] searchHits = hits.internalHits();
         Map<String, InternalSearchHit> hitMap = new HashMap<>();
@@ -97,7 +100,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         }
         int totalSize = k;
 
-        logger.log(Level.WARNING, "k <= reorderSize: {0}", (k <= size));
+        logger.log(Level.FINE, "k <= reorderSize: {0}", (k <= size));
 
         final int arraySize = (size + from) < k ? size
                 : (k - from) > 0 ? (k - from) : 0;
@@ -139,7 +142,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
             serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
         }
 
-        return post(serverUrl + "/db/data/transaction/commit", stringBuilder.toString());
+        return post(serverUrl + CYPHER_ENDPOINT, stringBuilder.toString());
     }
 
     public Set<String> post(String url, String json) {
@@ -156,18 +159,18 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         Map<String, Object> results = response.getEntity(type);
 
         @SuppressWarnings("unchecked")
-        ArrayList<HashMap<String, Object>> errors = (ArrayList) results.get("errors");
+        ArrayList<HashMap<String, Object>> errors = (ArrayList) results.get(ERRORS);
         if (errors.size() > 0) {
             throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
         }
 
-        Map res = (Map) ((ArrayList) results.get("results")).get(0);
+        Map res = (Map) ((ArrayList) results.get(RESULTS)).get(0);
 
-        ArrayList<LinkedHashMap> rows = (ArrayList) res.get("data");
+        ArrayList<LinkedHashMap> rows = (ArrayList) res.get(DATA);
         response.close();
         Set<String> newSet = new HashSet<>();
-        for (Iterator<LinkedHashMap> it = rows.iterator(); it.hasNext();) {
-            String nodeId = getIdentifier(((ArrayList) (it.next().get("row"))).get(0));
+        for (LinkedHashMap row : rows) {
+            String nodeId = getIdentifier(((ArrayList) (row.get(ROW))).get(0));
             newSet.add(String.valueOf(nodeId));
         }
         return newSet;

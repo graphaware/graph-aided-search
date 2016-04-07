@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2013-2016 GraphAware
  *
@@ -14,11 +13,16 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.filter;
 
-import com.graphaware.integration.es.domain.SearchResultModifier;
+package com.graphaware.integration.es.domain;
 
-public interface SearchResultFilter extends SearchResultModifier {
+import org.elasticsearch.search.internal.InternalSearchHits;
 
+import java.util.Map;
 
+public interface SearchResultModifier {
+
+    InternalSearchHits modify(final InternalSearchHits hits);
+
+    void parseRequest(Map<String, Object> sourceAsMap);
 }

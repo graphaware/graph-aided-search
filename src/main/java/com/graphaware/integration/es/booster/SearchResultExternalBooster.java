@@ -15,16 +15,17 @@
  */
 package com.graphaware.integration.es.booster;
 
-import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.GraphAidedSearch;
-import com.graphaware.integration.es.result.ExternalResult;
+import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.ExternalResult;
 import com.graphaware.integration.es.util.NumberUtil;
-
-import java.util.*;
-
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
+
+import java.util.*;
+
+import static com.graphaware.integration.es.domain.Constants.*;
 
 public abstract class SearchResultExternalBooster implements SearchResultBooster {
 
@@ -45,24 +46,24 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
         this.maxResultWindow = indexSettings.getMaxResultWindow();
     }
 
-    public final void parseRequest(Map<String, Object> sourceAsMap) throws Exception {
-        size = NumberUtil.getInt(sourceAsMap.get("size"), 10);
-        from = NumberUtil.getInt(sourceAsMap.get("from"), 0);
+    public final void parseRequest(Map<String, Object> sourceAsMap) {
+        size = NumberUtil.getInt(sourceAsMap.get(SIZE), 10);
+        from = NumberUtil.getInt(sourceAsMap.get(FROM), 0);
 
-        HashMap extParams = (HashMap) sourceAsMap.get(GraphAidedSearch.GAS_BOOSTER_CLAUSE);
+        Map<String, String> extParams = (Map<String, String>) sourceAsMap.get(GraphAidedSearch.GAS_BOOSTER_CLAUSE);
         if (extParams != null) {
-            maxResultSize = NumberUtil.getInt(extParams.get("maxResultSize"), maxResultWindow);
-            composeScoreOperator = extParams.get("operator") != null ? (String) extParams.get("operator") : DEFAULT_SCORE_OPERATOR;
+            maxResultSize = NumberUtil.getInt(extParams.get(MAX_RESULT_SIZE), maxResultWindow);
+            composeScoreOperator = extParams.get(OPERATOR) != null ? extParams.get(OPERATOR) : DEFAULT_SCORE_OPERATOR;
             extendedParseRequest(extParams);
             validateOperator();
         }
         if (maxResultSize > 0) {
-            sourceAsMap.put("size", maxResultSize);
+            sourceAsMap.put(SIZE, maxResultSize);
         }
-        sourceAsMap.put("from", 0);
+        sourceAsMap.put(FROM, 0);
     }
 
-    public InternalSearchHits doReorder(final InternalSearchHits hits) {
+    public InternalSearchHits modify(final InternalSearchHits hits) {
         final InternalSearchHit[] searchHits = hits.internalHits();
         Map<String, InternalSearchHit> hitMap = new HashMap<>();
         for (InternalSearchHit hit : searchHits) {
@@ -116,15 +117,15 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
 
     protected float composeScore(float esScore, float extScore) {
         switch (getComposeScoreOperator()) {
-            case "*":
+            case MULTIPLY:
                 return esScore * extScore;
-            case "/":
+            case DIVIDE:
                 return esScore / extScore;
-            case "+":
+            case PLUS:
                 return esScore + extScore;
-            case "-":
+            case MINUS:
                 return esScore - extScore;
-            case "replace":
+            case REPLACE:
                 return extScore;
             default:
                 return esScore;
@@ -154,17 +155,17 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
         return maxResultWindow;
     }
 
-    protected void extendedParseRequest(HashMap extParams) {
+    protected void extendedParseRequest(Map<String, String> extParams) {
 
     }
 
     protected void validateOperator() {
         Set<String> validOperators = new HashSet<>();
-        validOperators.add("*");
-        validOperators.add("+");
-        validOperators.add("-");
-        validOperators.add("/");
-        validOperators.add("replace");
+        validOperators.add(MULTIPLY);
+        validOperators.add(PLUS);
+        validOperators.add(MINUS);
+        validOperators.add(DIVIDE);
+        validOperators.add(REPLACE);
 
         String operator = getComposeScoreOperator();
 

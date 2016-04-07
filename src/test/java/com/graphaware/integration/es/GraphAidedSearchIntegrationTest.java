@@ -29,7 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_ENABLED;
+import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_HOST;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
 
@@ -460,12 +463,12 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
 
     private void createIndices() {
         Map<String, Object> settings1 = new HashMap<>();
-        settings1.put(GraphAidedSearch.INDEX_GA_ES_NEO4J_ENABLED, true);
-        settings1.put(GraphAidedSearch.INDEX_GA_ES_NEO4J_HOST, NEO4J_HOSTNAME);
+        settings1.put(INDEX_GA_ES_NEO4J_ENABLED, true);
+        settings1.put(INDEX_GA_ES_NEO4J_HOST, NEO4J_HOSTNAME);
         createIndex(INDEX_NAME, settings1);
 
         Map<String, Object> settings2 = new HashMap<>();
-        settings2.put(GraphAidedSearch.INDEX_GA_ES_NEO4J_ENABLED, false);
+        settings2.put(INDEX_GA_ES_NEO4J_ENABLED, false);
         createIndex(DISABLED_INDEX_NAME, settings2);
     }
 

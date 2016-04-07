@@ -16,9 +16,9 @@
 package com.graphaware.integration.es.booster;
 
 import com.graphaware.integration.es.GraphAidedSearchPlugin;
-import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.result.ExternalResult;
+import com.graphaware.integration.es.annotation.SearchBooster;
+import com.graphaware.integration.es.domain.ExternalResult;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -27,20 +27,19 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.elasticsearch.common.logging.ESLogger;
+import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
 import javax.ws.rs.core.MediaType;
 import java.util.*;
-import org.elasticsearch.common.logging.ESLogger;
-import org.elasticsearch.common.logging.Loggers;
+
+import static com.graphaware.integration.es.domain.Constants.*;
 
 @SearchBooster(name = "SearchResultCypherBooster")
 public class SearchResultCypherBooster extends SearchResultExternalBooster {
 
     private final ESLogger logger;
-
-    private static final String DEFAULT_SCORE_RESULT_NAME = "score";
-    private static final String DEFAULT_ID_RESULT_NAME = "id";
 
     private String cypherQuery;
     private String scoreResultName;
@@ -52,10 +51,10 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     }
 
     @Override
-    protected void extendedParseRequest(HashMap extParams) {
-        cypherQuery = (String) (extParams.get("query"));
-        scoreResultName = extParams.get("scoreName") != null ? (String) extParams.get("scoreName") : DEFAULT_SCORE_RESULT_NAME;
-        idResultName = extParams.get("identifier") != null ? (String) extParams.get("identifier") : DEFAULT_ID_RESULT_NAME;
+    protected void extendedParseRequest(Map<String, String>  extParams) {
+        cypherQuery = extParams.get(QUERY);
+        scoreResultName = extParams.get(SCORE_NAME) != null ? extParams.get(SCORE_NAME) : DEFAULT_SCORE_RESULT_NAME;
+        idResultName = extParams.get(IDENTIFIER) != null ? extParams.get(IDENTIFIER) : DEFAULT_ID_RESULT_NAME;
         if (null == cypherQuery) {
             throw new RuntimeException("The Query Parameter cannot be null in gas-booster");
         }
@@ -63,7 +62,7 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
 
     @Override
     protected Map<String, ExternalResult> externalDoReorder(Set<String> keySet) {
-        logger.warn("Query cypher for: " + keySet);
+        logger.debug("Query cypher for: " + keySet);
         Map<String, Float> res = executeCypher(getNeo4jHost(), keySet, cypherQuery);
 
         HashMap<String, ExternalResult> results = new HashMap<>();
@@ -74,6 +73,7 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
         return results;
     }
 
+    //todo can this not be a query with parameters?
     protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String... cypherStatements) {
         StringBuilder stringBuilder = new StringBuilder();
         try {
@@ -92,7 +92,7 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
             serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
         }
 
-        return post(serverUrl + "/db/data/transaction/commit", stringBuilder.toString());
+        return post(serverUrl + CYPHER_ENDPOINT, stringBuilder.toString());
     }
 
     protected Map<String, Float> post(String url, String json) {
@@ -108,19 +108,19 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
         };
         Map<String, Object> results = response.getEntity(type);
         try {
-            System.out.println(ObjectMapper.class.newInstance().writeValueAsString(results));
+            System.out.println(ObjectMapper.class.newInstance().writeValueAsString(results)); //todo log instead of System.out?
         } catch (Exception e) {
             //
         }
         @SuppressWarnings("unchecked")
-        ArrayList<HashMap<String, Object>> errors = (ArrayList) results.get("errors");
+        ArrayList<HashMap<String, Object>> errors = (ArrayList) results.get(ERRORS);
         if (errors.size() > 0) {
             throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
         }
 
-        Map res = (Map) ((ArrayList) results.get("results")).get(0);
-        ArrayList<LinkedHashMap> rows = (ArrayList) res.get("data");
-        List<String> columns = (List) res.get("columns");
+        Map res = (Map) ((ArrayList) results.get(RESULTS)).get(0);
+        ArrayList<LinkedHashMap> rows = (ArrayList) res.get(DATA);
+        List<String> columns = (List) res.get(COLUMNS);
         response.close();
         int k = 0;
         Map<String, Integer> columnsMap = new HashMap<>();
@@ -129,9 +129,8 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
             ++k;
         }
         Map<String, Float> resultRows = new HashMap<>();
-        for (Iterator<LinkedHashMap> it = rows.iterator(); it.hasNext();) {
-            LinkedHashMap r = it.next();
-            ArrayList row = (ArrayList) r.get("row");
+        for (LinkedHashMap r : rows) {
+            ArrayList row = (ArrayList) r.get(ROW);
             String key = String.valueOf(row.get(columnsMap.get(idResultName)));
             float value = Float.parseFloat(String.valueOf(row.get(columnsMap.get(scoreResultName))));
             resultRows.put(key, value);

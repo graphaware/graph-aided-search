@@ -15,12 +15,8 @@
  */
 package com.graphaware.integration.es.booster;
 
-import java.util.Map;
-import org.elasticsearch.search.internal.InternalSearchHits;
+import com.graphaware.integration.es.domain.SearchResultModifier;
 
-public interface SearchResultBooster {
+public interface SearchResultBooster extends SearchResultModifier {
 
-    InternalSearchHits doReorder(final InternalSearchHits hits);
-
-    void parseRequest(Map<String, Object> sourceAsMap) throws Exception;
 }

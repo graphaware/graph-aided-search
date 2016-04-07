@@ -22,7 +22,7 @@ import com.graphaware.integration.es.filter.SearchResultFilter;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.annotation.SearchFilter;
 import com.graphaware.integration.es.booster.SearchResultBooster;
-import com.graphaware.integration.es.query.RetrySearchException;
+import com.graphaware.integration.es.domain.RetrySearchException;
 import com.graphaware.integration.es.util.NumberUtil;
 import com.graphaware.integration.es.util.PluginClassLoader;
 import org.elasticsearch.Version;
@@ -61,6 +61,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import static com.graphaware.integration.es.domain.Constants.*;
 import static org.elasticsearch.action.search.ShardSearchFailure.readShardSearchFailure;
 import org.elasticsearch.cluster.metadata.AliasOrIndex;
 import static org.elasticsearch.search.internal.InternalSearchHits.readSearchHits;
@@ -68,13 +69,6 @@ import org.elasticsearch.search.profile.InternalProfileShardResults;
 import org.elasticsearch.transport.netty.ChannelBufferStreamInput;
 
 public class GraphAidedSearch extends AbstractComponent {
-
-    public static final String INDEX_GA_ES_NEO4J_ENABLED = "index.gas.enable";
-    public static final String INDEX_MAX_RESULT_WINDOW = "max_result_window";
-//    public static final String INDEX_GA_ES_NEO4J_REORDER_TYPE = "index.gas.booster.defaultClass";
-//    public static final String INDEX_GA_ES_NEO4J_KEY_PROPERTY = "index.gas.booster.keyProperty";
-    public static final String INDEX_GA_ES_NEO4J_HOST = "index.gas.neo4j.hostname";
-//    public static final String DEFAULT_KEY_PROPERTY = "uuid";
 
     private static final String GAS_REQUEST = "_gas";
 
@@ -265,7 +259,7 @@ public class GraphAidedSearch extends AbstractComponent {
             newHits = AccessController.doPrivileged(new PrivilegedAction<InternalSearchHits>() {
                 @Override
                 public InternalSearchHits run() {
-                    return booster.doReorder(hits);
+                    return booster.modify(hits);
                 }
             });
         }
@@ -274,7 +268,7 @@ public class GraphAidedSearch extends AbstractComponent {
             newHits = AccessController.doPrivileged(new PrivilegedAction<InternalSearchHits>() {
                 @Override
                 public InternalSearchHits run() {
-                    return filter.doFilter(newHitsFinal);
+                    return filter.modify(newHitsFinal);
                 }
             });
         }

@@ -13,7 +13,7 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.result;
+package com.graphaware.integration.es.domain;
 
 import java.util.Comparator;
 

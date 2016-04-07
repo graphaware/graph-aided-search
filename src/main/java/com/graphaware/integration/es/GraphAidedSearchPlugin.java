@@ -24,7 +24,7 @@ import org.elasticsearch.cluster.settings.Validator;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.plugins.Plugin;
 
-import static com.graphaware.integration.es.GraphAidedSearch.*;
+import static com.graphaware.integration.es.domain.Constants.*;
 
 public class GraphAidedSearchPlugin extends Plugin {
 

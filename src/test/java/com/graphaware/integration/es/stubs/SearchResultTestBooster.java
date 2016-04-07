@@ -17,7 +17,7 @@ package com.graphaware.integration.es.stubs;
 
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.booster.SearchResultExternalBooster;
-import com.graphaware.integration.es.result.ExternalResult;
+import com.graphaware.integration.es.domain.ExternalResult;
 import com.graphaware.integration.es.IndexInfo;
 import java.util.HashMap;
 import java.util.Map;

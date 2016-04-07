@@ -26,14 +26,15 @@ import org.elasticsearch.common.settings.Settings;
 public class CypherEndPoint {
 
     private final ESLogger logger;
+    private final ClientConfig cfg;
 
     public CypherEndPoint(Settings settings) {
         this.logger = Loggers.getLogger(INDEX_LOGGER_NAME, settings);
+        cfg = new DefaultClientConfig();
+        cfg.getClasses().add(JacksonJsonProvider.class);
     }
 
     public Map<String, Object> post(String url, String json) {
-        ClientConfig cfg = new DefaultClientConfig();
-        cfg.getClasses().add(JacksonJsonProvider.class);
         WebResource resource = Client.create(cfg).resource(url);
         ClientResponse response = resource
                 .accept(MediaType.APPLICATION_JSON)

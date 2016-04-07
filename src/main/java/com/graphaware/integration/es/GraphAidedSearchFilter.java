@@ -37,14 +37,18 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
 
     private final int order; //todo this field is never assigned to, how does it work?
 
-    private final GraphAidedSearch graphAidedSearch;
+    private GraphAidedSearch graphAidedSearch;
 
     @Inject
-    public GraphAidedSearchFilter(final Settings settings, final GraphAidedSearch graphAidedSearch) {
+    public GraphAidedSearchFilter(final Settings settings) {
         super(settings);
-        this.graphAidedSearch = graphAidedSearch;
+        //this.graphAidedSearch = graphAidedSearch;
         logger = Loggers.getLogger(GraphAidedSearchFilter.class.getName(), settings);
         order = settings.getAsInt("indices.graphaware.filter.order", 10);
+    }
+
+    public void setGraphAidedSearch(GraphAidedSearch graphAidedSearch) {
+        this.graphAidedSearch = graphAidedSearch;
     }
 
     @Override

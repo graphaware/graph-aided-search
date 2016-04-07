@@ -68,26 +68,45 @@ import java.util.concurrent.TimeUnit;
 
 import static com.graphaware.integration.es.domain.Constants.*;
 import static org.elasticsearch.action.search.ShardSearchFailure.readShardSearchFailure;
+import org.elasticsearch.action.support.ActionFilter;
+import org.elasticsearch.action.support.ActionFilters;
+import org.elasticsearch.common.component.AbstractLifecycleComponent;
+import org.elasticsearch.script.ScriptService;
 import static org.elasticsearch.search.internal.InternalSearchHits.readSearchHits;
 
-public class GraphAidedSearch extends AbstractComponent {
+public class GraphAidedSearch extends AbstractLifecycleComponent<GraphAidedSearch> {
 
     private final ClusterService clusterService;
     private final Cache<String, IndexInfo> scriptInfoCache;
     private final Map<Class<? extends SearchResultModifier>, Map<String, ?>> classCache = new HashMap<>();
 
-    private Client client;
+    private final Client client;
 
     @Inject
-    public GraphAidedSearch(final Settings settings, final ClusterService clusterService, final ThreadPool threadPool) {
+    public GraphAidedSearch(final Settings settings,
+            final Client client,
+            final ClusterService clusterService,
+            final ScriptService scriptService, 
+            final ThreadPool threadPool,
+            final ActionFilters filters) {
         super(settings);
         this.clusterService = clusterService;
+        this.client = client;
 
         scriptInfoCache = CacheBuilder
                 .newBuilder()
                 .concurrencyLevel(16)
                 .expireAfterAccess(120, TimeUnit.SECONDS)
                 .build();
+        
+        for (final ActionFilter filter : filters.filters()) {
+            if (filter instanceof GraphAidedSearchFilter) {
+                ((GraphAidedSearchFilter) filter).setGraphAidedSearch(this);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Set GraphAidedSearch to " + filter);
+                }
+            }
+        }
     }
 
     public ActionListener<SearchResponse> wrapActionListener(final String action, final SearchRequest request, final ActionListener<SearchResponse> listener) {
@@ -445,5 +464,20 @@ public class GraphAidedSearch extends AbstractComponent {
         }
 
         return result;
+    }
+
+    @Override
+    protected void doStart() {
+        
+    }
+
+    @Override
+    protected void doStop() {
+        
+    }
+
+    @Override
+    protected void doClose() {
+        
     }
 }

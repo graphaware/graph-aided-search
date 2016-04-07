@@ -37,6 +37,7 @@ import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
 import static com.graphaware.integration.es.domain.Constants.*;
+import com.graphaware.integration.es.domain.CypherEndPoint;
 
 @SearchFilter(name = "SearchResultCypherFilter")
 public class SearchResultCypherFilter implements SearchResultFilter {
@@ -45,6 +46,8 @@ public class SearchResultCypherFilter implements SearchResultFilter {
 
     private final String neo4jHost;
     private final int maxResultWindow;
+    
+    private final CypherEndPoint cypherEndPoint;
 
     private int maxResultSize = -1;
     private int size;
@@ -55,6 +58,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     public SearchResultCypherFilter(Settings settings, IndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
         this.maxResultWindow = indexSettings.getMaxResultWindow();
+        this.cypherEndPoint = new CypherEndPoint(settings);
     }
 
     public void parseRequest(Map<String, Object> sourceAsMap) {
@@ -146,28 +150,9 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     }
 
     public Set<String> post(String url, String json) {
-        ClientConfig cfg = new DefaultClientConfig();
-        cfg.getClasses().add(JacksonJsonProvider.class);
-        WebResource resource = Client.create(cfg).resource(url);
-        ClientResponse response = resource
-                .accept(MediaType.APPLICATION_JSON)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(json)
-                .post(ClientResponse.class);
-        GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>() {
-        };
-        Map<String, Object> results = response.getEntity(type);
-
-        @SuppressWarnings("unchecked")
-        ArrayList<HashMap<String, Object>> errors = (ArrayList) results.get(ERRORS);
-        if (errors.size() > 0) {
-            throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
-        }
-
+        Map<String, Object> results = cypherEndPoint.post(url, json);
         Map res = (Map) ((ArrayList) results.get(RESULTS)).get(0);
-
         ArrayList<LinkedHashMap> rows = (ArrayList) res.get(DATA);
-        response.close();
         Set<String> newSet = new HashSet<>();
         for (LinkedHashMap row : rows) {
             String nodeId = getIdentifier(((ArrayList) (row.get(ROW))).get(0));

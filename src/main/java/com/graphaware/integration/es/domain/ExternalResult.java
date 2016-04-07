@@ -15,8 +15,6 @@
  */
 package com.graphaware.integration.es.domain;
 
-import java.util.Comparator;
-
 public class ExternalResult {
 
     private long nodeId;
@@ -65,19 +63,19 @@ public class ExternalResult {
     }
 
     ///todo this is not used anywhere:
-    class Neo4JResultComparator implements Comparator<ExternalResult> {
-
-        @Override
-        public int compare(ExternalResult o1, ExternalResult o2) {
-            if (o1.score < o2.score) {
-                return -1;
-            }
-            if (o1.score > o2.score) {
-                return 1;
-            }
-            return 0;
-        }
-
-    }
+//    class Neo4JResultComparator implements Comparator<ExternalResult> {
+//
+//        @Override
+//        public int compare(ExternalResult o1, ExternalResult o2) {
+//            if (o1.score < o2.score) {
+//                return -1;
+//            }
+//            if (o1.score > o2.score) {
+//                return 1;
+//            }
+//            return 0;
+//        }
+//
+//    }
 
 }

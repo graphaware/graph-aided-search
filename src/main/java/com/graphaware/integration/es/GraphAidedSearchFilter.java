@@ -35,7 +35,7 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
 
     protected final ESLogger logger;
 
-    private int order; //todo this field is never assigned to, how does it work?
+    private final int order; //todo this field is never assigned to, how does it work?
 
     private final GraphAidedSearch graphAidedSearch;
 
@@ -44,6 +44,7 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
         super(settings);
         this.graphAidedSearch = graphAidedSearch;
         logger = Loggers.getLogger(GraphAidedSearchFilter.class.getName(), settings);
+        order = settings.getAsInt("indices.graphaware.filter.order", 10);
     }
 
     @Override

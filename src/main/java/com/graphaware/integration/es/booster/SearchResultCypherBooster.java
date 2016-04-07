@@ -34,11 +34,15 @@ import javax.ws.rs.core.MediaType;
 import java.util.*;
 
 import static com.graphaware.integration.es.domain.Constants.*;
+import com.graphaware.integration.es.domain.CypherEndPoint;
+import java.io.IOException;
 
 @SearchBooster(name = "SearchResultCypherBooster")
 public class SearchResultCypherBooster extends SearchResultExternalBooster {
 
     private final ESLogger logger;
+
+    private final CypherEndPoint cypherEndPoint;
 
     private String cypherQuery;
     private String scoreResultName;
@@ -47,6 +51,7 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     public SearchResultCypherBooster(Settings settings, IndexInfo indexInfo) {
         super(settings, indexInfo);
         this.logger = Loggers.getLogger(INDEX_LOGGER_NAME, settings);
+        this.cypherEndPoint = new CypherEndPoint(settings);
     }
 
     @Override
@@ -81,9 +86,8 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
                 stringBuilder.append("{\"statement\" : \"").append(statement).append("\"").append(",");
                 stringBuilder.append("\"parameters\":").append("{\"ids\":").append(ObjectMapper.class.newInstance().writeValueAsString(resultKeySet)).append("}").append("}");
             }
-
             stringBuilder.append("]}");
-        } catch (Exception e) {
+        } catch (InstantiationException | IllegalAccessException | IOException e) {
             throw new RuntimeException("Unable to build the Cypher query : " + e.getMessage());
         }
 
@@ -95,33 +99,10 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     }
 
     protected Map<String, Float> post(String url, String json) {
-        ClientConfig cfg = new DefaultClientConfig();
-        cfg.getClasses().add(JacksonJsonProvider.class);
-        WebResource resource = Client.create(cfg).resource(url);
-        ClientResponse response = resource
-                .accept(MediaType.APPLICATION_JSON)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(json)
-                .post(ClientResponse.class);
-        GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>() {};
-        Map<String, Object> results = response.getEntity(type);
-
-        try {
-            System.out.println(ObjectMapper.class.newInstance().writeValueAsString(results)); //todo log instead of System.out?
-        } catch (Exception e) {
-            //
-        }
-
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> errors = (List) results.get(ERRORS);
-        if (errors.size() > 0) {
-            throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
-        }
-
+        Map<String, Object> results = cypherEndPoint.post(url, json);
         Map res = (Map) ((List) results.get(RESULTS)).get(0);
         List<Map> rows = (List) res.get(DATA);
         List<String> columns = (List) res.get(COLUMNS);
-        response.close();
         int k = 0;
         Map<String, Integer> columnsMap = new HashMap<>();
         for (String c : columns) {

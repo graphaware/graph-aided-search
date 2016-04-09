@@ -136,41 +136,6 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         assertEquals(expectedScore, result.getMaxScore(), 1);
     }
 
-//    @Test
-//    public void testReplaceBooster() throws IOException {
-//        String query = "{"
-//                + "   \"query\": {"
-//                + "      \"bool\": {"
-//                + "         \"should\": ["
-//                + "            {"
-//                + "                  \"match\": {"
-//                + "                       \"message\": \"test 1\""
-//                + "                   }"
-//                + "            }"
-//                + "         ]"
-//                + "      }"
-//                + "   }"
-//                + "   ,\"gas-booster\" :{"
-//                + "          \"name\": \"ReplacingSearchResultTestBooster\","
-//                + "          \"recoTarget\": \"Durgan%20LLC\""
-//                + "      }"
-//                + "}";
-//
-//        Search search = new Search.Builder(query)
-//                // multiple index or types can be added.
-//                .addIndex(INDEX_NAME)
-//                .addType(TYPE_NAME)
-//                .build();
-//
-//        SearchResult result = jestClient.execute(search);
-//
-//        assertEquals(100, result.getTotal().intValue());
-//        List<SearchResult.Hit<JestMsgResult, Void>> hits = getHitsForResult(result);
-//        assertEquals(10, hits.size());
-//        assertEquals("test 99", hits.get(0).source.getMsg());
-//        assertEquals(result.getMaxScore(), 99 * 1000, 1);
-//    }
-
     @Test
     public void testCypherFilterQueryWithExcludeFalse() throws IOException {
         String query = "{"

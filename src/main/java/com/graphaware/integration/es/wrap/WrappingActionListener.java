@@ -41,17 +41,17 @@ import java.util.Map;
 import static org.elasticsearch.action.search.ShardSearchFailure.readShardSearchFailure;
 import static org.elasticsearch.search.internal.InternalSearchHits.readSearchHits;
 
-public class SearchResponseListener implements ActionListener<SearchResponse> {
+public class WrappingActionListener implements ActionListener<SearchResponse> {
 
     private final ESLogger logger;
-    private final ActionListener<SearchResponse> listener;
+    private final ActionListener<SearchResponse> wrapped;
     private final long startTime;
     private final List<SearchResultModifier> modifiers;
     private final IndexInfo indexInfo;
 
-    public SearchResponseListener(ActionListener<SearchResponse> listener, long startTime, List<SearchResultModifier> modifiers, IndexInfo indexInfo, Settings settings) {
+    public WrappingActionListener(ActionListener<SearchResponse> wrapped, long startTime, List<SearchResultModifier> modifiers, IndexInfo indexInfo, Settings settings) {
         this.logger = Loggers.getLogger(getClass(), settings);
-        this.listener = listener;
+        this.wrapped = wrapped;
         this.startTime = startTime;
         this.modifiers = modifiers;
         this.indexInfo = indexInfo;
@@ -59,21 +59,17 @@ public class SearchResponseListener implements ActionListener<SearchResponse> {
 
     @Override
     public void onResponse(final SearchResponse response) {
-        if (response.getHits().getTotalHits() == 0) {
-            listener.onResponse(response);
+        if (response.getHits().getTotalHits() == 0 || !indexInfo.isEnabled()) {
+            wrapped.onResponse(response);
             return;
         }
+
         if (logger.isDebugEnabled()) {
-            logger.debug("Reboosting results: {}", response);
+            logger.debug("Boosting results: {}", response);
         }
 
         try {
-            if (indexInfo.isEnabled()) {
-                final SearchResponse newResponse = handleResponse(response, startTime, modifiers);
-                listener.onResponse(newResponse);
-            } else {
-                listener.onResponse(response);
-            }
+            wrapped.onResponse(handleResponse(response, startTime, modifiers));
         } catch (final RetrySearchException e) {
             throw e;
         } catch (final Exception e) {
@@ -86,56 +82,81 @@ public class SearchResponseListener implements ActionListener<SearchResponse> {
 
     @Override
     public void onFailure(final Throwable e) {
-        listener.onFailure(e);
+        wrapped.onFailure(e);
     }
 
     private SearchResponse handleResponse(final SearchResponse response, final long startTime, final List<SearchResultModifier> modifiers) throws IOException {
-        final BytesStreamOutput out = new BytesStreamOutput();
+        BytesStreamOutput out = new BytesStreamOutput();
         response.writeTo(out);
+        ChannelBufferStreamInput in = new ChannelBufferStreamInput(out.bytes().toChannelBuffer());
 
+        Map<String, Object> headers = readHeaders(in);
+        InternalSearchHits hits = modifyHits(modifiers, readHits(in));
+        InternalAggregations aggregations = readAggregations(in);
+        Suggest suggest = readSuggestions(in);
+
+        InternalSearchResponse internalResponse = readInternalSearchResponse(in, hits, aggregations, suggest, in.readBoolean());
+        SearchResponse newResponse = createNewResponse(startTime, in, internalResponse);
+
+        copyHeaders(headers, newResponse);
+
+        logTime(response, startTime);
+
+        return newResponse;
+    }
+
+    private Map<String, Object> readHeaders(ChannelBufferStreamInput in) throws IOException {
         if (logger.isDebugEnabled()) {
             logger.debug("Reading headers...");
         }
-
-        final ChannelBufferStreamInput in = new ChannelBufferStreamInput(out.bytes().toChannelBuffer());
 
         Map<String, Object> headers = null;
         if (in.readBoolean()) {
             headers = in.readMap();
         }
+        return headers;
+    }
 
+    private InternalSearchHits readHits(ChannelBufferStreamInput in) throws IOException {
         if (logger.isDebugEnabled()) {
             logger.debug("Reading hits...");
         }
 
-        InternalSearchHits hits = readSearchHits(in);
+        return readSearchHits(in);
+    }
 
+    private InternalSearchHits modifyHits(List<SearchResultModifier> modifiers, InternalSearchHits hits) {
         for (final SearchResultModifier modifier : modifiers) {
             hits = modifier.modify(hits);
         }
+        return hits;
+    }
 
+    private InternalAggregations readAggregations(ChannelBufferStreamInput in) throws IOException {
         if (logger.isDebugEnabled()) {
             logger.debug("Reading aggregations...");
         }
 
         InternalAggregations aggregations = null;
-
         if (in.readBoolean()) {
-            aggregations = InternalAggregations
-                    .readAggregations(in);
+            aggregations = InternalAggregations.readAggregations(in);
         }
+        return aggregations;
+    }
 
+    private Suggest readSuggestions(ChannelBufferStreamInput in) throws IOException {
         if (logger.isDebugEnabled()) {
             logger.debug("Reading suggest...");
         }
+
         Suggest suggest = null;
-
         if (in.readBoolean()) {
-            suggest = Suggest.readSuggest(Suggest.Fields.SUGGEST,
-                    in);
+            suggest = Suggest.readSuggest(Suggest.Fields.SUGGEST, in);
         }
-        final boolean timedOut = in.readBoolean();
+        return suggest;
+    }
 
+    private InternalSearchResponse readInternalSearchResponse(ChannelBufferStreamInput in, InternalSearchHits hits, InternalAggregations aggregations, Suggest suggest, boolean timedOut) throws IOException {
         Boolean terminatedEarly = in.readOptionalBoolean();
         InternalProfileShardResults profileResults;
 
@@ -145,10 +166,14 @@ public class SearchResponseListener implements ActionListener<SearchResponse> {
             profileResults = null;
         }
 
-        final InternalSearchResponse internalResponse = new InternalSearchResponse(hits, aggregations, suggest, profileResults, timedOut, terminatedEarly);
-        final int totalShards = in.readVInt();
-        final int successfulShards = in.readVInt();
-        final int size = in.readVInt();
+        return new InternalSearchResponse(hits, aggregations, suggest, profileResults, timedOut, terminatedEarly);
+    }
+
+    private SearchResponse createNewResponse(long startTime, ChannelBufferStreamInput in, InternalSearchResponse internalResponse) throws IOException {
+        int totalShards = in.readVInt();
+        int successfulShards = in.readVInt();
+        int size = in.readVInt();
+
         ShardSearchFailure[] shardFailures;
         if (size == 0) {
             shardFailures = ShardSearchFailure.EMPTY_ARRAY;
@@ -158,25 +183,28 @@ public class SearchResponseListener implements ActionListener<SearchResponse> {
                 shardFailures[i] = readShardSearchFailure(in);
             }
         }
+
         final String scrollId = in.readOptionalString();
-        final long tookInMillis = (System.nanoTime() - startTime) / 1000000;
 
         if (logger.isDebugEnabled()) {
             logger.debug("Creating new SearchResponse...");
         }
-        final SearchResponse newResponse = new SearchResponse(internalResponse, scrollId, totalShards, successfulShards, tookInMillis, shardFailures);
+
+        return new SearchResponse(internalResponse, scrollId, totalShards, successfulShards, (System.nanoTime() - startTime) / 1000000, shardFailures);
+    }
+
+    private void copyHeaders(Map<String, Object> headers, SearchResponse newResponse) {
         if (headers != null) {
-            for (final Map.Entry<String, Object> entry : headers
-                    .entrySet()) {
-                newResponse.putHeader(entry.getKey(),
-                        entry.getValue());
+            for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                newResponse.putHeader(entry.getKey(), entry.getValue());
             }
         }
+    }
 
+    private void logTime(SearchResponse response, long startTime) {
         if (logger.isDebugEnabled()) {
+            long tookInMillis = (System.nanoTime() - startTime) / 1000000;
             logger.debug("Rewriting overhead time: {} - {} = {}ms", tookInMillis, response.getTookInMillis(), tookInMillis - response.getTookInMillis());
         }
-
-        return newResponse;
     }
 }

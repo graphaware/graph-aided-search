@@ -54,9 +54,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.graphaware.integration.es.domain.Constants.*;
 
-/**
- * Created by bachmanm on 08/04/16.
- */
 public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrapper<SearchResponse> {
 
     private final ESLogger logger;
@@ -66,7 +63,6 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
     private final ClusterService clusterService;
     private final Cache<String, IndexInfo> scriptInfoCache;
     private final Client client;
-
 
     public GraphAidedSearchActionListenerWrapper(Settings settings, ClusterService clusterService, Client client) {
         this.logger = Loggers.getLogger(getClass(), settings);
@@ -101,7 +97,7 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
 
         request.source(buildBytes(source));
 
-        return createActionListener(request, listener, source, size, from, new SearchResponseListener(listener, startTime, modifiers, scriptInfo, settings));
+        return createActionListener(request, listener, source, size, from, new WrappingActionListener(listener, startTime, modifiers, scriptInfo, settings));
     }
 
     private void checkCorrectType(SearchRequest request) throws CannotWrapException {

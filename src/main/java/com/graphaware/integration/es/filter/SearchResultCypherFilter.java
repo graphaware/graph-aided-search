@@ -127,20 +127,13 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         return from;
     }
 
-    public Set<String> executeCypher(String serverUrl, String... cypherStatements) {
-        StringBuilder stringBuilder = new StringBuilder("{\"statements\" : [");
-        for (String statement : cypherStatements) {
-            stringBuilder.append("{\"statement\" : \"").append(statement).append("\"}").append(",");
-        }
-        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-
-        stringBuilder.append("]}");
-
+    public Set<String> executeCypher(String serverUrl, String cypherStatement) {
+        String jsonQuery = cypherEndPoint.buildCypherQuery(cypherStatement);
         while (serverUrl.endsWith("/")) {
             serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
         }
 
-        return post(serverUrl + CYPHER_ENDPOINT, stringBuilder.toString());
+        return post(serverUrl + CYPHER_ENDPOINT, jsonQuery);
     }
 
     public Set<String> post(String url, String json) {

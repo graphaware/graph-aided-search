@@ -30,7 +30,7 @@ public class CypherSearchResultTestFilter extends SearchResultCypherFilter {
         super(settings, indexSettings);
     }
     
-    public Set<String> executeCypher(String serverUrl, String... cypherStatements) {
+    public Set<String> executeCypher(String serverUrl, String cypherStatement) {
         Set<String> result = new HashSet<>();
         for (int i = 1; i <= 1000; i++) {
             if (i%3 == 0) {

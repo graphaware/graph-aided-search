@@ -292,10 +292,10 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
 
         SearchResult result = jestClient.execute(search);
 
-        assertEquals(6, result.getTotal().intValue());
+        assertEquals(8, result.getTotal().intValue());
         List<SearchResult.Hit<JestMsgResult, Void>> hits = result.getHits(JestMsgResult.class);
-        assertEquals(1, hits.size());
-        assertEquals("test 54", hits.get(0).source.getMsg());
+        assertEquals(3, hits.size());
+        assertEquals("test 9", hits.get(0).source.getMsg());
         assertEquals(2.5, result.getMaxScore(), 0.1);
     }
 

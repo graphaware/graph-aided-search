@@ -18,7 +18,6 @@ package com.graphaware.integration.es.booster;
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.domain.ExternalResult;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
@@ -29,7 +28,6 @@ import static com.graphaware.integration.es.domain.Constants.*;
 import static com.graphaware.integration.es.util.ParamUtil.*;
 
 import com.graphaware.integration.es.domain.CypherEndPoint;
-import java.io.IOException;
 
 @SearchBooster(name = "SearchResultCypherBooster")
 public class SearchResultCypherBooster extends SearchResultExternalBooster {
@@ -68,24 +66,15 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
         return results;
     }
 
-    protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String... cypherStatements) {
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            stringBuilder.append("{\"statements\" : [");
-            for (String statement : cypherStatements) {
-                stringBuilder.append("{\"statement\" : \"").append(statement).append("\"").append(",");
-                stringBuilder.append("\"parameters\":").append("{\"ids\":").append(ObjectMapper.class.newInstance().writeValueAsString(resultKeySet)).append("}").append("}");
-            }
-            stringBuilder.append("]}");
-        } catch (InstantiationException | IllegalAccessException | IOException e) {
-            throw new RuntimeException("Unable to build the Cypher query : " + e.getMessage());
-        }
-
+    protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String cypherStatement) {
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("ids", resultKeySet);
+        String jsonQuery = cypherEndPoint.buildCypherQuery(cypherStatement, parameters);
         while (serverUrl.endsWith("/")) {
             serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
         }
 
-        return post(serverUrl + CYPHER_ENDPOINT, stringBuilder.toString());
+        return post(serverUrl + CYPHER_ENDPOINT, jsonQuery);
     }
 
     protected Map<String, Float> post(String url, String json) {

@@ -33,7 +33,7 @@ public class CypherSearchResultTestBooster extends SearchResultCypherBooster {
     }
 
     @Override
-    protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String... cypherStatements) {
+    protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String cypherStatement) {
 
         Map<String, Float> results = new HashMap<>();
         for (int i = 0; i < 1000; ++i) {

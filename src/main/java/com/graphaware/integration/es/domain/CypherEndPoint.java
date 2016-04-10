@@ -24,6 +24,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.MediaType;
@@ -37,11 +38,35 @@ public class CypherEndPoint {
 
     private final ESLogger logger;
     private final ClientConfig cfg;
+    private final StringBuilder stringBuilder;
+    private final ObjectMapper mapper;
 
     public CypherEndPoint(Settings settings) {
         this.logger = Loggers.getLogger(INDEX_LOGGER_NAME, settings);
         cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
+        stringBuilder = new StringBuilder();
+        mapper = new ObjectMapper();
+    }
+
+    public String buildCypherQuery(String cypherQuery) {
+        return buildCypherQuery(cypherQuery, new HashMap<String, Object>());
+    }
+
+    public String buildCypherQuery(String cypherQuery, Map<String, Object> parameters) {
+        try {
+            stringBuilder.append("{\"statements\" : [");
+            stringBuilder.append("{\"statement\" : \"").append(cypherQuery).append("\"").append(",");
+            if (parameters.size() > 0) {
+                stringBuilder.append("\"parameters\":");
+                stringBuilder.append(mapper.writeValueAsString(parameters));
+            }
+            stringBuilder.append("]}");
+
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to build the Cypher query : " + e.getMessage());
+        }
     }
 
     public Map<String, Object> post(String url, String json) {

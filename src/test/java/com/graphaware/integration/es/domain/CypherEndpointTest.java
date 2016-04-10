@@ -23,7 +23,7 @@ public class CypherEndpointTest {
     public void testBuildCypherQuery() {
         String query = "MATCH (n) RETURN n";
         String json = cypherEndPoint.buildCypherQuery(query);
-        assertEquals("{\"statements\" : [{\"statement\" : \"MATCH (n) RETURN n\"]}", json);
+        assertEquals("{\"statements\" : [{\"statement\" : \"MATCH (n) RETURN n\"}]}", json);
     }
 
     @Test
@@ -36,8 +36,6 @@ public class CypherEndpointTest {
         ids.add(3);
         parameters.put("ids", ids);
         String json = cypherEndPoint.buildCypherQuery(query, parameters);
-        assertEquals("{\"statements\" : [{\"statement\" : \"MATCH (n) WHERE id(n) IN {ids}\",\"parameters\":{\"ids\":[1,2,3]}]}", json);
+        assertEquals("{\"statements\" : [{\"statement\" : \"MATCH (n) WHERE id(n) IN {ids}\",\"parameters\":{\"ids\":[1,2,3]}}]}", json);
     }
-
-
 }

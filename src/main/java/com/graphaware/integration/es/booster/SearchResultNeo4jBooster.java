@@ -53,32 +53,14 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
     @Override
     protected Map<String, ExternalResult> externalDoReorder(Set<String> keySet) {
         logger.debug("Query cypher for: " + keySet);
-
-        String endpoint = getRestURL() + getTargetId();
-
-        boolean isFirst = true;
-        String ids = "";
-        for (String id : keySet) {
-            if (!isFirst) {
-                ids = ids.concat(",");
-            }
-            isFirst = false;
-            ids = ids.concat(id);
-        }
-        Map<String, String> param = new HashMap<>();
-        param.put(LIMIT, String.valueOf(Integer.MAX_VALUE));
-        param.put(FROM, String.valueOf(getFrom()));
-        param.put(KEY_PROPERTY, getKeyProperty());
-        param.put(IDS, ids);
-
-        logger.debug("Call: " + endpoint);
+        logger.debug("Call: " + getEndpoint());
 
         ClientConfig cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
-        WebResource resource = Client.create(cfg).resource(endpoint);
+        WebResource resource = Client.create(cfg).resource(getEndpoint());
         ClientResponse response = resource
                 .accept(MediaType.APPLICATION_JSON)
-                .post(ClientResponse.class, param);
+                .post(ClientResponse.class, getParameters(keySet));
         GenericType<List<ExternalResult>> type = new GenericType<List<ExternalResult>>() {
         };
         List<ExternalResult> res = response.getEntity(type);
@@ -102,12 +84,25 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
     private String getRestURL() {
         String endpoint = getNeo4jHost();
+        if (endpoint.substring(endpoint.length() -1).equals("/")) {
+            endpoint = endpoint.substring(0, endpoint.length() -1);
+        }
         if (restEndpoint != null) {
-            endpoint += restEndpoint;
+            endpoint += getBoosterEndpoint();
         } else {
             endpoint += DEFAULT_REST_ENDPOINT;
         }
         return endpoint;
+    }
+
+    public Map<String, String> getParameters(Set<String> keySet) {
+        Map<String, String> param = new HashMap<>();
+        param.put(LIMIT, String.valueOf(Integer.MAX_VALUE));
+        param.put(FROM, String.valueOf(getFrom()));
+        param.put(KEY_PROPERTY, getKeyProperty());
+        param.put(IDS, implodeKeySet(keySet));
+
+        return param;
     }
 
     protected String getTargetId() {
@@ -116,6 +111,37 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
     public String getKeyProperty() {
         return keyProperty;
+    }
+
+    public String getBoosterEndpoint() {
+        if (!restEndpoint.substring(0).equals("/")) {
+            return "/" + restEndpoint;
+        }
+
+        return restEndpoint;
+    }
+
+    public String getEndpoint() {
+        String boosterUrl = getRestURL();
+        if (boosterUrl.substring(boosterUrl.length() -1).equals("/")) {
+            return boosterUrl + getTargetId();
+        }
+
+        return boosterUrl + "/" + getTargetId();
+    }
+
+    public String implodeKeySet(Set<String> keySet) {
+        boolean isFirst = true;
+        String ids = "";
+        for (String id : keySet) {
+            if (!isFirst) {
+                ids = ids.concat(",");
+            }
+            isFirst = false;
+            ids = ids.concat(id);
+        }
+
+        return ids;
     }
 
 }

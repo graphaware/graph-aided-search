@@ -61,7 +61,7 @@ public class CypherEndPoint {
                 stringBuilder.append(",").append("\"parameters\":");
                 stringBuilder.append(mapper.writeValueAsString(parameters));
             }
-            stringBuilder.append("]}");
+            stringBuilder.append("}]}");
 
             return stringBuilder.toString();
         } catch (IOException e) {

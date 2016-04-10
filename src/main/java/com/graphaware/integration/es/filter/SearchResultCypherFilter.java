@@ -44,6 +44,10 @@ public class SearchResultCypherFilter implements SearchResultFilter {
 
     private static final Logger logger = Logger.getLogger(SearchResultCypherFilter.class.getName());
 
+    private static final int DEFAULT_RESULT_SIZE = 10;
+
+    private static final int DEFAULT_FROM_VALUE = 0;
+
     private final String neo4jHost;
     private final int maxResultWindow;
     
@@ -62,8 +66,8 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     }
 
     public void parseRequest(Map<String, Object> sourceAsMap) {
-        size = NumberUtil.getInt(sourceAsMap.get(SIZE), 10);
-        from = NumberUtil.getInt(sourceAsMap.get(FROM), 0);
+        size = NumberUtil.getInt(sourceAsMap.get(SIZE), DEFAULT_RESULT_SIZE);
+        from = NumberUtil.getInt(sourceAsMap.get(FROM), DEFAULT_FROM_VALUE);
 
         HashMap extParams = (HashMap) sourceAsMap.get(GAS_FILTER_CLAUSE);
         if (extParams != null) {

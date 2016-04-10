@@ -34,6 +34,8 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
 
     private static final String SEARCH_REQUEST_INVOKED = "filter.graphaware.neo4j.Invoked";
 
+    private static final int DEFAULT_FILTER_ORDER = 10;
+
     protected final ESLogger logger;
 
     private final int order;
@@ -44,7 +46,7 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
     public GraphAidedSearchFilter(final Settings settings) {
         super(settings);
         logger = Loggers.getLogger(GraphAidedSearchFilter.class.getName(), settings);
-        order = settings.getAsInt("indices.graphaware.filter.order", 10);
+        order = settings.getAsInt("indices.graphaware.filter.order", DEFAULT_FILTER_ORDER);
     }
 
     public void setWrapper(ActionListenerWrapper<?> wrapper) {

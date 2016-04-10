@@ -36,6 +36,8 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
 
     private static final int DEFAULT_FILTER_ORDER = 10;
 
+    private static final String FILTER_ORDER_KEY_NAME = "indices.graphaware.filter.order";
+
     protected final ESLogger logger;
 
     private final int order;
@@ -46,7 +48,7 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
     public GraphAidedSearchFilter(final Settings settings) {
         super(settings);
         logger = Loggers.getLogger(GraphAidedSearchFilter.class.getName(), settings);
-        order = settings.getAsInt("indices.graphaware.filter.order", DEFAULT_FILTER_ORDER);
+        order = settings.getAsInt(FILTER_ORDER_KEY_NAME, DEFAULT_FILTER_ORDER);
     }
 
     public void setWrapper(ActionListenerWrapper<?> wrapper) {

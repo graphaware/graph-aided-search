@@ -56,9 +56,9 @@ public class CypherEndPoint {
     public String buildCypherQuery(String cypherQuery, Map<String, Object> parameters) {
         try {
             stringBuilder.append("{\"statements\" : [");
-            stringBuilder.append("{\"statement\" : \"").append(cypherQuery).append("\"").append(",");
+            stringBuilder.append("{\"statement\" : \"").append(cypherQuery).append("\"");
             if (parameters.size() > 0) {
-                stringBuilder.append("\"parameters\":");
+                stringBuilder.append(",").append("\"parameters\":");
                 stringBuilder.append(mapper.writeValueAsString(parameters));
             }
             stringBuilder.append("]}");

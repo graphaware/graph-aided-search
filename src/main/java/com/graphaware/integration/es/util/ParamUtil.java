@@ -13,19 +13,28 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
 package com.graphaware.integration.es.util;
 
-public final class NumberUtil {
+import java.util.Map;
 
-    public static int getInt(final Object value, final int defaultValue) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        } else if (value instanceof String) {
-            return Integer.parseInt(value.toString());
+public final class ParamUtil {
+
+    public static <T> T extractParameter(String name, Map<String, T> params) {
+        T value = params.get(name);
+
+        if (value == null) {
+            throw new IllegalStateException("The " + name + " parameter must not be null");
         }
-        return defaultValue;
+
+        return value;
     }
 
-    private NumberUtil() {
+    public static <T> T extractParameter(String name, Map<String, T> params, T defaultValue) {
+        T value = params.get(name);
+        return value != null ? value : defaultValue;
+    }
+
+    private ParamUtil() {
     }
 }

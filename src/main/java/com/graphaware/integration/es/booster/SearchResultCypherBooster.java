@@ -26,6 +26,8 @@ import org.elasticsearch.common.settings.Settings;
 import java.util.*;
 
 import static com.graphaware.integration.es.domain.Constants.*;
+import static com.graphaware.integration.es.util.ParamUtil.*;
+
 import com.graphaware.integration.es.domain.CypherEndPoint;
 import java.io.IOException;
 
@@ -48,12 +50,9 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
 
     @Override
     protected void extendedParseRequest(Map<String, String> extParams) {
-        cypherQuery = extParams.get(QUERY);
-        scoreResultName = extParams.get(SCORE_NAME) != null ? extParams.get(SCORE_NAME) : DEFAULT_SCORE_RESULT_NAME;
-        idResultName = extParams.get(IDENTIFIER) != null ? extParams.get(IDENTIFIER) : DEFAULT_ID_RESULT_NAME;
-        if (null == cypherQuery) {
-            throw new RuntimeException("The Query Parameter cannot be null in gas-booster");
-        }
+        cypherQuery = extractParameter(QUERY, extParams);
+        scoreResultName = extractParameter(SCORE_NAME, extParams, DEFAULT_SCORE_RESULT_NAME);
+        idResultName = extractParameter(IDENTIFIER, extParams, DEFAULT_ID_RESULT_NAME);
     }
 
     @Override
@@ -69,7 +68,6 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
         return results;
     }
 
-    //todo can this not be a query with parameters?
     protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String... cypherStatements) {
         StringBuilder stringBuilder = new StringBuilder();
         try {

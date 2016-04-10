@@ -66,13 +66,13 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         return settings;
     }
 
-    @Test
-    public void testPluginSetup() {
-        final GraphAidedSearch plugin = runner.getInstance(GraphAidedSearch.class);
-        final IndexInfo indexInfo = plugin.getScriptInfo(INDEX_NAME);
-        assertEquals(NEO4J_HOSTNAME, indexInfo.getNeo4jHost());
-        assertTrue(indexInfo.isEnabled());
-    }
+//    @Test
+//    public void testPluginSetup() {
+//        final GraphAidedSearch plugin = runner.getInstance(GraphAidedSearch.class);
+//        final IndexInfo indexInfo = plugin.getScriptInfo(INDEX_NAME);
+//        assertEquals(NEO4J_HOSTNAME, indexInfo.getNeo4jHost());
+//        assertTrue(indexInfo.isEnabled());
+//    }
 
     @Test
     public void testQueryWithoutPlugin() {
@@ -153,7 +153,7 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
 //        assertEquals(100, result.getTotal().intValue());
 //        List<SearchResult.Hit<JestMsgResult, Void>> hits = getHitsForResult(result);
 //        assertEquals(10, hits.size());
-//        assertEquals("test 99", hits.get(0).source.getMsg());
+//        assertEquals("test 99", hits.instantiate(0).source.getMsg());
 //        assertEquals(result.getMaxScore(), 99 * 1000, 1);
 //    }
 
@@ -189,7 +189,7 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         assertEquals(33, result.getTotal().intValue());
         List<SearchResult.Hit<JestMsgResult, Void>> hits = getHitsForResult(result);
         assertEquals(10, hits.size());
-//        assertEquals("test 36", hits.get(0).source.getMsg());
+//        assertEquals("test 36", hits.instantiate(0).source.getMsg());
 //        assertEquals(2.6, result.getMaxScore(), 0.1);
     }
 
@@ -257,7 +257,7 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         assertEquals(67, result.getTotal().intValue());
         List<SearchResult.Hit<JestMsgResult, Void>> hits = getHitsForResult(result);
         assertEquals(10, hits.size());
-//        assertEquals("test 35", hits.get(0).source.getMsg());
+//        assertEquals("test 35", hits.instantiate(0).source.getMsg());
 //        assertEquals(2.5, result.getMaxScore(), 0.1);
     }
 

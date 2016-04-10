@@ -15,12 +15,13 @@
  */
 package com.graphaware.integration.es;
 
+import com.graphaware.integration.es.wrap.ActionListenerWrapper;
+import com.graphaware.integration.es.wrap.CannotWrapException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.ActionFilter;
 import org.elasticsearch.action.support.ActionFilterChain;
 import org.elasticsearch.common.component.AbstractComponent;
@@ -35,20 +36,19 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
 
     protected final ESLogger logger;
 
-    private final int order; //todo this field is never assigned to, how does it work?
+    private final int order;
 
-    private GraphAidedSearch graphAidedSearch;
+    private ActionListenerWrapper<?> wrapper;
 
     @Inject
     public GraphAidedSearchFilter(final Settings settings) {
         super(settings);
-        //this.graphAidedSearch = graphAidedSearch;
         logger = Loggers.getLogger(GraphAidedSearchFilter.class.getName(), settings);
         order = settings.getAsInt("indices.graphaware.filter.order", 10);
     }
 
-    public void setGraphAidedSearch(GraphAidedSearch graphAidedSearch) {
-        this.graphAidedSearch = graphAidedSearch;
+    public void setWrapper(ActionListenerWrapper<?> wrapper) {
+        this.wrapper = wrapper;
     }
 
     @Override
@@ -57,28 +57,24 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
     }
 
     @Override
-    public void apply(final String action, final ActionRequest request, final ActionListener listener, final ActionFilterChain chain) {
-        if (!SearchAction.INSTANCE.name().equals(action)) {
-            chain.proceed(action, request, listener);
-            return;
+    public void apply(final String action, final ActionRequest request,  ActionListener listener, final ActionFilterChain chain) {
+        if (SearchAction.INSTANCE.name().equals(action)) {
+            if (Boolean.TRUE.equals(request.<Boolean>getHeader(SEARCH_REQUEST_INVOKED))) {
+                try {
+                    listener = wrapper.wrap((SearchRequest) request, listener);
+                } catch (CannotWrapException e) {
+                    //that's OK, will use the original unwrapped one and perform no Graph-Aided Search
+                }
+            } else {
+                request.putHeader(SEARCH_REQUEST_INVOKED, Boolean.TRUE);
+            }
         }
 
-        final SearchRequest searchRequest = (SearchRequest) request;
-        final Boolean invoked = searchRequest.getHeader(SEARCH_REQUEST_INVOKED);
-        if (invoked != null && invoked) {
-            @SuppressWarnings("unchecked")
-            final ActionListener<SearchResponse> wrappedListener = graphAidedSearch.wrapActionListener(action, searchRequest, listener);
-            chain.proceed(action, request, wrappedListener == null ? listener : wrappedListener);
-        } else {
-            searchRequest.putHeader(SEARCH_REQUEST_INVOKED, Boolean.TRUE);
-            chain.proceed(action, request, listener);
-        }
-
+        chain.proceed(action, request, listener);
     }
 
     @Override
     public void apply(final String action, final ActionResponse response, final ActionListener listener, final ActionFilterChain chain) {
         chain.proceed(action, response, listener);
     }
-
 }

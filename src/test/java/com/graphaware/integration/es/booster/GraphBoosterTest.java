@@ -79,7 +79,7 @@ public class GraphBoosterTest {
             booster.parseRequest(sourceMap);
             assertTrue(false); // If we come here then we have a bug
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Query Parameter cannot be null"));
+            assertTrue(e.getMessage().contains("query parameter must not be null"));
         }
     }
 

@@ -19,25 +19,23 @@ import java.lang.annotation.Annotation;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 import org.reflections.Reflections;
 
-public class PluginClassLoader {
-
-    protected final static Logger logger = Logger.getLogger(PluginClassLoader.class.getName());
+public final class PluginClassLoader {
 
     private static Reflections reflections;
 
-    public static <T, A extends Annotation> HashMap<String, Class<T>> loadClass(Class<T> type, Class<A> annotation) {
+    public static <T, A extends Annotation> Map<String, Class<T>> loadClass(Class<T> type, Class<A> annotation) {
         return loadClassByAnnotation(type, annotation);
     }
 
-    private static <T, A extends Annotation> HashMap<String, Class<T>> loadClassByAnnotation(Class<T> type, Class<A> annotation) {
+    private static <T, A extends Annotation> Map<String, Class<T>> loadClassByAnnotation(Class<T> type, Class<A> annotation) {
         if (reflections == null) {
             loadReflections("com.graphaware.integration.es");
         }
-        HashMap<String, Class<T>> loader = new HashMap<>();
+        Map<String, Class<T>> loader = new HashMap<>();
         Set<Class<?>> providers = reflections.getTypesAnnotatedWith(annotation);
         for (Class<?> item : providers) {
             loader.put(item.getName(), (Class<T>) item);
@@ -45,7 +43,7 @@ public class PluginClassLoader {
         return loader;
     }
 
-    private static void loadReflections(final String packagePath) {
+    private static void loadReflections(final String packagePath) { //todo how to change package path?
         AccessController.doPrivileged(new PrivilegedAction<Void>() {
             public Void run() {
                 reflections = new Reflections("com.graphaware.integration.es");
@@ -54,4 +52,6 @@ public class PluginClassLoader {
         });
     }
 
+    private PluginClassLoader() {
+    }
 }

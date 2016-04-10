@@ -13,19 +13,14 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.util;
 
-public final class NumberUtil {
+package com.graphaware.integration.es.wrap;
 
-    public static int getInt(final Object value, final int defaultValue) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        } else if (value instanceof String) {
-            return Integer.parseInt(value.toString());
-        }
-        return defaultValue;
-    }
+import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.common.xcontent.StatusToXContent;
 
-    private NumberUtil() {
-    }
+public interface ActionListenerWrapper<T extends StatusToXContent> {
+
+    ActionListener<T> wrap(final SearchRequest request, final ActionListener<T> listener) throws CannotWrapException;
 }

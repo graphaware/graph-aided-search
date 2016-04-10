@@ -15,10 +15,10 @@
  */
 package com.graphaware.integration.es.booster;
 
-import com.graphaware.integration.es.GraphAidedSearch;
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.domain.ExternalResult;
 import com.graphaware.integration.es.util.NumberUtil;
+import com.graphaware.integration.es.util.ParamUtil;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
@@ -26,6 +26,7 @@ import org.elasticsearch.search.internal.InternalSearchHits;
 import java.util.*;
 
 import static com.graphaware.integration.es.domain.Constants.*;
+import static com.graphaware.integration.es.util.ParamUtil.*;
 
 public abstract class SearchResultExternalBooster implements SearchResultBooster {
 
@@ -39,12 +40,12 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
 
     protected String composeScoreOperator;
 
-
     public SearchResultExternalBooster(Settings settings, IndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
         this.maxResultWindow = indexSettings.getMaxResultWindow();
     }
 
+    @Override
     public final void parseRequest(Map<String, Object> sourceAsMap) {
         size = NumberUtil.getInt(sourceAsMap.get(SIZE), 10);
         from = NumberUtil.getInt(sourceAsMap.get(FROM), 0);
@@ -52,7 +53,7 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
         Map<String, String> extParams = (Map<String, String>) sourceAsMap.get(GAS_BOOSTER_CLAUSE);
         if (extParams != null) {
             maxResultSize = NumberUtil.getInt(extParams.get(MAX_RESULT_SIZE), maxResultWindow);
-            composeScoreOperator = extParams.get(OPERATOR) != null ? extParams.get(OPERATOR) : DEFAULT_SCORE_OPERATOR;
+            composeScoreOperator = extractParameter(OPERATOR, extParams, DEFAULT_SCORE_OPERATOR);
             extendedParseRequest(extParams);
             validateOperator();
         }

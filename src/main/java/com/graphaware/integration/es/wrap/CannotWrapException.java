@@ -13,19 +13,12 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.util;
 
-public final class NumberUtil {
+package com.graphaware.integration.es.wrap;
 
-    public static int getInt(final Object value, final int defaultValue) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        } else if (value instanceof String) {
-            return Integer.parseInt(value.toString());
-        }
-        return defaultValue;
-    }
+public class CannotWrapException extends Exception {
 
-    private NumberUtil() {
+    public CannotWrapException(String message) {
+        super(message);
     }
 }

@@ -30,12 +30,12 @@ public class SearchResultCypherFilterTest {
     }
 
     @Test
-    public void testFromIsChangedToZeroIfGiven() {
+    public void testFromIsParsedFromRequest() {
         SearchResultCypherFilter filter = getFilter();
         HashMap<String, Object> map = getDefaultMap();
         map.put("from", 100);
-        // waiting @ale confirmation on this
-        assertEquals(0, filter.getFrom());
+        filter.parseRequest(map);
+        assertEquals(100, filter.getFrom());
     }
 
     @Test

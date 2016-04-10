@@ -17,21 +17,12 @@ package com.graphaware.integration.es.filter;
 
 import com.graphaware.integration.es.annotation.SearchFilter;
 import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.GraphAidedSearch;
 import com.graphaware.integration.es.util.NumberUtil;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.GenericType;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ws.rs.core.MediaType;
 
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
@@ -81,7 +72,6 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         if (null == cypher) {
             throw new RuntimeException("The Query Parameter is required in gas-filter");
         }
-        sourceAsMap.put(FROM, 0);
     }
 
     public InternalSearchHits modify(final InternalSearchHits hits) {

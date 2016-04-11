@@ -37,8 +37,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
-
-    private EmbeddedGraphDatabaseServer server;
     
     private static final String INDEX_NAME = "test-index";
 
@@ -51,18 +49,9 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
     @Override
     public void setUp() throws Exception{
         super.setUp();
-        server = new EmbeddedGraphDatabaseServer();
-        server.start();
         createIndices();
         createData();
         
-    }
-    
-    @After
-    @Override
-    public void tearDown() {
-        super.tearDown();
-        server.stop();
     }
 
     @Override

@@ -87,15 +87,6 @@ public class SearchResultNeo4jBoosterTest {
         // @todo result is not 1,2,33 but 2,1,33. Is it safe to rely on the order ?
     }
 
-    @Test
-    public void buildEndpointTest() {
-        String neo4jHost = "http://localhost:7474/";
-        String boosterEndpoint = "/reco/engine//";
-        String recoId = "15";
-        String endpoint = getBooster().buildEndpoint(neo4jHost, boosterEndpoint, recoId);
-        assertEquals("http://localhost:7474/reco/engine/15", endpoint);
-    }
-
     private HashMap<String, Object> getDefaultMap() {
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> gasFilter = new HashMap<>();

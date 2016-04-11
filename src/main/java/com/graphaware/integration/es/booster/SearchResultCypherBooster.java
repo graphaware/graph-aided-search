@@ -18,6 +18,7 @@ package com.graphaware.integration.es.booster;
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.domain.ExternalResult;
+import com.graphaware.integration.es.util.UrlUtil;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
@@ -56,25 +57,45 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     @Override
     protected Map<String, ExternalResult> externalDoReorder(Set<String> keySet) {
         logger.debug("Query cypher for: " + keySet);
-        Map<String, Float> res = executeCypher(getNeo4jHost(), keySet, cypherQuery);
+        return getResults(executeCypher(getNeo4jHost(), keySet, cypherQuery));
+    }
 
+    public HashMap<String, ExternalResult> getResults(Map<String, Float> externalResults) {
         HashMap<String, ExternalResult> results = new HashMap<>();
-
-        for (Map.Entry<String, Float> item : res.entrySet()) {
+        for (Map.Entry<String, Float> item : externalResults.entrySet()) {
             results.put(item.getKey(), new ExternalResult(item.getKey(), item.getValue()));
         }
+
         return results;
     }
 
     protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String cypherStatement) {
+
+        return post(getEndpoint(serverUrl), getCypherQuery(cypherStatement, resultKeySet));
+    }
+
+    public String getCypherQuery(String cypherStatement, Set<String> resultKeySet) {
+        return cypherEndPoint.buildCypherQuery(cypherStatement, getParameters(resultKeySet));
+    }
+
+    public HashMap<String, Object> getParameters(Set<String> resultKeySet) {
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("ids", resultKeySet);
-        String jsonQuery = cypherEndPoint.buildCypherQuery(cypherStatement, parameters);
-        while (serverUrl.endsWith("/")) {
-            serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
-        }
 
-        return post(serverUrl + CYPHER_ENDPOINT, jsonQuery);
+        return parameters;
+    }
+
+    public String getEndpoint(String serverUrl) {
+
+        return UrlUtil.buildUrlFromParts(serverUrl, CYPHER_ENDPOINT);
+    }
+
+    public String getScoreResultName() {
+        return null != scoreResultName ? scoreResultName : DEFAULT_SCORE_RESULT_NAME;
+    }
+
+    public String getIdResultName() {
+        return null != idResultName ? idResultName : DEFAULT_ID_RESULT_NAME;
     }
 
     protected Map<String, Float> post(String url, String json) {

@@ -18,6 +18,7 @@ package com.graphaware.integration.es.booster;
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.domain.ExternalResult;
+import com.graphaware.integration.es.util.UrlUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -111,7 +112,7 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
     public String getEndpoint() {
         String boosterUrl = null != boosterEndpoint ? boosterEndpoint : DEFAULT_REST_ENDPOINT;
 
-        return buildEndpoint(getNeo4jHost(), boosterUrl, targetId);
+        return UrlUtil.buildUrlFromParts(getNeo4jHost(), boosterUrl, targetId);
     }
 
     public String implodeKeySet(Set<String> keySet) {
@@ -126,26 +127,6 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
         }
 
         return ids;
-    }
-
-    public String buildEndpoint(String... parts) {
-        boolean isFirst = true;
-        String endpoint = "";
-        for (String part : parts) {
-            while (part.endsWith("/")) {
-                part = part.substring(0, part.length()-1);
-            }
-            while (part.startsWith("/")) {
-                part = part.substring(1, part.length());
-            }
-            if (!isFirst) {
-                endpoint += "/";
-            }
-            endpoint += part;
-            isFirst = false;
-        }
-
-        return endpoint;
     }
 
 }

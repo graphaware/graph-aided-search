@@ -90,7 +90,7 @@ public abstract class GraphAidedSearchTest {
         neo4jServer = new EmbeddedGraphDatabaseServer();
         neo4jServer.start();
         changePassword();
-        emptyDB();
+        //emptyDB();
     }
 
     protected CreateIndexResponse createIndex(String indexName) {

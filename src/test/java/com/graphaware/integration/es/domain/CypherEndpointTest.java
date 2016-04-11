@@ -34,7 +34,6 @@ public class CypherEndpointTest {
         server.start();
         httpClient = new TestHttpClient();
         changePassword();
-        emptyDB();
     }
 
     @Test
@@ -52,37 +51,8 @@ public class CypherEndpointTest {
         }
     }
 
-    @Test
-    public void testSendSingleStatement() throws Exception{
-        String response = httpClient.executeCypher(NEO4J_SERVER_URL, getHeaders(NEO4J_CUSTOM_PASSWORD), "CREATE (n) RETURN id(n)");
-    }
-
-    @Test
-    public void testBuildCypherQuery() {
-        String query = "MATCH (n) RETURN n";
-        String json = cypherEndPoint.buildCypherQuery(query);
-        assertEquals("{\"statements\" : [{\"statement\" : \"MATCH (n) RETURN n\"}]}", json);
-    }
-
-    @Test
-    public void testBuildQueryWithParameters() {
-        String query = "MATCH (n) WHERE id(n) IN {ids}";
-        HashMap<String, Object> parameters = new HashMap<>();
-        List<Integer> ids = new ArrayList<>();
-        ids.add(1);
-        ids.add(2);
-        ids.add(3);
-        parameters.put("ids", ids);
-        String json = cypherEndPoint.buildCypherQuery(query, parameters);
-        assertEquals("{\"statements\" : [{\"statement\" : \"MATCH (n) WHERE id(n) IN {ids}\",\"parameters\":{\"ids\":[1,2,3]}}]}", json);
-    }
-
     private String getCypherEndpoint() {
         return NEO4J_SERVER_URL + "/db/data/transaction/commit";
-    }
-
-    private void emptyDB() {
-        httpClient.executeCypher(NEO4J_SERVER_URL, getHeaders(NEO4J_CUSTOM_PASSWORD), "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r,n");
     }
 
     private void changePassword() {

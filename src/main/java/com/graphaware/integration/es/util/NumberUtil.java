@@ -26,6 +26,16 @@ public final class NumberUtil {
         return defaultValue;
     }
 
+    public static float getFloat(final Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).floatValue();
+        } else if (value instanceof String) {
+            return Float.parseFloat(value.toString());
+        }
+
+        throw new RuntimeException("Unable to parse float from value");
+    }
+
     private NumberUtil() {
     }
 }

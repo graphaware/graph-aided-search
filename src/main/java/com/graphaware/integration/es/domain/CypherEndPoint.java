@@ -89,7 +89,7 @@ public class CypherEndPoint {
         }
 
         CypherResult result = new CypherResult();
-        for (int i = 0; i < rows.size() -1; ++i) {
+        for (int i = 0; i < rows.size(); ++i) {
             ResultRow resultRow = new ResultRow();
             List row = (List) rows.get(i).get(ROW);
             for (String key : columns) {
@@ -171,12 +171,8 @@ public class CypherEndPoint {
     }
 
     private String getAuthorizationHeaderValue() {
-        if (null != neo4jPassword) {
-            String value = DEFAULT_NEO4J_USER + ":" + neo4jPassword;
+        String value = DEFAULT_NEO4J_USER + ":" + neo4jPassword;
 
-            return "Basic " + BaseEncoding.base64().encode(value.getBytes());
-        }
-
-        return "";
+        return "Basic " + BaseEncoding.base64().encode(value.getBytes());
     }
 }

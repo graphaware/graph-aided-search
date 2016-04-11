@@ -41,9 +41,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
 
     private static final String DEFAULT_ID_RESULT_NAME = "id";
     private static final String ID_RESULT_NAME_KEY = "identifier";
-
     private static final int DEFAULT_RESULT_SIZE = 10;
-
     private static final int DEFAULT_FROM_VALUE = 0;
 
     private final String neo4jHost;

@@ -20,6 +20,7 @@ import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.domain.CypherResult;
 import com.graphaware.integration.es.domain.ExternalResult;
 import com.graphaware.integration.es.domain.ResultRow;
+import com.graphaware.integration.es.util.NumberUtil;
 import com.graphaware.integration.es.util.UrlUtil;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -66,7 +67,7 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
         Map<String, ExternalResult> results = new HashMap<>();
         for (ResultRow resultRow : externalResult.getRows()) {
             checkResultRow(resultRow);
-            results.put(String.valueOf(resultRow.get(getIdResultName())), new ExternalResult(String.valueOf(resultRow.get(getIdResultName())), (Float) (resultRow.get(getScoreResultName()) )));
+            results.put(String.valueOf(resultRow.get(getIdResultName())), new ExternalResult(String.valueOf(resultRow.get(getIdResultName())), NumberUtil.getFloat(resultRow.get(getScoreResultName()))));
         }
 
         return results;
@@ -80,7 +81,6 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     }
 
     public String getEndpoint(String serverUrl) {
-
         return UrlUtil.buildUrlFromParts(serverUrl, CYPHER_ENDPOINT);
     }
 
@@ -92,7 +92,7 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
         return null != idResultName ? idResultName : DEFAULT_ID_RESULT_NAME;
     }
 
-    private void checkResultRow(ResultRow resultRow) {
+    protected void checkResultRow(ResultRow resultRow) {
         if (!resultRow.getValues().containsKey(getIdResultName())) {
             dispatchInvalidResultException(getIdResultName());
         }

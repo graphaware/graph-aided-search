@@ -17,12 +17,16 @@ package com.graphaware.integration.es.filter;
 
 import com.graphaware.integration.es.annotation.SearchFilter;
 import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.CypherResult;
+import com.graphaware.integration.es.domain.ResultRow;
 import com.graphaware.integration.es.util.NumberUtil;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.graphaware.integration.es.util.ParamUtil;
+import com.graphaware.integration.es.util.UrlUtil;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
@@ -34,6 +38,9 @@ import com.graphaware.integration.es.domain.CypherEndPoint;
 public class SearchResultCypherFilter implements SearchResultFilter {
 
     private static final Logger logger = Logger.getLogger(SearchResultCypherFilter.class.getName());
+
+    private static final String DEFAULT_ID_RESULT_NAME = "id";
+    private static final String ID_RESULT_NAME_KEY = "identifier";
 
     private static final int DEFAULT_RESULT_SIZE = 10;
 
@@ -47,8 +54,9 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     private int maxResultSize = -1;
     private int size;
     private int from;
-    private String cypher;
+    private String cypherQuery;
     private boolean shouldExclude = true;
+    private String idResultName;
 
     public SearchResultCypherFilter(Settings settings, IndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
@@ -62,20 +70,21 @@ public class SearchResultCypherFilter implements SearchResultFilter {
 
         HashMap extParams = (HashMap) sourceAsMap.get(GAS_FILTER_CLAUSE);
         if (extParams != null) {
-            cypher = (String) extParams.get(QUERY);
+            cypherQuery = (String) extParams.get(QUERY);
             maxResultSize = NumberUtil.getInt(extParams.get(MAX_RESULT_SIZE), maxResultWindow);
             shouldExclude = extParams.containsKey(EXCLUDE) && String.valueOf(extParams.get(EXCLUDE)).equalsIgnoreCase(TRUE);
+            idResultName = extParams.containsKey(ID_RESULT_NAME_KEY) ? String.valueOf(extParams.get(ID_RESULT_NAME_KEY)) : null;
         }
         if (maxResultSize > 0) {
             sourceAsMap.put(SIZE, maxResultSize);
         }
-        if (null == cypher) {
+        if (null == cypherQuery) {
             throw new RuntimeException("The Query Parameter is required in gas-filter");
         }
     }
 
     public InternalSearchHits modify(final InternalSearchHits hits) {
-        Set<String> remoteFilter = executeCypher(neo4jHost, cypher);
+        Set<String> remoteFilter = getFilteredItems();
         final InternalSearchHit[] searchHits = hits.internalHits();
         Map<String, InternalSearchHit> hitMap = new HashMap<>();
         for (InternalSearchHit hit : searchHits) {
@@ -119,6 +128,29 @@ public class SearchResultCypherFilter implements SearchResultFilter {
                 hits.maxScore());
     }
 
+    protected Set<String> getFilteredItems() {
+        CypherResult result = cypherEndPoint.executeCypher(getCypherEndpoint(), cypherQuery, new HashMap<String, Object>());
+        Set<String> filteredItems = new HashSet<>();
+
+        for (ResultRow resultRow : result.getRows()) {
+            filteredItems.add(getFilteredItem(resultRow));
+        }
+
+        return filteredItems;
+    }
+
+    protected String getFilteredItem(ResultRow resultRow) {
+        if (!resultRow.getValues().containsKey(getIdResultName())) {
+            throw new RuntimeException("The cypher query result must contain the " + getIdResultName() + " column name");
+        }
+
+        return getIdentifier(resultRow.get(getIdResultName()));
+    }
+
+    private String getCypherEndpoint() {
+        return UrlUtil.buildUrlFromParts(neo4jHost, CYPHER_ENDPOINT);
+    }
+
     public int getSize() {
         return size;
     }
@@ -127,25 +159,8 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         return from;
     }
 
-    public Set<String> executeCypher(String serverUrl, String cypherStatement) {
-        String jsonQuery = cypherEndPoint.buildCypherQuery(cypherStatement);
-        while (serverUrl.endsWith("/")) {
-            serverUrl = serverUrl.substring(0, serverUrl.length() - 1);
-        }
-
-        return post(serverUrl + CYPHER_ENDPOINT, jsonQuery);
-    }
-
-    public Set<String> post(String url, String json) {
-        Map<String, Object> results = cypherEndPoint.post(url, json);
-        Map res = (Map) ((ArrayList) results.get(RESULTS)).get(0);
-        ArrayList<LinkedHashMap> rows = (ArrayList) res.get(DATA);
-        Set<String> newSet = new HashSet<>();
-        for (LinkedHashMap row : rows) {
-            String nodeId = getIdentifier(((ArrayList) (row.get(ROW))).get(0));
-            newSet.add(String.valueOf(nodeId));
-        }
-        return newSet;
+    public String getIdResultName() {
+        return null != idResultName ? idResultName : DEFAULT_ID_RESULT_NAME;
     }
 
     private static String getIdentifier(Object objectId) {
@@ -154,5 +169,4 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         }
         return String.valueOf(objectId);
     }
-
 }

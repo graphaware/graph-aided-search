@@ -19,6 +19,7 @@ package com.graphaware.integration.es.stubs;
 import com.graphaware.integration.es.booster.SearchResultCypherBooster;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.ExternalResult;
 import org.elasticsearch.common.settings.Settings;
 
 import java.util.HashMap;
@@ -33,11 +34,11 @@ public class CypherSearchResultTestBooster extends SearchResultCypherBooster {
     }
 
     @Override
-    protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String cypherStatement) {
+    protected Map<String, ExternalResult> getExternalResults(Set<String> keySet) {
 
-        Map<String, Float> results = new HashMap<>();
+        Map<String, ExternalResult> results = new HashMap<>();
         for (int i = 0; i < 1000; ++i) {
-            results.put(String.valueOf(i), 1000.0f*i);
+            results.put(String.valueOf(i), new ExternalResult(String.valueOf(i), 1000.0f*i));
         }
         return results;
     }

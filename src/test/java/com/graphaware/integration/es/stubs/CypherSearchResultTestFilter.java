@@ -29,8 +29,9 @@ public class CypherSearchResultTestFilter extends SearchResultCypherFilter {
     public CypherSearchResultTestFilter(Settings settings, IndexInfo indexSettings) {
         super(settings, indexSettings);
     }
-    
-    public Set<String> executeCypher(String serverUrl, String cypherStatement) {
+
+    @Override
+    protected Set<String> getFilteredItems() {
         Set<String> result = new HashSet<>();
         for (int i = 1; i <= 1000; i++) {
             if (i%3 == 0) {

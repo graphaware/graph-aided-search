@@ -189,6 +189,7 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
                 .build();
 
         SearchResult result = jestClient.execute(search);
+        System.out.println(result.getJsonObject().toString());
         assertTrue(result.getErrorMessage().contains("Cypher Execution Error"));
     }
 

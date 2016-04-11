@@ -27,19 +27,6 @@ public class SearchResultCypherBoosterTest {
     }
 
     @Test
-    public void testGetResults() {
-        Map<String, Float> externalResults = new HashMap<>();
-        externalResults.put("123", 40.0f);
-        externalResults.put("456", 25.2f);
-        HashMap<String, ExternalResult> results = getBooster().getResults(externalResults);
-        assertEquals(2, results.size());
-        assertTrue(results.containsKey("123"));
-        assertTrue(results.containsKey("456"));
-        assertEquals(40.0f, results.get("123").getScore(), 0);
-        assertEquals(25.2f, results.get("456").getScore(), 0);
-    }
-
-    @Test
     public void testGetParameters() {
         Set<String> keySet = new HashSet<>();
         keySet.add("1");

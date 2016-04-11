@@ -40,7 +40,7 @@ import static com.graphaware.integration.es.domain.Constants.*;
 @SearchBooster(name = "SearchResultNeo4jBooster")
 public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
-    private String restEndpoint = null;
+    private String boosterEndpoint = null;
     private final ESLogger logger;
     private String targetId;
     private String keyProperty;
@@ -52,9 +52,23 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
     @Override
     protected Map<String, ExternalResult> externalDoReorder(Set<String> keySet) {
-        logger.debug("Query cypher for: " + keySet);
+        logger.debug("External Neo4j booster for : " + keySet);
         logger.debug("Call: " + getEndpoint());
 
+        return getReorderedResults(getExternalResults(keySet));
+
+    }
+
+    public Map<String, ExternalResult> getReorderedResults(List<ExternalResult> externalResults) {
+        HashMap<String, ExternalResult> results = new HashMap<>();
+        for (ExternalResult item : externalResults) {
+            results.put(item.getItem(), item);
+        }
+
+        return results;
+    }
+
+    public List<ExternalResult> getExternalResults(Set<String> keySet) {
         ClientConfig cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
         WebResource resource = Client.create(cfg).resource(getEndpoint());
@@ -63,36 +77,17 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
                 .post(ClientResponse.class, getParameters(keySet));
         GenericType<List<ExternalResult>> type = new GenericType<List<ExternalResult>>() {
         };
-        List<ExternalResult> res = response.getEntity(type);
+        List<ExternalResult> externalResults = response.getEntity(type);
         response.close();
 
-        HashMap<String, ExternalResult> results = new HashMap<>();
-
-        for (ExternalResult item : res) {
-            results.put(item.getItem(), item);
-        }
-
-        return results;
+        return externalResults;
     }
 
     @Override
     protected void extendedParseRequest(Map<String, String> extParams) {
         targetId = extParams.get(RECO_TARGET);
         keyProperty = extParams.get(KEY_PROPERTY) != null ? extParams.get(KEY_PROPERTY) : DEFAULT_KEY_PROPERTY;
-        restEndpoint = extParams.get(NEO4J_ENDPOINT);
-    }
-
-    private String getRestURL() {
-        String endpoint = getNeo4jHost();
-        if (endpoint.substring(endpoint.length() -1).equals("/")) {
-            endpoint = endpoint.substring(0, endpoint.length() -1);
-        }
-        if (restEndpoint != null) {
-            endpoint += getBoosterEndpoint();
-        } else {
-            endpoint += DEFAULT_REST_ENDPOINT;
-        }
-        return endpoint;
+        boosterEndpoint = extParams.get(NEO4J_ENDPOINT);
     }
 
     public Map<String, String> getParameters(Set<String> keySet) {
@@ -113,21 +108,10 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
         return keyProperty;
     }
 
-    public String getBoosterEndpoint() {
-        if (!restEndpoint.substring(0).equals("/")) {
-            return "/" + restEndpoint;
-        }
-
-        return restEndpoint;
-    }
-
     public String getEndpoint() {
-        String boosterUrl = getRestURL();
-        if (boosterUrl.substring(boosterUrl.length() -1).equals("/")) {
-            return boosterUrl + getTargetId();
-        }
+        String boosterUrl = null != boosterEndpoint ? boosterEndpoint : DEFAULT_REST_ENDPOINT;
 
-        return boosterUrl + "/" + getTargetId();
+        return buildEndpoint(getNeo4jHost(), boosterUrl, targetId);
     }
 
     public String implodeKeySet(Set<String> keySet) {
@@ -142,6 +126,26 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
         }
 
         return ids;
+    }
+
+    public String buildEndpoint(String... parts) {
+        boolean isFirst = true;
+        String endpoint = "";
+        for (String part : parts) {
+            while (part.endsWith("/")) {
+                part = part.substring(0, part.length()-1);
+            }
+            while (part.startsWith("/")) {
+                part = part.substring(1, part.length());
+            }
+            if (!isFirst) {
+                endpoint += "/";
+            }
+            endpoint += part;
+            isFirst = false;
+        }
+
+        return endpoint;
     }
 
 }

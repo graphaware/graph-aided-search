@@ -1,16 +1,13 @@
 package com.graphaware.integration.es.booster;
 
 import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.TestIndexInfo;
 import com.graphaware.integration.es.domain.Constants;
-import com.graphaware.integration.es.filter.SearchResultCypherFilter;
+import com.graphaware.integration.es.domain.ExternalResult;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -34,6 +31,21 @@ public class SearchResultNeo4jBoosterTest {
         assertEquals("12", booster.getTargetId());
         assertEquals("http://localhost:7474/", booster.getNeo4jHost());
         assertEquals("http://localhost:7474/reco/12", booster.getEndpoint());
+    }
+
+    @Test
+    public void testGetReorderedResults() {
+        List<ExternalResult> externalResults = new ArrayList<>();
+        ExternalResult result1 = new ExternalResult("123", 10.0f);
+        result1.setItem("123");
+        ExternalResult result2 = new ExternalResult("456", 20.0f);
+        result2.setItem("456");
+        externalResults.add(result1);
+        externalResults.add(result2);
+        Map<String, ExternalResult> results = getBooster().getReorderedResults(externalResults);
+        assertTrue(results.containsKey("123"));
+        assertTrue(results.containsKey("456"));
+        assertEquals(10.0f, results.get("123").getScore(), 0);
     }
 
     @Test
@@ -73,6 +85,15 @@ public class SearchResultNeo4jBoosterTest {
         String imploded = getBooster().implodeKeySet(keySet);
         assertEquals(6, imploded.length());
         // @todo result is not 1,2,33 but 2,1,33. Is it safe to rely on the order ?
+    }
+
+    @Test
+    public void buildEndpointTest() {
+        String neo4jHost = "http://localhost:7474/";
+        String boosterEndpoint = "/reco/engine//";
+        String recoId = "15";
+        String endpoint = getBooster().buildEndpoint(neo4jHost, boosterEndpoint, recoId);
+        assertEquals("http://localhost:7474/reco/engine/15", endpoint);
     }
 
     private HashMap<String, Object> getDefaultMap() {

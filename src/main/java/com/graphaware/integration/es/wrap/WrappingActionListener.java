@@ -94,8 +94,10 @@ public class WrappingActionListener implements ActionListener<SearchResponse> {
         InternalSearchHits hits = modifyHits(modifiers, readHits(in));
         InternalAggregations aggregations = readAggregations(in);
         Suggest suggest = readSuggestions(in);
-
-        InternalSearchResponse internalResponse = readInternalSearchResponse(in, hits, aggregations, suggest, in.readBoolean());
+        Boolean timedOut = in.readBoolean();
+        Boolean terminatedEarly = in.readOptionalBoolean();
+        InternalProfileShardResults profileResults = readInternalProfileShardResults(in);
+        InternalSearchResponse internalResponse =  new InternalSearchResponse(hits, aggregations, suggest, profileResults, timedOut, terminatedEarly);
         SearchResponse newResponse = createNewResponse(startTime, in, internalResponse);
 
         copyHeaders(headers, newResponse);
@@ -156,8 +158,8 @@ public class WrappingActionListener implements ActionListener<SearchResponse> {
         return suggest;
     }
 
-    private InternalSearchResponse readInternalSearchResponse(ChannelBufferStreamInput in, InternalSearchHits hits, InternalAggregations aggregations, Suggest suggest, boolean timedOut) throws IOException {
-        Boolean terminatedEarly = in.readOptionalBoolean();
+    private InternalProfileShardResults readInternalProfileShardResults(ChannelBufferStreamInput in) throws IOException {
+        
         InternalProfileShardResults profileResults;
 
         if (in.getVersion().onOrAfter(Version.V_2_2_0) && in.readBoolean()) {
@@ -165,8 +167,9 @@ public class WrappingActionListener implements ActionListener<SearchResponse> {
         } else {
             profileResults = null;
         }
+        return profileResults;
 
-        return new InternalSearchResponse(hits, aggregations, suggest, profileResults, timedOut, terminatedEarly);
+        //return new InternalSearchResponse(hits, aggregations, suggest, profileResults, timedOut, terminatedEarly);
     }
 
     private SearchResponse createNewResponse(long startTime, ChannelBufferStreamInput in, InternalSearchResponse internalResponse) throws IOException {

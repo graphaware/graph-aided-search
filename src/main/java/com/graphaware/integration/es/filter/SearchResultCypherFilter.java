@@ -64,7 +64,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         if (extParams != null) {
             cypher = (String) extParams.get(QUERY);
             maxResultSize = NumberUtil.getInt(extParams.get(MAX_RESULT_SIZE), maxResultWindow);
-            shouldExclude = extParams.containsKey(EXCLUDE) && String.valueOf(extParams.get(EXCLUDE)).equalsIgnoreCase(TRUE);
+            shouldExclude = extParams.containsKey(CLAUSE_FILTER_EXCLUDE) && String.valueOf(extParams.get(CLAUSE_FILTER_EXCLUDE)).equalsIgnoreCase(TRUE);
         }
         if (maxResultSize > 0) {
             sourceAsMap.put(SIZE, maxResultSize);

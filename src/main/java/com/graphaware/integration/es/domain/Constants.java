@@ -59,10 +59,11 @@ public final class Constants {
     public static final String DEFAULT_SCORE_RESULT_NAME = "score";
     public static final String DEFAULT_ID_RESULT_NAME = "id";
 
-    public static final String EXCLUDE = "exclude";
+    public static final String CLAUSE_FILTER_EXCLUDE = "exclude";
+    public static final String CLAUSE_TYPE_NAME = "name";
     public static final String TRUE = "true";
     public static final String QUERY_BINARY = "query_binary";
-    public static final String NAME = "name";
+    
     public static final int DEFAULT_MAX_RESULT_WINDOW = 10000;
 
     private Constants() {

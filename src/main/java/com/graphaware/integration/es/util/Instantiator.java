@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.graphaware.integration.es.domain.Constants.NAME;
+import static com.graphaware.integration.es.domain.Constants.CLAUSE_TYPE_NAME;
 
 public class Instantiator {
 
@@ -55,7 +55,7 @@ public class Instantiator {
             return null;
         }
 
-        String name = params.get(NAME);
+        String name = params.get(CLAUSE_TYPE_NAME);
         if (name == null || name.length() < 1) {
             return null;
         }

@@ -69,6 +69,12 @@ public class CypherEndPoint {
         }
     }
 
+    public Map<String, Object> parseCypherResponse(ClientResponse response) {
+        GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>(){};
+
+        return response.getEntity(type);
+    }
+
     public Map<String, Object> post(String url, String json) {
         WebResource resource = Client.create(cfg).resource(url);
         ClientResponse response = null;

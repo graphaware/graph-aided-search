@@ -107,3 +107,4 @@ hs_err_pid*
 
 /extlib/
 /neo4j-home/
+/data/

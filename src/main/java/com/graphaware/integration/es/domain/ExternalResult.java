@@ -27,9 +27,6 @@ public class ExternalResult {
         this.score = score;
     }
 
-    public ExternalResult() {
-    }
-
     public long getNodeId() {
         return nodeId;
     }

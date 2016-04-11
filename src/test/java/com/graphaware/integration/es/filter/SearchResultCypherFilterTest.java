@@ -1,12 +1,16 @@
 package com.graphaware.integration.es.filter;
 
+import com.graphaware.integration.es.GraphAidedSearchTest;
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.TestIndexInfo;
-import io.searchbox.core.SearchResult;
+import com.graphaware.integration.es.domain.CypherResult;
+import com.graphaware.integration.es.domain.ResultRow;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -46,6 +50,22 @@ public class SearchResultCypherFilterTest {
         assertEquals(0, filter.getFrom());
     }
 
+    @Test
+    public void testIdResultNameHasDefault() {
+        SearchResultCypherFilter filter = getFilter();
+        assertEquals("id", filter.getIdResultName());
+    }
+
+    @Test
+    public void testIdResultNameCanBeCustomized() {
+        SearchResultCypherFilter filter = getFilter();
+        Map<String, Object> map = getDefaultMap();
+        Map<String, String> gasFilter = (Map<String, String>) map.get("gas-filter");
+        gasFilter.put("identifier", "uuid");
+        filter.parseRequest(map);
+        assertEquals("uuid", filter.getIdResultName());
+    }
+
     private HashMap<String, Object> getDefaultMap() {
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> gasFilter = new HashMap<>();
@@ -61,5 +81,4 @@ public class SearchResultCypherFilterTest {
 
         return new SearchResultCypherFilter(builder.build(), indexInfo);
     }
-
 }

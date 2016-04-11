@@ -42,17 +42,13 @@ public class CypherEndpointTest {
         String query = "MATCH (n) RETURN n.id as id";
         HashMap<String, Object> params = new HashMap<>();
         CypherEndPoint cypherEndPoint = new CypherEndPoint(Settings.EMPTY);
-        CypherResult result = cypherEndPoint.executeCypher(getCypherEndpoint(), getHeaders(NEO4J_CUSTOM_PASSWORD), query, params);
+        CypherResult result = cypherEndPoint.executeCypher(NEO4J_SERVER_URL, getHeaders(NEO4J_CUSTOM_PASSWORD), query, params);
         assertEquals(10, result.getRows().size());
         int i = 0;
         for (ResultRow resultRow : result.getRows()) {
             assertTrue(resultRow.getValues().containsKey("id"));
             assertEquals(++i, resultRow.getValues().get("id"));
         }
-    }
-
-    private String getCypherEndpoint() {
-        return NEO4J_SERVER_URL + "/db/data/transaction/commit";
     }
 
     private void changePassword() {

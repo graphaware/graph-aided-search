@@ -16,6 +16,8 @@
 package com.graphaware.integration.es.domain;
 
 import com.google.common.io.BaseEncoding;
+import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.util.UrlUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -33,16 +35,19 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
-import static com.graphaware.integration.es.domain.Constants.*;
-import static com.graphaware.integration.es.domain.Constants.COLUMNS;
-import static com.graphaware.integration.es.domain.Constants.ROW;
-
 public class CypherEndPoint {
 
     private static final String DEFAULT_NEO4J_USER = "neo4j";
     private static final String DEFAULT_NEO4J_PASSWORD = "password";
     private static final String SETTINGS_NEO4J_PASSWORD_KEY = "index.gas.neo4j.password";
     private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
+
+    private static final String CYPHER_ENDPOINT = "/db/data/transaction/commit";
+    private static final String CYPHER_RESPONSE_RESULTS_FIELD = "results";
+    private static final String CYPHER_RESPONSE_DATA_FIELD = "data";
+    private static final String CYPHER_RESPONSE_COLUMNS_FIELD = "columns";
+    private static final String CYPHER_RESPONSE_ERRORS_FIELD = "errors";
+    private static final String CYPHER_RESPONSE_ROW_FIELD = "row";
 
     private final ESLogger logger;
     private final ClientConfig cfg;
@@ -51,7 +56,7 @@ public class CypherEndPoint {
     private final String neo4jPassword;
 
     public CypherEndPoint(Settings settings) {
-        this.logger = Loggers.getLogger(INDEX_LOGGER_NAME, settings);
+        this.logger = Loggers.getLogger(IndexInfo.INDEX_LOGGER_NAME, settings);
         cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
         stringBuilder = new StringBuilder();
@@ -71,16 +76,17 @@ public class CypherEndPoint {
 
     public CypherResult executeCypher(String url, HashMap<String, String> headers, String query, HashMap<String, Object> parameters) {
         String jsonBody = buildCypherQuery(query, parameters);
-        Map<String, Object> response = post(url, headers, jsonBody);
+        String cypherEndpoint = UrlUtil.buildUrlFromParts(url, CYPHER_ENDPOINT);
+        Map<String, Object> response = post(cypherEndpoint, headers, jsonBody);
         checkErrors(response);
 
         return buildCypherResult(response);
     }
 
     public CypherResult buildCypherResult(Map<String, Object> response) {
-        Map res = (Map) ((List) response.get(RESULTS)).get(0);
-        List<Map> rows = (List) res.get(DATA);
-        List<String> columns = (List) res.get(COLUMNS);
+        Map res = (Map) ((List) response.get(CYPHER_RESPONSE_RESULTS_FIELD)).get(0);
+        List<Map> rows = (List) res.get(CYPHER_RESPONSE_DATA_FIELD);
+        List<String> columns = (List) res.get(CYPHER_RESPONSE_COLUMNS_FIELD);
         int k = 0;
         Map<String, Integer> columnsMap = new HashMap<>();
         for (String c : columns) {
@@ -91,7 +97,7 @@ public class CypherEndPoint {
         CypherResult result = new CypherResult();
         for (int i = 0; i < rows.size(); ++i) {
             ResultRow resultRow = new ResultRow();
-            List row = (List) rows.get(i).get(ROW);
+            List row = (List) rows.get(i).get(CYPHER_RESPONSE_ROW_FIELD);
             for (String key : columns) {
                 resultRow.add(key, row.get(columnsMap.get(key)));
             }
@@ -115,12 +121,6 @@ public class CypherEndPoint {
         } catch (IOException e) {
             throw new RuntimeException("Unable to build the Cypher query : " + e.getMessage());
         }
-    }
-
-    public Map<String, Object> post(String url, String json) {
-        HashMap<String, String> headers = new HashMap<>();
-
-        return post(url, headers, json);
     }
 
     public Map<String, Object> post(String url, HashMap<String, String> headers, String json) {
@@ -164,7 +164,7 @@ public class CypherEndPoint {
 
     private void checkErrors(Map<String, Object> results) {
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> errors = (List) results.get(ERRORS);
+        List<Map<String, Object>> errors = (List) results.get(CYPHER_RESPONSE_ERRORS_FIELD);
         if (errors.size() > 0) {
             throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
         }

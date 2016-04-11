@@ -46,7 +46,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
 
     private final String neo4jHost;
     private final int maxResultWindow;
-    
+
     private final CypherEndPoint cypherEndPoint;
 
     private int maxResultSize = -1;
@@ -127,7 +127,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     }
 
     protected Set<String> getFilteredItems() {
-        CypherResult result = cypherEndPoint.executeCypher(getCypherEndpoint(), cypherQuery, new HashMap<String, Object>());
+        CypherResult result = getCypherResult();
         Set<String> filteredItems = new HashSet<>();
 
         for (ResultRow resultRow : result.getRows()) {
@@ -137,16 +137,16 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         return filteredItems;
     }
 
+    protected CypherResult getCypherResult() {
+        return cypherEndPoint.executeCypher(neo4jHost, cypherQuery, new HashMap<String, Object>());
+    }
+
     protected String getFilteredItem(ResultRow resultRow) {
         if (!resultRow.getValues().containsKey(getIdResultName())) {
             throw new RuntimeException("The cypher query result must contain the " + getIdResultName() + " column name");
         }
 
         return getIdentifier(resultRow.get(getIdResultName()));
-    }
-
-    private String getCypherEndpoint() {
-        return UrlUtil.buildUrlFromParts(neo4jHost, CYPHER_ENDPOINT);
     }
 
     public int getSize() {

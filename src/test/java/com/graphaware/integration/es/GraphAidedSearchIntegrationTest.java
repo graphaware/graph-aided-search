@@ -269,6 +269,38 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
     }
 
     @Test
+    public void testCypherFilterWithGraph() throws IOException {
+        executeCypher("UNWIND range(0, 100) as x CREATE (n) SET n.id = x");
+        String query = "{"
+                + "   \"query\": {"
+                + "      \"bool\": {"
+                + "         \"should\": ["
+                + "            {"
+                + "                  \"match\": {"
+                + "                       \"message\": \"test 1\""
+                + "                   }"
+                + "            }"
+                + "         ]"
+                + "      }"
+                + "   }"
+                + "   ,\"gas-filter\" :{"
+                + "          \"name\": \"SearchResultCypherFilter\","
+                + "          \"query\": \"MATCH (n) RETURN n.id as id\","
+                + "          \"exclude\": false"
+                + "      }"
+                + "}";
+
+        Search search = new Search.Builder(query)
+                // multiple index or types can be added.
+                .addIndex(INDEX_NAME)
+                .addType(TYPE_NAME)
+                .build();
+        SearchResult result = jestClient.execute(search);
+
+        assertEquals(100, result.getTotal().intValue());
+    }
+
+    @Test
     public void testCypherBooster() throws IOException {
         String query = "{"
                     + "   \"query\": {"

@@ -16,6 +16,7 @@
 
 package com.graphaware.integration.es;
 
+import com.graphaware.integration.neo4j.test.EmbeddedGraphDatabaseServer;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.config.HttpClientConfig;
@@ -43,6 +44,8 @@ public abstract class GraphAidedSearchTest {
 
     protected ElasticsearchClusterRunner runner;
 
+    protected EmbeddedGraphDatabaseServer neo4jServer;
+
     protected JestClient jestClient;
 
     protected ObjectMapper objectMapper;
@@ -51,6 +54,7 @@ public abstract class GraphAidedSearchTest {
     public void setUp() throws Exception{
         createCluster();
         createJestClient();
+        createNeo4jServer();
         objectMapper = new ObjectMapper();
     }
 
@@ -74,6 +78,11 @@ public abstract class GraphAidedSearchTest {
                 .readTimeout(10000000)
                 .build());
         jestClient = factory.getObject();
+    }
+
+    protected void createNeo4jServer() {
+        neo4jServer = new EmbeddedGraphDatabaseServer();
+        neo4jServer.start();
     }
 
     protected CreateIndexResponse createIndex(String indexName) {
@@ -142,5 +151,6 @@ public abstract class GraphAidedSearchTest {
     public void tearDown() {
         runner.close();
         runner.clean();
+        neo4jServer.stop();
     }
 }

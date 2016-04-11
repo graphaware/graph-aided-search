@@ -31,11 +31,15 @@ import java.util.Map;
 
 import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_ENABLED;
 import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_HOST;
+import com.graphaware.integration.neo4j.test.EmbeddedGraphDatabaseServer;
+import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
 
+    private EmbeddedGraphDatabaseServer server;
+    
     private static final String INDEX_NAME = "test-index";
 
     private static final String DISABLED_INDEX_NAME = "disabled-test-index";
@@ -47,8 +51,18 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
     @Override
     public void setUp() throws Exception{
         super.setUp();
+        server = new EmbeddedGraphDatabaseServer();
+        server.start();
         createIndices();
         createData();
+        
+    }
+    
+    @After
+    @Override
+    public void tearDown() {
+        super.tearDown();
+        server.stop();
     }
 
     @Override
@@ -121,41 +135,6 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         float expectedScore = withoutBoosterMaxScore * (Integer.parseInt(hits.get(0).source.getDocumentId()) * 1000);
         assertEquals(expectedScore, result.getMaxScore(), 1);
     }
-
-//    @Test
-//    public void testReplaceBooster() throws IOException {
-//        String query = "{"
-//                + "   \"query\": {"
-//                + "      \"bool\": {"
-//                + "         \"should\": ["
-//                + "            {"
-//                + "                  \"match\": {"
-//                + "                       \"message\": \"test 1\""
-//                + "                   }"
-//                + "            }"
-//                + "         ]"
-//                + "      }"
-//                + "   }"
-//                + "   ,\"gas-booster\" :{"
-//                + "          \"name\": \"ReplacingSearchResultTestBooster\","
-//                + "          \"recoTarget\": \"Durgan%20LLC\""
-//                + "      }"
-//                + "}";
-//
-//        Search search = new Search.Builder(query)
-//                // multiple index or types can be added.
-//                .addIndex(INDEX_NAME)
-//                .addType(TYPE_NAME)
-//                .build();
-//
-//        SearchResult result = jestClient.execute(search);
-//
-//        assertEquals(100, result.getTotal().intValue());
-//        List<SearchResult.Hit<JestMsgResult, Void>> hits = getHitsForResult(result);
-//        assertEquals(10, hits.size());
-//        assertEquals("test 99", hits.instantiate(0).source.getMsg());
-//        assertEquals(result.getMaxScore(), 99 * 1000, 1);
-//    }
 
     @Test
     public void testCypherFilterQueryWithExcludeFalse() throws IOException {

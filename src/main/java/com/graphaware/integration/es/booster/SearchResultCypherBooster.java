@@ -46,7 +46,11 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     public SearchResultCypherBooster(Settings settings, IndexInfo indexInfo) {
         super(settings, indexInfo);
         this.logger = Loggers.getLogger(IndexInfo.INDEX_LOGGER_NAME, settings);
-        this.cypherEndPoint = new CypherEndPoint(settings);
+        this.cypherEndPoint = new CypherEndPoint(settings, 
+                indexInfo.getNeo4jHost(), 
+                indexInfo.getNeo4jUsername(),
+                indexInfo.getNeo4jPassword()
+        );
     }
 
     @Override
@@ -63,7 +67,7 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     }
 
     protected Map<String, ExternalResult> getExternalResults(Set<String> keySet) {
-        CypherResult externalResult = cypherEndPoint.executeCypher(getNeo4jHost(), cypherQuery, getParameters(keySet));
+        CypherResult externalResult = cypherEndPoint.executeCypher(cypherQuery, getParameters(keySet));
         Map<String, ExternalResult> results = new HashMap<>();
         for (ResultRow resultRow : externalResult.getRows()) {
             checkResultRow(resultRow);

@@ -37,8 +37,6 @@ import org.elasticsearch.common.settings.Settings;
 
 public class CypherEndPoint {
 
-    private static final String DEFAULT_NEO4J_USER = "neo4j";
-    private static final String DEFAULT_NEO4J_PASSWORD = "password";
     private static final String SETTINGS_NEO4J_PASSWORD_KEY = "index.gas.neo4j.password";
     private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
 
@@ -53,28 +51,32 @@ public class CypherEndPoint {
     private final ClientConfig cfg;
     private final StringBuilder stringBuilder;
     private final ObjectMapper mapper;
+    private final String url;
     private final String neo4jPassword;
+    private final String neo4jUsername;
 
-    public CypherEndPoint(Settings settings) {
+    public CypherEndPoint(Settings settings, String neo4jUrl, String neo4jUsername, String neo4jPassword) {
         this.logger = Loggers.getLogger(IndexInfo.INDEX_LOGGER_NAME, settings);
         cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
         stringBuilder = new StringBuilder();
         mapper = new ObjectMapper();
-        neo4jPassword = DEFAULT_NEO4J_PASSWORD; // TODO: use settings config
+        this.url = neo4jUrl;
+        this.neo4jUsername = neo4jUsername; 
+        this.neo4jPassword = neo4jPassword;
     }
 
     public String buildCypherQuery(String cypherQuery) {
         return buildCypherQuery(cypherQuery, new HashMap<String, Object>());
     }
 
-    public CypherResult executeCypher(String url, String query, HashMap<String, Object> parameters) {
+    public CypherResult executeCypher(String query, HashMap<String, Object> parameters) {
         HashMap<String, String> headers = new HashMap<>();
 
-        return executeCypher(url, headers, query, parameters);
+        return executeCypher(headers, query, parameters);
     }
 
-    public CypherResult executeCypher(String url, HashMap<String, String> headers, String query, HashMap<String, Object> parameters) {
+    public CypherResult executeCypher(HashMap<String, String> headers, String query, HashMap<String, Object> parameters) {
         String jsonBody = buildCypherQuery(query, parameters);
         String cypherEndpoint = UrlUtil.buildUrlFromParts(url, CYPHER_ENDPOINT);
         Map<String, Object> response = post(cypherEndpoint, headers, jsonBody);
@@ -171,7 +173,7 @@ public class CypherEndPoint {
     }
 
     private String getAuthorizationHeaderValue() {
-        String value = DEFAULT_NEO4J_USER + ":" + neo4jPassword;
+        String value = neo4jUsername + ":" + neo4jPassword;
 
         return "Basic " + BaseEncoding.base64().encode(value.getBytes());
     }

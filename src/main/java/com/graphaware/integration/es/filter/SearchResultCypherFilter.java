@@ -59,9 +59,13 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     public SearchResultCypherFilter(Settings settings, IndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
         this.maxResultWindow = indexSettings.getMaxResultWindow();
-        this.cypherEndPoint = new CypherEndPoint(settings);
+        this.cypherEndPoint = new CypherEndPoint(settings,
+                indexSettings.getNeo4jHost(),
+                indexSettings.getNeo4jUsername(),
+                indexSettings.getNeo4jPassword());
     }
 
+    @Override
     public void parseRequest(Map<String, Object> sourceAsMap) {
         size = NumberUtil.getInt(sourceAsMap.get(SIZE), DEFAULT_RESULT_SIZE);
         from = NumberUtil.getInt(sourceAsMap.get(FROM), DEFAULT_FROM_VALUE);
@@ -81,6 +85,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         }
     }
 
+    @Override
     public InternalSearchHits modify(final InternalSearchHits hits) {
         Set<String> remoteFilter = getFilteredItems();
         final InternalSearchHit[] searchHits = hits.internalHits();
@@ -138,7 +143,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     }
 
     protected CypherResult getCypherResult() {
-        return cypherEndPoint.executeCypher(neo4jHost, cypherQuery, new HashMap<String, Object>());
+        return cypherEndPoint.executeCypher(cypherQuery, new HashMap<String, Object>());
     }
 
     protected String getFilteredItem(ResultRow resultRow) {

@@ -31,6 +31,8 @@ import static com.graphaware.integration.es.util.ParamUtil.*;
 public abstract class SearchResultExternalBooster implements SearchResultBooster {
 
     private final String neo4jHost;
+    private final String neo4jUsername;
+    private final String neo4jPassword;
     private final int maxResultWindow;
 
     private int maxResultSize = -1;
@@ -42,6 +44,8 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
 
     public SearchResultExternalBooster(Settings settings, IndexInfo indexSettings) {
         this.neo4jHost = indexSettings.getNeo4jHost();
+        this.neo4jUsername = indexSettings.getNeo4jUsername();
+        this.neo4jPassword = indexSettings.getNeo4jPassword();
         this.maxResultWindow = indexSettings.getMaxResultWindow();
     }
 

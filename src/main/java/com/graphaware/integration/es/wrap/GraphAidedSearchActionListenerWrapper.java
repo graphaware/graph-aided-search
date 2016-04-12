@@ -245,7 +245,12 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
                         return IndexInfo.NO_SCRIPT_INFO;
                     }
 
-                    return new IndexInfo(indexSettings.get(INDEX_GA_ES_NEO4J_HOST), indexSettings.getAsBoolean(INDEX_GA_ES_NEO4J_ENABLED, false), indexSettings.getAsInt(INDEX_MAX_RESULT_WINDOW, DEFAULT_MAX_RESULT_WINDOW));
+                    return new IndexInfo(indexSettings.get(INDEX_GA_ES_NEO4J_HOST), 
+                            indexSettings.get(INDEX_GA_ES_NEO4J_USER), 
+                            indexSettings.get(INDEX_GA_ES_NEO4J_PWD), 
+                            indexSettings.getAsBoolean(INDEX_GA_ES_NEO4J_ENABLED, false), 
+                            indexSettings.getAsInt(INDEX_MAX_RESULT_WINDOW, 
+                                    DEFAULT_MAX_RESULT_WINDOW));
                 }
             });
         } catch (final Exception e) {

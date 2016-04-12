@@ -40,6 +40,7 @@ import java.util.Map;
 
 import static org.elasticsearch.action.search.ShardSearchFailure.readShardSearchFailure;
 import static org.elasticsearch.search.internal.InternalSearchHits.readSearchHits;
+import static org.elasticsearch.search.internal.InternalSearchHits.readSearchHits;
 
 public class WrappingActionListener implements ActionListener<SearchResponse> {
 

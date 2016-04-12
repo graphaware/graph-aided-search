@@ -13,10 +13,17 @@ import static org.junit.Assert.assertEquals;
 public class CypherEndpointUnitTest {
 
     private CypherEndPoint cypherEndPoint;
+    
+    private static final String NEO4J_SERVER_URL = "http://localhost:7474";
+    private static final String NEO4J_CUSTOM_PASSWORD = "password";
+    private static final String NEO4J_CUSTOM_USER = "neo4j";
 
     @Before
     public void setUp() {
-        cypherEndPoint = new CypherEndPoint(Settings.EMPTY);
+        cypherEndPoint = new CypherEndPoint(Settings.EMPTY,
+                NEO4J_SERVER_URL,
+                NEO4J_CUSTOM_USER,
+                NEO4J_CUSTOM_PASSWORD);
     }
 
     @Test

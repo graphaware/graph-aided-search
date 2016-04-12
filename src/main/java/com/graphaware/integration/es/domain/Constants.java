@@ -21,6 +21,8 @@ public final class Constants {
     public static final String INDEX_GA_ES_NEO4J_ENABLED = "index.gas.enable";
     public static final String INDEX_MAX_RESULT_WINDOW = "max_result_window";
     public static final String INDEX_GA_ES_NEO4J_HOST = "index.gas.neo4j.hostname";
+    public static final String INDEX_GA_ES_NEO4J_USER = "index.gas.neo4j.user";
+    public static final String INDEX_GA_ES_NEO4J_PWD = "index.gas.neo4j.password";
 
     public static final String GAS_REQUEST = "_gas";
     public static final String GAS_BOOSTER_CLAUSE = "gas-booster";

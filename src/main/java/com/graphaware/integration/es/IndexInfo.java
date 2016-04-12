@@ -21,6 +21,8 @@ public class IndexInfo {
     public final static IndexInfo NO_SCRIPT_INFO = new IndexInfo();
 
     private final String neo4jHost;
+    private String neo4jUsername;
+    private String neo4jPwd;
     private final boolean enabled;
     private final int maxResultWindow;
 
@@ -30,6 +32,11 @@ public class IndexInfo {
         this.maxResultWindow = 0;
     }
 
+    public IndexInfo(final String hostname, final String username, final String password, boolean enabled, int maxResultWindow) {
+        this(hostname, enabled, maxResultWindow);
+        this.neo4jUsername = username;
+        this.neo4jPwd = password;
+    }
     public IndexInfo(final String hostname, boolean enabled, int maxResultWindow) {
         this.neo4jHost = hostname;
         this.enabled = enabled;
@@ -50,6 +57,19 @@ public class IndexInfo {
 
     @Override
     public String toString() {
-        return "ScriptInfo [neo4jHost=" + neo4jHost + ", enabled=" + enabled + ", maxResultWindow=" + maxResultWindow + "]";
+        return "ScriptInfo [neo4jHost=" + neo4jHost 
+                + ", enabled=" + enabled 
+                + ", maxResultWindow=" + maxResultWindow 
+                + ", neo4jUsername=" + neo4jUsername 
+                + ", neo4jPwd=" + neo4jPwd 
+                + "]";
+    }
+
+    public String getNeo4jUsername() {
+        return neo4jUsername;
+    }
+
+    public String getNeo4jPassword() {
+        return neo4jPwd;
     }
 }

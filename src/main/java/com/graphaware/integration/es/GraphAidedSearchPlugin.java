@@ -15,6 +15,7 @@
  */
 package com.graphaware.integration.es;
 
+import com.graphaware.integration.es.domain.Constants;
 import org.elasticsearch.action.ActionModule;
 import org.elasticsearch.cluster.ClusterModule;
 import org.elasticsearch.cluster.settings.Validator;
@@ -26,6 +27,8 @@ import java.util.Collections;
 
 import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_ENABLED;
 import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_HOST;
+import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_USER;
+import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_PWD;
 
 public class GraphAidedSearchPlugin extends Plugin {
 
@@ -46,6 +49,8 @@ public class GraphAidedSearchPlugin extends Plugin {
     public void onModule(final ClusterModule module) {
         module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_ENABLED, Validator.BOOLEAN);
         module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_HOST, Validator.EMPTY);
+        module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_USER, Validator.EMPTY);
+        module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_PWD, Validator.EMPTY);
     }
 
     @Override

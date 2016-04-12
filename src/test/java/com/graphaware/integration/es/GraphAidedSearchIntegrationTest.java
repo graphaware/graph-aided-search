@@ -16,6 +16,7 @@
 
 package com.graphaware.integration.es;
 
+import com.graphaware.integration.es.domain.Constants;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import org.elasticsearch.action.search.SearchResponse;
@@ -39,11 +40,10 @@ import static org.junit.Assert.assertTrue;
 public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
     
     private static final String INDEX_NAME = "test-index";
-
     private static final String DISABLED_INDEX_NAME = "disabled-test-index";
-
     private static final String NEO4J_HOSTNAME = "http://localhost:7474";
-
+    private static final String NEO4J_USER = "neo4j";
+    private static final String NEO4J_PASSWORD = "password";
     private static final String TYPE_NAME = "test_data";
 
     @Override
@@ -466,6 +466,8 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         Map<String, Object> settings1 = new HashMap<>();
         settings1.put(INDEX_GA_ES_NEO4J_ENABLED, true);
         settings1.put(INDEX_GA_ES_NEO4J_HOST, NEO4J_HOSTNAME);
+        settings1.put(Constants.INDEX_GA_ES_NEO4J_USER, NEO4J_USER);
+        settings1.put(Constants.INDEX_GA_ES_NEO4J_PWD, NEO4J_PASSWORD);
         createIndex(INDEX_NAME, settings1);
 
         Map<String, Object> settings2 = new HashMap<>();

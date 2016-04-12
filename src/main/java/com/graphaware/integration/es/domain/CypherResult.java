@@ -13,29 +13,20 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.util;
+package com.graphaware.integration.es.domain;
 
-public final class NumberUtil {
+import java.util.ArrayList;
+import java.util.List;
 
-    public static int getInt(final Object value, final int defaultValue) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        } else if (value instanceof String) {
-            return Integer.parseInt(value.toString());
-        }
-        return defaultValue;
+public class CypherResult {
+
+    private List<ResultRow> rows = new ArrayList<>();
+
+    public void addRow(ResultRow resultRow) {
+        rows.add(resultRow);
     }
 
-    public static float getFloat(final Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).floatValue();
-        } else if (value instanceof String) {
-            return Float.parseFloat(value.toString());
-        }
-
-        throw new RuntimeException("Unable to parse float from value");
-    }
-
-    private NumberUtil() {
+    public List<ResultRow> getRows() {
+        return rows;
     }
 }

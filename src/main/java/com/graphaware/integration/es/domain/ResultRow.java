@@ -13,29 +13,23 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.util;
+package com.graphaware.integration.es.domain;
 
-public final class NumberUtil {
+import java.util.HashMap;
 
-    public static int getInt(final Object value, final int defaultValue) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        } else if (value instanceof String) {
-            return Integer.parseInt(value.toString());
-        }
-        return defaultValue;
+public class ResultRow {
+
+    private HashMap<String, Object> items = new HashMap<>();
+
+    public void add(String columnKey, Object item) {
+        items.put(columnKey, item);
     }
 
-    public static float getFloat(final Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).floatValue();
-        } else if (value instanceof String) {
-            return Float.parseFloat(value.toString());
-        }
-
-        throw new RuntimeException("Unable to parse float from value");
+    public Object get(String columnKey) {
+        return items.get(columnKey);
     }
 
-    private NumberUtil() {
+    public HashMap<String, Object> getValues() {
+        return items;
     }
 }

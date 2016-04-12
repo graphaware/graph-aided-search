@@ -17,6 +17,7 @@ package com.graphaware.integration.es;
 
 public class IndexInfo {
 
+    public static final String INDEX_LOGGER_NAME = "index.graph-aided-search";
     public final static IndexInfo NO_SCRIPT_INFO = new IndexInfo();
 
     private final String neo4jHost;

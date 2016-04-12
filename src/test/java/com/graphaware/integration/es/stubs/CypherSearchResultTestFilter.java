@@ -16,6 +16,8 @@
 package com.graphaware.integration.es.stubs;
 
 import com.graphaware.integration.es.annotation.SearchFilter;
+import com.graphaware.integration.es.domain.CypherResult;
+import com.graphaware.integration.es.domain.ResultRow;
 import com.graphaware.integration.es.filter.SearchResultCypherFilter;
 import com.graphaware.integration.es.IndexInfo;
 import java.util.HashSet;
@@ -29,8 +31,9 @@ public class CypherSearchResultTestFilter extends SearchResultCypherFilter {
     public CypherSearchResultTestFilter(Settings settings, IndexInfo indexSettings) {
         super(settings, indexSettings);
     }
-    
-    public Set<String> executeCypher(String serverUrl, String cypherStatement) {
+
+    @Override
+    protected Set<String> getFilteredItems() {
         Set<String> result = new HashSet<>();
         for (int i = 1; i <= 1000; i++) {
             if (i%3 == 0) {

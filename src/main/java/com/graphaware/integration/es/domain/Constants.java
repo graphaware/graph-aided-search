@@ -18,7 +18,6 @@ package com.graphaware.integration.es.domain;
 
 public final class Constants {
 
-    public static final String INDEX_LOGGER_NAME = "index.graph-aided-search";
     public static final String INDEX_GA_ES_NEO4J_ENABLED = "index.gas.enable";
     public static final String INDEX_MAX_RESULT_WINDOW = "max_result_window";
     public static final String INDEX_GA_ES_NEO4J_HOST = "index.gas.neo4j.hostname";
@@ -30,12 +29,6 @@ public final class Constants {
     public static final String QUERY = "query";
     public static final String SCORE_NAME = "scoreName";
     public static final String IDENTIFIER = "identifier";
-    public static final String CYPHER_ENDPOINT = "/db/data/transaction/commit";
-    public static final String RESULTS = "results";
-    public static final String DATA = "data";
-    public static final String COLUMNS = "columns";
-    public static final String ERRORS = "errors";
-    public static final String ROW = "row";
 
     public static final String SIZE = "size";
     public static final String FROM = "from";

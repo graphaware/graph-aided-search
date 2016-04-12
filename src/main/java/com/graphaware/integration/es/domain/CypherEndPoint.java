@@ -15,8 +15,9 @@
  */
 package com.graphaware.integration.es.domain;
 
-import static com.graphaware.integration.es.domain.Constants.ERRORS;
-import static com.graphaware.integration.es.domain.Constants.INDEX_LOGGER_NAME;
+import com.google.common.io.BaseEncoding;
+import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.util.UrlUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
@@ -36,21 +37,74 @@ import org.elasticsearch.common.settings.Settings;
 
 public class CypherEndPoint {
 
+    private static final String DEFAULT_NEO4J_USER = "neo4j";
+    private static final String DEFAULT_NEO4J_PASSWORD = "password";
+    private static final String SETTINGS_NEO4J_PASSWORD_KEY = "index.gas.neo4j.password";
+    private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
+
+    private static final String CYPHER_ENDPOINT = "/db/data/transaction/commit";
+    private static final String CYPHER_RESPONSE_RESULTS_FIELD = "results";
+    private static final String CYPHER_RESPONSE_DATA_FIELD = "data";
+    private static final String CYPHER_RESPONSE_COLUMNS_FIELD = "columns";
+    private static final String CYPHER_RESPONSE_ERRORS_FIELD = "errors";
+    private static final String CYPHER_RESPONSE_ROW_FIELD = "row";
+
     private final ESLogger logger;
     private final ClientConfig cfg;
     private final StringBuilder stringBuilder;
     private final ObjectMapper mapper;
+    private final String neo4jPassword;
 
     public CypherEndPoint(Settings settings) {
-        this.logger = Loggers.getLogger(INDEX_LOGGER_NAME, settings);
+        this.logger = Loggers.getLogger(IndexInfo.INDEX_LOGGER_NAME, settings);
         cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
         stringBuilder = new StringBuilder();
         mapper = new ObjectMapper();
+        neo4jPassword = DEFAULT_NEO4J_PASSWORD; // TODO: use settings config
     }
 
     public String buildCypherQuery(String cypherQuery) {
         return buildCypherQuery(cypherQuery, new HashMap<String, Object>());
+    }
+
+    public CypherResult executeCypher(String url, String query, HashMap<String, Object> parameters) {
+        HashMap<String, String> headers = new HashMap<>();
+
+        return executeCypher(url, headers, query, parameters);
+    }
+
+    public CypherResult executeCypher(String url, HashMap<String, String> headers, String query, HashMap<String, Object> parameters) {
+        String jsonBody = buildCypherQuery(query, parameters);
+        String cypherEndpoint = UrlUtil.buildUrlFromParts(url, CYPHER_ENDPOINT);
+        Map<String, Object> response = post(cypherEndpoint, headers, jsonBody);
+        checkErrors(response);
+
+        return buildCypherResult(response);
+    }
+
+    public CypherResult buildCypherResult(Map<String, Object> response) {
+        Map res = (Map) ((List) response.get(CYPHER_RESPONSE_RESULTS_FIELD)).get(0);
+        List<Map> rows = (List) res.get(CYPHER_RESPONSE_DATA_FIELD);
+        List<String> columns = (List) res.get(CYPHER_RESPONSE_COLUMNS_FIELD);
+        int k = 0;
+        Map<String, Integer> columnsMap = new HashMap<>();
+        for (String c : columns) {
+            columnsMap.put(c, k);
+            ++k;
+        }
+
+        CypherResult result = new CypherResult();
+        for (int i = 0; i < rows.size(); ++i) {
+            ResultRow resultRow = new ResultRow();
+            List row = (List) rows.get(i).get(CYPHER_RESPONSE_ROW_FIELD);
+            for (String key : columns) {
+                resultRow.add(key, row.get(columnsMap.get(key)));
+            }
+            result.addRow(resultRow);
+        }
+
+        return result;
     }
 
     public String buildCypherQuery(String cypherQuery, Map<String, Object> parameters) {
@@ -69,16 +123,21 @@ public class CypherEndPoint {
         }
     }
 
-    public Map<String, Object> post(String url, String json) {
+    public Map<String, Object> post(String url, HashMap<String, String> headers, String json) {
+        if (!headers.containsKey(AUTHORIZATION_HEADER_KEY) && null != neo4jPassword) {
+            headers.put(AUTHORIZATION_HEADER_KEY, getAuthorizationHeaderValue());
+        }
         WebResource resource = Client.create(cfg).resource(url);
+        WebResource.Builder builder = resource.accept(MediaType.APPLICATION_JSON)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(json);
+        for (String k : headers.keySet()) {
+            builder.header(k, headers.get(k));
+        }
         ClientResponse response = null;
         Map<String, Object> results = null;
         try {
-            response = resource
-                    .accept(MediaType.APPLICATION_JSON)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(json)
-                    .post(ClientResponse.class);
+            response = builder.post(ClientResponse.class);
             GenericType<Map<String, Object>> type = new GenericType<Map<String, Object>>() {
             };
             results = response.getEntity(type);
@@ -99,13 +158,21 @@ public class CypherEndPoint {
             logger.error("Null results from cypher endpoint for json:\n" + json);
             throw new RuntimeException("Cypher Execution Error. No results returned");
         }
-            
+
+        return results;
+    }
+
+    private void checkErrors(Map<String, Object> results) {
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> errors = (List) results.get(ERRORS);
+        List<Map<String, Object>> errors = (List) results.get(CYPHER_RESPONSE_ERRORS_FIELD);
         if (errors.size() > 0) {
             throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
         }
-        
-        return results;
+    }
+
+    private String getAuthorizationHeaderValue() {
+        String value = DEFAULT_NEO4J_USER + ":" + neo4jPassword;
+
+        return "Basic " + BaseEncoding.base64().encode(value.getBytes());
     }
 }

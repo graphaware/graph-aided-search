@@ -17,7 +17,10 @@ package com.graphaware.integration.es.booster;
 
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
+import com.graphaware.integration.es.domain.CypherResult;
 import com.graphaware.integration.es.domain.ExternalResult;
+import com.graphaware.integration.es.domain.ResultRow;
+import com.graphaware.integration.es.util.NumberUtil;
 import com.graphaware.integration.es.util.UrlUtil;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
@@ -34,7 +37,6 @@ import com.graphaware.integration.es.domain.CypherEndPoint;
 public class SearchResultCypherBooster extends SearchResultExternalBooster {
 
     private final ESLogger logger;
-
     private final CypherEndPoint cypherEndPoint;
 
     private String cypherQuery;
@@ -43,7 +45,7 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
 
     public SearchResultCypherBooster(Settings settings, IndexInfo indexInfo) {
         super(settings, indexInfo);
-        this.logger = Loggers.getLogger(INDEX_LOGGER_NAME, settings);
+        this.logger = Loggers.getLogger(IndexInfo.INDEX_LOGGER_NAME, settings);
         this.cypherEndPoint = new CypherEndPoint(settings);
     }
 
@@ -57,25 +59,18 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     @Override
     protected Map<String, ExternalResult> externalDoReorder(Set<String> keySet) {
         logger.debug("Query cypher for: " + keySet);
-        return getResults(executeCypher(getNeo4jHost(), keySet, cypherQuery));
+        return getExternalResults(keySet);
     }
 
-    public HashMap<String, ExternalResult> getResults(Map<String, Float> externalResults) {
-        HashMap<String, ExternalResult> results = new HashMap<>();
-        for (Map.Entry<String, Float> item : externalResults.entrySet()) {
-            results.put(item.getKey(), new ExternalResult(item.getKey(), item.getValue()));
+    protected Map<String, ExternalResult> getExternalResults(Set<String> keySet) {
+        CypherResult externalResult = cypherEndPoint.executeCypher(getNeo4jHost(), cypherQuery, getParameters(keySet));
+        Map<String, ExternalResult> results = new HashMap<>();
+        for (ResultRow resultRow : externalResult.getRows()) {
+            checkResultRow(resultRow);
+            results.put(String.valueOf(resultRow.get(getIdResultName())), new ExternalResult(String.valueOf(resultRow.get(getIdResultName())), NumberUtil.getFloat(resultRow.get(getScoreResultName()))));
         }
 
         return results;
-    }
-
-    protected Map<String, Float> executeCypher(String serverUrl, Set<String> resultKeySet, String cypherStatement) {
-
-        return post(getEndpoint(serverUrl), getCypherQuery(cypherStatement, resultKeySet));
-    }
-
-    public String getCypherQuery(String cypherStatement, Set<String> resultKeySet) {
-        return cypherEndPoint.buildCypherQuery(cypherStatement, getParameters(resultKeySet));
     }
 
     public HashMap<String, Object> getParameters(Set<String> resultKeySet) {
@@ -86,8 +81,7 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     }
 
     public String getEndpoint(String serverUrl) {
-
-        return UrlUtil.buildUrlFromParts(serverUrl, CYPHER_ENDPOINT);
+        return UrlUtil.buildUrlFromParts(serverUrl);
     }
 
     public String getScoreResultName() {
@@ -98,24 +92,16 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
         return null != idResultName ? idResultName : DEFAULT_ID_RESULT_NAME;
     }
 
-    protected Map<String, Float> post(String url, String json) {
-        Map<String, Object> results = cypherEndPoint.post(url, json);
-        Map res = (Map) ((List) results.get(RESULTS)).get(0);
-        List<Map> rows = (List) res.get(DATA);
-        List<String> columns = (List) res.get(COLUMNS);
-        int k = 0;
-        Map<String, Integer> columnsMap = new HashMap<>();
-        for (String c : columns) {
-            columnsMap.put(c, k);
-            ++k;
+    protected void checkResultRow(ResultRow resultRow) {
+        if (!resultRow.getValues().containsKey(getIdResultName())) {
+            dispatchInvalidResultException(getIdResultName());
         }
-        Map<String, Float> resultRows = new HashMap<>();
-        for (Map r : rows) {
-            List row = (List) r.get(ROW);
-            String key = String.valueOf(row.get(columnsMap.get(idResultName)));
-            float value = Float.parseFloat(String.valueOf(row.get(columnsMap.get(scoreResultName))));
-            resultRows.put(key, value);
+        if (!resultRow.getValues().containsKey(getScoreResultName())) {
+            dispatchInvalidResultException(getScoreResultName());
         }
-        return resultRows;
+    }
+
+    private void dispatchInvalidResultException(String missingKey) {
+        throw new RuntimeException(String.format("The cypher query result must contain the %s column name", missingKey));
     }
 }

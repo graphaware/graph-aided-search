@@ -16,16 +16,17 @@
 
 package com.graphaware.integration.es;
 
+import com.graphaware.integration.es.util.TestHttpClient;
 import com.graphaware.integration.neo4j.test.EmbeddedGraphDatabaseServer;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.config.HttpClientConfig;
+import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
@@ -41,6 +42,8 @@ import static org.junit.Assert.assertTrue;
 public abstract class GraphAidedSearchTest {
 
     private final String DEFAULT_CLUSTER_NAME = "graph-aided-search-cluster";
+    protected static final String NEO4J_SERVER_URL = "http://localhost:7474";
+    protected static final String NEO4J_CUSTOM_PASSWORD = "password";
 
     protected ElasticsearchClusterRunner runner;
 
@@ -50,12 +53,15 @@ public abstract class GraphAidedSearchTest {
 
     protected ObjectMapper objectMapper;
 
+    protected TestHttpClient httpClient;
+
     @Before
     public void setUp() throws Exception{
+        httpClient = new TestHttpClient();
+        objectMapper = new ObjectMapper();
         createCluster();
         createJestClient();
         createNeo4jServer();
-        objectMapper = new ObjectMapper();
     }
 
     protected void createCluster() {
@@ -83,6 +89,8 @@ public abstract class GraphAidedSearchTest {
     protected void createNeo4jServer() {
         neo4jServer = new EmbeddedGraphDatabaseServer();
         neo4jServer.start();
+        changePassword();
+        //emptyDB();
     }
 
     protected CreateIndexResponse createIndex(String indexName) {
@@ -145,6 +153,35 @@ public abstract class GraphAidedSearchTest {
 
     protected final Client client() {
         return runner.client();
+    }
+
+    protected void emptyDB() {
+        httpClient.executeCypher(NEO4J_SERVER_URL, getAuthorizationHeaders(NEO4J_CUSTOM_PASSWORD), "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r,n");
+    }
+
+    protected void changePassword() {
+        String json = "{\"password\":\"" + NEO4J_CUSTOM_PASSWORD + "\"}";
+        try {
+            httpClient.post(NEO4J_SERVER_URL + "/user/neo4j/password", json, getAuthorizationHeaders("neo4j"), 200);
+        } catch (AssertionError e) {
+            // password was already changed in a previous test and the dbms auth directory is already existing
+        }
+    }
+
+    protected HashMap<String, String> getAuthorizationHeaders(String password) {
+        HashMap<String, String> headers = new HashMap<>();
+        try {
+            String credentials = "neo4j:" + password;
+            headers.put("Authorization", "Basic " + Base64.encodeBase64String(credentials.getBytes("UTF-8")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return headers;
+    }
+
+    protected String executeCypher(String query) {
+        return httpClient.executeCypher(NEO4J_SERVER_URL, getAuthorizationHeaders(NEO4J_CUSTOM_PASSWORD), query);
     }
 
     @After

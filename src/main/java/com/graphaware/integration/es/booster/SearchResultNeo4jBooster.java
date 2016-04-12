@@ -48,7 +48,7 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
     public SearchResultNeo4jBooster(Settings settings, IndexInfo indexSettings) {
         super(settings, indexSettings);
-        this.logger = Loggers.getLogger(INDEX_LOGGER_NAME, settings);
+        this.logger = Loggers.getLogger(IndexInfo.INDEX_LOGGER_NAME, settings);
     }
 
     @Override

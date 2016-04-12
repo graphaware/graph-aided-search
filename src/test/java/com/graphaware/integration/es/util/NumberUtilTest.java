@@ -28,4 +28,19 @@ public class NumberUtilTest {
         assertEquals(110, NumberUtil.getInt("110", DEFAULT_VALUE));
     }
 
+    @Test
+    public void testIntegerIsReturnedAsFloat() {
+        assertEquals(10.0f, NumberUtil.getFloat(10), 0);
+    }
+
+    @Test
+    public void testFloatIsReturnedAsFloat() {
+        assertEquals(12.375f, NumberUtil.getFloat(12.375f), 0);
+    }
+
+    @Test
+    public void testStringIsReturnedAsFloat() {
+        assertEquals(12.678f, NumberUtil.getFloat("12.678"), 0);
+    }
+
 }

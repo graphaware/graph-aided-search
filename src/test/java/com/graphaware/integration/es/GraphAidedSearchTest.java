@@ -86,11 +86,16 @@ public abstract class GraphAidedSearchTest {
         jestClient = factory.getObject();
     }
 
-    protected void createNeo4jServer() {
+    protected void createNeo4jServer() throws IOException {
         neo4jServer = new EmbeddedGraphDatabaseServer();
         neo4jServer.start();
         changePassword();
+        eventuallyPopulateDatabase();
         //emptyDB();
+    }
+    
+    protected void eventuallyPopulateDatabase() {
+        
     }
 
     protected CreateIndexResponse createIndex(String indexName) {

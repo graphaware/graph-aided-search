@@ -14,9 +14,20 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.*;
+import org.springframework.core.io.ClassPathResource;
 
 public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
 
+    @Override
+    protected void eventuallyPopulateDatabase() {
+        try {
+            String graphgenPath = new ClassPathResource("graphgen-test-data.cyp").getFile().getAbsolutePath();
+            neo4jServer.populate(graphgenPath);
+        }
+        catch (Exception ex) {
+            throw new RuntimeException("Error while populating database", ex);
+        }
+    }
     @Test
     public void testDefaultBoosterSettings() {
         SearchResultCypherBooster booster = getBooster();
@@ -44,7 +55,7 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
             keySet.add(String.valueOf(i));
         }
         SearchResultCypherBooster booster = getBooster();
-        booster.extendedParseRequest((Map<String, String>) getDefaultMap("MATCH (n) RETURN n.id as id, 10 as score").get("gas-booster"));
+        booster.extendedParseRequest((Map<String, String>) getDefaultMap("MATCH (n:Test) RETURN n.id as id, 10 as score").get("gas-booster"));
         Map<String, ExternalResult> externalResults = booster.getExternalResults(keySet);
         assertEquals(10, externalResults.size());
         assertEquals(10.0f, externalResults.get("3").getScore(), 0);
@@ -58,13 +69,13 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
             keySet.add(String.valueOf(i));
         }
         SearchResultCypherBooster booster = getBooster();
-        Map<String, String> map = (Map<String, String>) getDefaultMap("MATCH (n) RETURN id(n) as uuid, 15 as freq").get("gas-booster");
+        Map<String, String> map = (Map<String, String>) getDefaultMap("MATCH (n:Test) RETURN n.id as uuid, 15 as freq").get("gas-booster");
         map.put("identifier", "uuid");
         map.put("scoreName", "freq");
         booster.extendedParseRequest(map);
         Map<String, ExternalResult> externalResults = booster.getExternalResults(keySet);
         assertEquals(10, externalResults.size());
-        assertEquals(15.0f, externalResults.get("0").getScore(), 0);
+        assertEquals(15.0f, externalResults.get("1").getScore(), 0);
     }
 
     @Test
@@ -94,7 +105,7 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
             keySet.add(String.valueOf(i));
         }
         SearchResultCypherBooster booster = getBooster();
-        booster.extendedParseRequest((Map<String, String>) getDefaultMap("MATCH (n) RETURN id(n)").get("gas-booster"));
+        booster.extendedParseRequest((Map<String, String>) getDefaultMap("MATCH (n:Test) RETURN id(n)").get("gas-booster"));
         try {
             Map<String, ExternalResult> externalResults = booster.getExternalResults(keySet);
             assertEquals(1, 2); // If we're here it's a bug
@@ -119,7 +130,7 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
     }
 
     private HashMap<String, Object> getDefaultMap() {
-        return getDefaultMap("MATCH (n) RETURN id(n) as id");
+        return getDefaultMap("MATCH (n:Test) RETURN n.id as id");
     }
 
     private HashMap<String, Object> getDefaultMap(String query) {

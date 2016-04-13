@@ -42,8 +42,6 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
     private static final String INDEX_NAME = "test-index";
     private static final String DISABLED_INDEX_NAME = "disabled-test-index";
     private static final String NEO4J_HOSTNAME = "http://localhost:7474";
-    private static final String NEO4J_USER = "neo4j";
-    private static final String NEO4J_PASSWORD = "password";
     private static final String TYPE_NAME = "test_data";
 
     @Override

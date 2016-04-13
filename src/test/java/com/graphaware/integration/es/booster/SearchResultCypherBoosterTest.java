@@ -2,10 +2,10 @@ package com.graphaware.integration.es.booster;
 
 import com.graphaware.integration.es.GraphAidedSearchTest;
 import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.TestIndexInfo;
 import com.graphaware.integration.es.domain.Constants;
 import com.graphaware.integration.es.domain.ExternalResult;
 import org.elasticsearch.common.settings.Settings;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -13,10 +13,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_ENABLED;
+import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_HOST;
 import static org.junit.Assert.*;
 import org.springframework.core.io.ClassPathResource;
 
 public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
+
+    private static final String INDEX_NAME = "test-index";
 
     @Override
     protected void eventuallyPopulateDatabase() {
@@ -28,6 +32,7 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
             throw new RuntimeException("Error while populating database", ex);
         }
     }
+
     @Test
     public void testDefaultBoosterSettings() {
         SearchResultCypherBooster booster = getBooster();
@@ -144,7 +149,7 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
 
     private SearchResultCypherBooster getBooster() {
         Settings.Builder builder = Settings.builder();
-        IndexInfo indexInfo = new IndexInfo(NEO4J_SERVER_URL, true, 0);
+        IndexInfo indexInfo = new IndexInfo(NEO4J_SERVER_URL, NEO4J_USER, NEO4J_PASSWORD, true, 0);
 
         return new SearchResultCypherBooster(builder.build(), indexInfo);
     }

@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.graphaware.integration.es.domain.Constants.*;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
+import javax.ws.rs.core.MultivaluedMap;
 
 @SearchBooster(name = "SearchResultNeo4jBooster")
 public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
@@ -92,16 +94,15 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
         boosterEndpoint = extParams.get(NEO4J_ENDPOINT);
     }
 
-    public Map<String, String> getParameters(Set<String> keySet) {
-        Map<String, String> param = new HashMap<>();
-        param.put(LIMIT, String.valueOf(Integer.MAX_VALUE));
-        param.put(FROM, String.valueOf(getFrom()));
-        param.put(KEY_PROPERTY, getKeyProperty());
-        param.put(IDS, implodeKeySet(keySet));
-
+    public MultivaluedMap getParameters(Set<String> keySet) {
+        MultivaluedMap param = new MultivaluedMapImpl();
+        param.add("limit", String.valueOf(Integer.MAX_VALUE));
+        param.add("from", String.valueOf(getFrom()));
+        param.add("keyProperty", getKeyProperty());
+        param.add("ids", implodeKeySet(keySet));
         return param;
     }
-
+    
     protected String getTargetId() {
         return targetId;
     }

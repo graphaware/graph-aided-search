@@ -19,9 +19,12 @@ public class ExternalResult {
 
     private long nodeId;
     private String objectId;
-    private String item;
+    //private String item;
     private float score;
 
+    public ExternalResult() {
+        
+    }
     public ExternalResult(String objectId, float score) {
         this.objectId = objectId;
         this.score = score;
@@ -43,13 +46,13 @@ public class ExternalResult {
         this.objectId = uuid;
     }
 
-    public String getItem() {
-        return item;
-    }
-
-    public void setItem(String item) {
-        this.item = item;
-    }
+//    public String getItem() {
+//        return item;
+//    }
+//
+//    public void setItem(String item) {
+//        this.item = item;
+//    }
 
     public float getScore() {
         return score;

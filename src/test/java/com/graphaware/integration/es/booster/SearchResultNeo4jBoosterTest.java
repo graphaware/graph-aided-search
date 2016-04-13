@@ -4,23 +4,36 @@ import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.domain.Constants;
 import com.graphaware.integration.es.domain.ExternalResult;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.GenericType;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.*;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.junit.After;
 
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.mockserver.model.Header;
+import org.mockserver.integration.ClientAndServer;
+import static org.mockserver.integration.ClientAndServer.startClientAndServer;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+import org.mockserver.model.Parameter;
 
 public class SearchResultNeo4jBoosterTest {
+
+    private ClientAndServer mockServer;
+
+    @Before
+    public void startMockServer() {
+        mockServer = startClientAndServer(1080);
+    }
+    
+    @After
+    public void stopProxy() {
+        mockServer.stop();
+    }
 
     @Test
     public void testNewInstance() {
@@ -46,9 +59,7 @@ public class SearchResultNeo4jBoosterTest {
     public void testGetReorderedResults() {
         List<ExternalResult> externalResults = new ArrayList<>();
         ExternalResult result1 = new ExternalResult("123", 10.0f);
-        result1.setItem("123");
         ExternalResult result2 = new ExternalResult("456", 20.0f);
-        result2.setItem("456");
         externalResults.add(result1);
         externalResults.add(result2);
         Map<String, ExternalResult> results = getBooster().getReorderedResults(externalResults);
@@ -72,6 +83,53 @@ public class SearchResultNeo4jBoosterTest {
         assertTrue(results.containsKey("123"));
         assertTrue(results.containsKey("456"));
         assertEquals(123.0f, results.get("123").getScore(), 0);
+    }
+    
+    private static final String LS = System.getProperty("line.separator");
+
+    @Test
+    public void testGetExternalResults() {
+        mockServer
+                .when(
+                        request()
+                                .withPath("/reco/12")                                
+                )
+                .respond(response()
+                                .withHeaders(
+                                        new Header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                                )
+                                .withBody("" +
+                                        "[" + LS +
+                                        "    {" + LS +
+                                        "        \"nodeId\": 1," + LS +
+                                        "        \"objectId\": \"270\"," + LS +
+                                        "        \"score\": 3.4" + LS +
+                                        "    }," + LS +
+                                        "    {" + LS +
+                                        "        \"nodeId\": 2," + LS +
+                                        "        \"objectId\": \"123\"," + LS +
+                                        "        \"score\": 3.5" + LS +
+                                        "    }," + LS +
+                                        "    {" + LS +
+                                        "        \"nodeId\": 3," + LS +
+                                        "        \"objectId\": \"456\"," + LS +
+                                        "        \"score\": 3.6" + LS +
+                                        "    }" + LS +
+                                        "]")
+                );
+        HashMap<String, String> externalParams = new HashMap<>();
+        externalParams.put(Constants.KEY_PROPERTY, "objectId");
+        externalParams.put(Constants.RECO_TARGET, "12");
+        externalParams.put(Constants.NEO4J_ENDPOINT, "reco/");
+        SearchResultNeo4jBooster testBooster = getMockBooster();
+        testBooster.extendedParseRequest(externalParams);
+        Set<String> keySet = new HashSet<>();
+        keySet.add("123");
+        keySet.add("456");
+        Map<String, ExternalResult> results = testBooster.externalDoReorder(keySet);
+        assertTrue(results.containsKey("123"));
+        assertTrue(results.containsKey("456"));
+        assertEquals(3.5f, results.get("123").getScore(), 0);
     }
 
     @Test
@@ -99,7 +157,7 @@ public class SearchResultNeo4jBoosterTest {
         assertTrue(parameters.containsKey(Constants.FROM));
         assertTrue(parameters.containsKey(Constants.KEY_PROPERTY));
         assertTrue(parameters.containsKey(Constants.IDS));
-        assertEquals(getBooster().implodeKeySet(keySet), parameters.get(Constants.IDS));
+        //assertEquals(getBooster().implodeKeySet(keySet), parameters.get(Constants.IDS));
     }
 
     @Test
@@ -134,6 +192,13 @@ public class SearchResultNeo4jBoosterTest {
         IndexInfo indexInfo = new IndexInfo("http://localhost:7474/", true, 10);
 
         return new SearchResultNeo4jBoostertest(builder.build(), indexInfo);
+    }
+    
+    private SearchResultNeo4jBooster getMockBooster() {
+        Settings.Builder builder = Settings.builder();
+        IndexInfo indexInfo = new IndexInfo("http://localhost:1080/", true, 10);
+
+        return new SearchResultNeo4jBooster(builder.build(), indexInfo);
     }
 
     @SearchBooster(name = "SearchResultNeo4jBoostertest")

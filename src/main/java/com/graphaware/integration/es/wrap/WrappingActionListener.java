@@ -17,7 +17,6 @@
 package com.graphaware.integration.es.wrap;
 
 import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.domain.RetrySearchException;
 import com.graphaware.integration.es.domain.SearchResultModifier;
 import org.elasticsearch.Version;
 import org.elasticsearch.action.ActionListener;
@@ -71,8 +70,6 @@ public class WrappingActionListener implements ActionListener<SearchResponse> {
 
         try {
             wrapped.onResponse(handleResponse(response, startTime, modifiers));
-        } catch (final RetrySearchException e) {
-            throw e;
         } catch (final Exception e) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Failed to parse a search response.", e);

@@ -53,9 +53,10 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
     @Override
     protected Map<String, ExternalResult> externalDoReorder(Set<String> keySet) {
-        logger.debug("External Neo4j booster for : " + keySet);
-        logger.debug("Call: " + getEndpoint());
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("External Neo4j booster for : " + keySet);
+            logger.debug("Call: " + getEndpoint());
+        }
         return getReorderedResults(getExternalResults(keySet));
 
     }
@@ -63,7 +64,7 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
     public Map<String, ExternalResult> getReorderedResults(List<ExternalResult> externalResults) {
         HashMap<String, ExternalResult> results = new HashMap<>();
         for (ExternalResult item : externalResults) {
-            results.put(item.getItem(), item);
+            results.put(item.getObjectId(), item);
         }
 
         return results;

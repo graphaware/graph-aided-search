@@ -1,13 +1,22 @@
 package com.graphaware.integration.es.booster;
 
 import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.domain.Constants;
 import com.graphaware.integration.es.domain.ExternalResult;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.GenericType;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.*;
+import javax.ws.rs.core.MediaType;
+import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
 import static org.junit.Assert.*;
 
@@ -46,6 +55,23 @@ public class SearchResultNeo4jBoosterTest {
         assertTrue(results.containsKey("123"));
         assertTrue(results.containsKey("456"));
         assertEquals(10.0f, results.get("123").getScore(), 0);
+    }
+
+    @Test
+    public void testExternalDoReorder() {
+        HashMap<String, String> externalParams = new HashMap<>();
+        externalParams.put(Constants.KEY_PROPERTY, "objectId");
+        externalParams.put(Constants.RECO_TARGET, "12");
+        externalParams.put(Constants.NEO4J_ENDPOINT, "reco/");
+        SearchResultNeo4jBooster testBooster = getTestBooster();
+        testBooster.extendedParseRequest(externalParams);
+        Set<String> keySet = new HashSet<>();
+        keySet.add("123");
+        keySet.add("456");
+        Map<String, ExternalResult> results = testBooster.externalDoReorder(keySet);
+        assertTrue(results.containsKey("123"));
+        assertTrue(results.containsKey("456"));
+        assertEquals(123.0f, results.get("123").getScore(), 0);
     }
 
     @Test
@@ -101,5 +127,30 @@ public class SearchResultNeo4jBoosterTest {
         IndexInfo indexInfo = new IndexInfo("http://localhost:7474/", true, 10);
 
         return new SearchResultNeo4jBooster(builder.build(), indexInfo);
+    }
+
+    private SearchResultNeo4jBooster getTestBooster() {
+        Settings.Builder builder = Settings.builder();
+        IndexInfo indexInfo = new IndexInfo("http://localhost:7474/", true, 10);
+
+        return new SearchResultNeo4jBoostertest(builder.build(), indexInfo);
+    }
+
+    @SearchBooster(name = "SearchResultNeo4jBoostertest")
+    class SearchResultNeo4jBoostertest extends SearchResultNeo4jBooster {
+
+        public SearchResultNeo4jBoostertest(Settings settings, IndexInfo indexSettings) {
+            super(settings, indexSettings);
+        }
+
+        public List<ExternalResult> getExternalResults(Set<String> keySet) {
+            List<ExternalResult> externalResults = new ArrayList<>();
+            for (String key : keySet) {
+                ExternalResult res = new ExternalResult(key, Float.parseFloat(key));
+                externalResults.add(res);
+            }
+            return externalResults;
+        }
+
     }
 }

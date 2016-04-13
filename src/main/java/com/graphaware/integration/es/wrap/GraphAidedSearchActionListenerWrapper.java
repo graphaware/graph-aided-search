@@ -13,7 +13,6 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-
 package com.graphaware.integration.es.wrap;
 
 import com.google.common.cache.Cache;
@@ -23,7 +22,6 @@ import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.annotation.SearchFilter;
 import com.graphaware.integration.es.booster.SearchResultBooster;
 import com.graphaware.integration.es.domain.PrivilegedSearchResultModifier;
-import com.graphaware.integration.es.domain.RetrySearchException;
 import com.graphaware.integration.es.domain.SearchResultModifier;
 import com.graphaware.integration.es.filter.SearchResultFilter;
 import com.graphaware.integration.es.util.Instantiator;
@@ -191,28 +189,7 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
         return new ActionListener<SearchResponse>() {
             @Override
             public void onResponse(SearchResponse response) {
-                try {
-                    searchResponseListener.onResponse(response);
-                } catch (RetrySearchException e) {
-                    Map<String, Object> newSourceAsMap = e.rewrite(source);
-                    if (newSourceAsMap == null) {
-                        throw new RuntimeException("Failed to rewrite source: " + source);
-                    }
-                    newSourceAsMap.put(SIZE, size);
-                    newSourceAsMap.put(FROM, from);
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Original Query: \n{}\nNew Query: \n{}", source, newSourceAsMap);
-                    }
-                    try {
-                        final XContentBuilder builder = XContentFactory.contentBuilder(Requests.CONTENT_TYPE);
-                        builder.map(newSourceAsMap);
-                        request.source(builder.bytes());
-                        request.putHeader(GAS_REQUEST, Boolean.FALSE);
-                        client.search(request, listener);
-                    } catch (IOException ioe) {
-                        throw new RuntimeException("Failed to parse a new source.", ioe);
-                    }
-                }
+                searchResponseListener.onResponse(response);
             }
 
             @Override
@@ -245,11 +222,11 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
                         return IndexInfo.NO_SCRIPT_INFO;
                     }
 
-                    return new IndexInfo(indexSettings.get(INDEX_GA_ES_NEO4J_HOST), 
-                            indexSettings.get(INDEX_GA_ES_NEO4J_USER), 
-                            indexSettings.get(INDEX_GA_ES_NEO4J_PWD), 
-                            indexSettings.getAsBoolean(INDEX_GA_ES_NEO4J_ENABLED, false), 
-                            indexSettings.getAsInt(INDEX_MAX_RESULT_WINDOW, 
+                    return new IndexInfo(indexSettings.get(INDEX_GA_ES_NEO4J_HOST),
+                            indexSettings.get(INDEX_GA_ES_NEO4J_USER),
+                            indexSettings.get(INDEX_GA_ES_NEO4J_PWD),
+                            indexSettings.getAsBoolean(INDEX_GA_ES_NEO4J_ENABLED, false),
+                            indexSettings.getAsInt(INDEX_MAX_RESULT_WINDOW,
                                     DEFAULT_MAX_RESULT_WINDOW));
                 }
             });

@@ -15,7 +15,7 @@
  */
 package com.graphaware.integration.es;
 
-import com.graphaware.integration.es.domain.Constants;
+import static com.graphaware.integration.es.wrap.GraphAidedSearchActionListenerWrapper.*;
 import org.elasticsearch.action.ActionModule;
 import org.elasticsearch.cluster.ClusterModule;
 import org.elasticsearch.cluster.settings.Validator;
@@ -25,10 +25,6 @@ import org.elasticsearch.plugins.Plugin;
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_ENABLED;
-import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_HOST;
-import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_USER;
-import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_PWD;
 
 public class GraphAidedSearchPlugin extends Plugin {
 

@@ -16,7 +16,6 @@
 
 package com.graphaware.integration.es;
 
-import com.graphaware.integration.es.domain.Constants;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import org.elasticsearch.action.search.SearchResponse;
@@ -30,10 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_ENABLED;
-import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_HOST;
-import com.graphaware.integration.neo4j.test.EmbeddedGraphDatabaseServer;
-import org.junit.After;
+import static com.graphaware.integration.es.wrap.GraphAidedSearchActionListenerWrapper.INDEX_GA_ES_NEO4J_ENABLED;
+import static com.graphaware.integration.es.wrap.GraphAidedSearchActionListenerWrapper.INDEX_GA_ES_NEO4J_HOST;
+import static com.graphaware.integration.es.wrap.GraphAidedSearchActionListenerWrapper.INDEX_GA_ES_NEO4J_PWD;
+import static com.graphaware.integration.es.wrap.GraphAidedSearchActionListenerWrapper.INDEX_GA_ES_NEO4J_USER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -451,7 +450,7 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         assertEquals("test 99", hits.get(0).source.getMsg());
         assertEquals(99000.0, result.getMaxScore(), 1.0);
     }
-
+    
     private void createData() throws IOException {
         for (int i = 0; i < 100; ++i) {
             index(INDEX_NAME, TYPE_NAME, String.valueOf(i), document(String.valueOf(i)));
@@ -464,8 +463,8 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         Map<String, Object> settings1 = new HashMap<>();
         settings1.put(INDEX_GA_ES_NEO4J_ENABLED, true);
         settings1.put(INDEX_GA_ES_NEO4J_HOST, NEO4J_HOSTNAME);
-        settings1.put(Constants.INDEX_GA_ES_NEO4J_USER, NEO4J_USER);
-        settings1.put(Constants.INDEX_GA_ES_NEO4J_PWD, NEO4J_PASSWORD);
+        settings1.put(INDEX_GA_ES_NEO4J_USER, NEO4J_USER);
+        settings1.put(INDEX_GA_ES_NEO4J_PWD, NEO4J_PASSWORD);
         createIndex(INDEX_NAME, settings1);
 
         Map<String, Object> settings2 = new HashMap<>();

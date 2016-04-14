@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.graphaware.integration.es.domain.Constants.NAME;
+import static com.graphaware.integration.es.domain.ClauseConstants.NAME;
 
 public class Instantiator {
 

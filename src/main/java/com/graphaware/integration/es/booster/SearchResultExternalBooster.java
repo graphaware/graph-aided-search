@@ -18,17 +18,21 @@ package com.graphaware.integration.es.booster;
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.domain.ExternalResult;
 import com.graphaware.integration.es.util.NumberUtil;
-import com.graphaware.integration.es.util.ParamUtil;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
 import java.util.*;
 
-import static com.graphaware.integration.es.domain.Constants.*;
+import static com.graphaware.integration.es.domain.ClauseConstants.*;
 import static com.graphaware.integration.es.util.ParamUtil.*;
+import static com.graphaware.integration.es.wrap.GraphAidedSearchActionListenerWrapper.GAS_BOOSTER_CLAUSE;
 
 public abstract class SearchResultExternalBooster implements SearchResultBooster {
+    
+    public static final String DEFAULT_SCORE_OPERATOR = MULTIPLY;
+    public static final String DEFAULT_SCORE_RESULT_NAME = "score";
+    public static final String DEFAULT_ID_RESULT_NAME = "id";
 
     private final String neo4jHost;
     private final String neo4jUsername;
@@ -180,5 +184,13 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
 
     protected String getComposeScoreOperator() {
         return composeScoreOperator != null ? composeScoreOperator : DEFAULT_SCORE_OPERATOR;
+    }
+
+    public String getNeo4jUsername() {
+        return neo4jUsername;
+    }
+
+    public String getNeo4jPassword() {
+        return neo4jPassword;
     }
 }

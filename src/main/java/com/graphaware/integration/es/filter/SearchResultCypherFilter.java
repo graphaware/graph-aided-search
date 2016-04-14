@@ -31,8 +31,9 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
-import static com.graphaware.integration.es.domain.Constants.*;
+import static com.graphaware.integration.es.domain.ClauseConstants.*;
 import com.graphaware.integration.es.domain.CypherEndPoint;
+import static com.graphaware.integration.es.wrap.GraphAidedSearchActionListenerWrapper.GAS_FILTER_CLAUSE;
 
 @SearchFilter(name = "SearchResultCypherFilter")
 public class SearchResultCypherFilter implements SearchResultFilter {

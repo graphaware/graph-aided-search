@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -38,7 +39,6 @@ import org.elasticsearch.common.settings.Settings;
 public class CypherEndPoint {
 
     private static final String SETTINGS_NEO4J_PASSWORD_KEY = "index.gas.neo4j.password";
-    private static final String AUTHORIZATION_HEADER_KEY = "Authorization";
 
     private static final String CYPHER_ENDPOINT = "/db/data/transaction/commit";
     private static final String CYPHER_RESPONSE_RESULTS_FIELD = "results";
@@ -126,8 +126,8 @@ public class CypherEndPoint {
     }
 
     public Map<String, Object> post(String url, HashMap<String, String> headers, String json) {
-        if (!headers.containsKey(AUTHORIZATION_HEADER_KEY) && null != neo4jPassword) {
-            headers.put(AUTHORIZATION_HEADER_KEY, getAuthorizationHeaderValue());
+        if (!headers.containsKey(HttpHeaders.AUTHORIZATION) && null != neo4jPassword) {
+            headers.put(HttpHeaders.AUTHORIZATION, UrlUtil.getAuthorizationHeaderValue(neo4jUsername, neo4jPassword));
         }
         WebResource resource = Client.create(cfg).resource(url);
         WebResource.Builder builder = resource.accept(MediaType.APPLICATION_JSON)
@@ -170,11 +170,5 @@ public class CypherEndPoint {
         if (errors.size() > 0) {
             throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
         }
-    }
-
-    private String getAuthorizationHeaderValue() {
-        String value = neo4jUsername + ":" + neo4jPassword;
-
-        return "Basic " + BaseEncoding.base64().encode(value.getBytes());
     }
 }

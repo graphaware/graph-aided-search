@@ -50,10 +50,23 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import static com.graphaware.integration.es.domain.Constants.*;
+import static com.graphaware.integration.es.domain.ClauseConstants.*;
 
 public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrapper<SearchResponse> {
 
+    public static final String INDEX_GA_ES_NEO4J_ENABLED = "index.gas.enable";
+    public static final String INDEX_MAX_RESULT_WINDOW = "max_result_window";
+    public static final String INDEX_GA_ES_NEO4J_HOST = "index.gas.neo4j.hostname";
+    public static final String INDEX_GA_ES_NEO4J_USER = "index.gas.neo4j.user";
+    public static final String INDEX_GA_ES_NEO4J_PWD = "index.gas.neo4j.password";
+    //
+    public static final String GAS_REQUEST = "_gas";
+    public static final String GAS_BOOSTER_CLAUSE = "gas-booster";
+    public static final String GAS_FILTER_CLAUSE = "gas-filter";
+    //
+    public static final int DEFAULT_MAX_RESULT_WINDOW = 10000;
+      
+      
     private final ESLogger logger;
     private final Settings settings;
     private final Instantiator instantiator;

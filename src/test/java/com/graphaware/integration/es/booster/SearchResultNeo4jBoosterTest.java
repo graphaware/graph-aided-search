@@ -2,7 +2,7 @@ package com.graphaware.integration.es.booster;
 
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
-import com.graphaware.integration.es.domain.Constants;
+import com.graphaware.integration.es.domain.ClauseConstants;
 import com.graphaware.integration.es.domain.ExternalResult;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
@@ -44,9 +44,9 @@ public class SearchResultNeo4jBoosterTest {
     @Test
     public void testExtendedParseRequest() {
         HashMap<String, String> externalParams = new HashMap<>();
-        externalParams.put(Constants.KEY_PROPERTY, "objectId");
-        externalParams.put(Constants.RECO_TARGET, "12");
-        externalParams.put(Constants.NEO4J_ENDPOINT, "reco/");
+        externalParams.put(ClauseConstants.KEY_PROPERTY, "objectId");
+        externalParams.put(ClauseConstants.RECO_TARGET, "12");
+        externalParams.put(ClauseConstants.NEO4J_ENDPOINT, "reco/");
         SearchResultNeo4jBooster booster = getBooster();
         booster.extendedParseRequest(externalParams);
         assertEquals("objectId", booster.getKeyProperty());
@@ -71,9 +71,9 @@ public class SearchResultNeo4jBoosterTest {
     @Test
     public void testExternalDoReorder() {
         HashMap<String, String> externalParams = new HashMap<>();
-        externalParams.put(Constants.KEY_PROPERTY, "objectId");
-        externalParams.put(Constants.RECO_TARGET, "12");
-        externalParams.put(Constants.NEO4J_ENDPOINT, "reco/");
+        externalParams.put(ClauseConstants.KEY_PROPERTY, "objectId");
+        externalParams.put(ClauseConstants.RECO_TARGET, "12");
+        externalParams.put(ClauseConstants.NEO4J_ENDPOINT, "reco/");
         SearchResultNeo4jBooster testBooster = getTestBooster();
         testBooster.extendedParseRequest(externalParams);
         Set<String> keySet = new HashSet<>();
@@ -118,9 +118,9 @@ public class SearchResultNeo4jBoosterTest {
                                         "]")
                 );
         HashMap<String, String> externalParams = new HashMap<>();
-        externalParams.put(Constants.KEY_PROPERTY, "objectId");
-        externalParams.put(Constants.RECO_TARGET, "12");
-        externalParams.put(Constants.NEO4J_ENDPOINT, "reco/");
+        externalParams.put(ClauseConstants.KEY_PROPERTY, "objectId");
+        externalParams.put(ClauseConstants.RECO_TARGET, "12");
+        externalParams.put(ClauseConstants.NEO4J_ENDPOINT, "reco/");
         SearchResultNeo4jBooster testBooster = getMockBooster();
         testBooster.extendedParseRequest(externalParams);
         Set<String> keySet = new HashSet<>();
@@ -136,12 +136,12 @@ public class SearchResultNeo4jBoosterTest {
     public void testRestUrlBuilder() {
         SearchResultNeo4jBooster booster = getBooster();
         HashMap<String, String> externalParams = new HashMap<>();
-        externalParams.put(Constants.KEY_PROPERTY, "objectId");
-        externalParams.put(Constants.RECO_TARGET, "12");
-        externalParams.put(Constants.NEO4J_ENDPOINT, "reco/");
+        externalParams.put(ClauseConstants.KEY_PROPERTY, "objectId");
+        externalParams.put(ClauseConstants.RECO_TARGET, "12");
+        externalParams.put(ClauseConstants.NEO4J_ENDPOINT, "reco/");
         booster.extendedParseRequest(externalParams);
         assertEquals("http://localhost:7474/reco/12", booster.getEndpoint());
-        externalParams.remove(Constants.NEO4J_ENDPOINT);
+        externalParams.remove(ClauseConstants.NEO4J_ENDPOINT);
         booster.extendedParseRequest(externalParams);
         assertEquals("http://localhost:7474/graphaware/recommendation/filter/12", booster.getEndpoint());
     }
@@ -153,10 +153,10 @@ public class SearchResultNeo4jBoosterTest {
         keySet.add("2");
         keySet.add("33");
         Map<String, String> parameters = getBooster().getParameters(keySet);
-        assertTrue(parameters.containsKey(Constants.LIMIT));
-        assertTrue(parameters.containsKey(Constants.FROM));
-        assertTrue(parameters.containsKey(Constants.KEY_PROPERTY));
-        assertTrue(parameters.containsKey(Constants.IDS));
+        assertTrue(parameters.containsKey(ClauseConstants.LIMIT));
+        assertTrue(parameters.containsKey(ClauseConstants.FROM));
+        assertTrue(parameters.containsKey(ClauseConstants.KEY_PROPERTY));
+        assertTrue(parameters.containsKey(ClauseConstants.IDS));
         //assertEquals(getBooster().implodeKeySet(keySet), parameters.get(Constants.IDS));
     }
 

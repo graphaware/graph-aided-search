@@ -28,7 +28,7 @@ import org.elasticsearch.common.settings.Settings;
 
 import java.util.*;
 
-import static com.graphaware.integration.es.domain.Constants.*;
+import static com.graphaware.integration.es.domain.ClauseConstants.*;
 import static com.graphaware.integration.es.util.ParamUtil.*;
 
 import com.graphaware.integration.es.domain.CypherEndPoint;

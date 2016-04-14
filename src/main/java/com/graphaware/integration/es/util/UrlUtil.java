@@ -16,6 +16,8 @@
 
 package com.graphaware.integration.es.util;
 
+import com.google.common.io.BaseEncoding;
+
 public class UrlUtil {
 
     public static String buildUrlFromParts(String... parts) {
@@ -39,5 +41,11 @@ public class UrlUtil {
     }
 
     private UrlUtil() {
+    }
+    
+    public static String getAuthorizationHeaderValue(String username, String password) {
+        String value = username + ":" + password;
+
+        return "Basic " + BaseEncoding.base64().encode(value.getBytes());
     }
 }

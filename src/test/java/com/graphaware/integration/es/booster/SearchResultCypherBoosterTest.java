@@ -2,10 +2,11 @@ package com.graphaware.integration.es.booster;
 
 import com.graphaware.integration.es.GraphAidedSearchTest;
 import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.domain.Constants;
+import static com.graphaware.integration.es.booster.SearchResultExternalBooster.DEFAULT_ID_RESULT_NAME;
+import static com.graphaware.integration.es.booster.SearchResultExternalBooster.DEFAULT_SCORE_RESULT_NAME;
+import com.graphaware.integration.es.domain.ClauseConstants;
 import com.graphaware.integration.es.domain.ExternalResult;
 import org.elasticsearch.common.settings.Settings;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -13,14 +14,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_ENABLED;
-import static com.graphaware.integration.es.domain.Constants.INDEX_GA_ES_NEO4J_HOST;
 import static org.junit.Assert.*;
 import org.springframework.core.io.ClassPathResource;
 
 public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
-
-    private static final String INDEX_NAME = "test-index";
 
     @Override
     protected void eventuallyPopulateDatabase() {
@@ -39,8 +36,8 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
         Map<String, String> request = new HashMap<>();
         request.put("query", "MATCH (n) RETURN n");
         booster.extendedParseRequest(request);
-        assertEquals(Constants.DEFAULT_SCORE_RESULT_NAME, booster.getScoreResultName());
-        assertEquals(Constants.DEFAULT_ID_RESULT_NAME, booster.getIdResultName());
+        assertEquals(DEFAULT_SCORE_RESULT_NAME, booster.getScoreResultName());
+        assertEquals(DEFAULT_ID_RESULT_NAME, booster.getIdResultName());
     }
 
     @Test

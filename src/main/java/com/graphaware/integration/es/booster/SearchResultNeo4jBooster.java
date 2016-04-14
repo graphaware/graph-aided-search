@@ -36,12 +36,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.graphaware.integration.es.domain.Constants.*;
+import static com.graphaware.integration.es.domain.ClauseConstants.*;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
+
 
 @SearchBooster(name = "SearchResultNeo4jBooster")
 public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
+    
+    public static final String DEFAULT_KEY_PROPERTY = "uuid";
+    public static final String DEFAULT_REST_ENDPOINT = "/graphaware/recommendation/filter";
+
 
     private String boosterEndpoint = null;
     private final ESLogger logger;
@@ -73,6 +79,10 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
     }
 
     public List<ExternalResult> getExternalResults(Set<String> keySet) {
+        Map<String, String> headers = new HashMap<>();
+        if (null != getNeo4jPassword()) {
+            headers.put(HttpHeaders.AUTHORIZATION, UrlUtil.getAuthorizationHeaderValue(getNeo4jUsername(), getNeo4jPassword()));
+        }
         ClientConfig cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
         WebResource resource = Client.create(cfg).resource(getEndpoint());

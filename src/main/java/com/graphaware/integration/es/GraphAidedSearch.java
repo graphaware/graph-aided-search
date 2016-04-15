@@ -39,10 +39,11 @@ public class GraphAidedSearch extends AbstractLifecycleComponent<GraphAidedSearc
 
         this.filters = filters;
         this.wrapper = new GraphAidedSearchActionListenerWrapper(settings, clusterService, client);
+
+        initializeFilters();
     }
 
-    @Override
-    protected void doStart() {
+    private void initializeFilters() {
         for (final ActionFilter filter : filters.filters()) {
             if (filter instanceof GraphAidedSearchFilter) {
                 ((GraphAidedSearchFilter) filter).setWrapper(wrapper);
@@ -51,6 +52,11 @@ public class GraphAidedSearch extends AbstractLifecycleComponent<GraphAidedSearc
                 }
             }
         }
+    }
+
+    @Override
+    protected void doStart() {
+
     }
 
     @Override

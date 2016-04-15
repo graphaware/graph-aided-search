@@ -221,7 +221,7 @@
     <dependency>
       <groupId>com.graphaware.integration.neo4j</groupId>
       <artifactId>neo4j-tests-integration</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>2.3.3.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -358,7 +358,7 @@
                 <artifactItem>
                   <groupId>com.graphaware.integration.neo4j</groupId>
                   <artifactId>neo4j-tests-integration</artifactId>
-                  <version>0.0.1-SNAPSHOT</version>
+                  <version>2.3.3.1</version>
                   <classifier>jar-with-dependencies</classifier>
                   <overWrite>true</overWrite>
                 </artifactItem>

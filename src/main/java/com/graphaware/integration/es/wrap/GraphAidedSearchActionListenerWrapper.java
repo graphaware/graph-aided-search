@@ -17,12 +17,12 @@ package com.graphaware.integration.es.wrap;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.annotation.SearchFilter;
 import com.graphaware.integration.es.booster.SearchResultBooster;
-import com.graphaware.integration.es.domain.PrivilegedSearchResultModifier;
-import com.graphaware.integration.es.domain.SearchResultModifier;
+import com.graphaware.integration.es.modifier.PrivilegedSearchResultModifier;
+import com.graphaware.integration.es.modifier.SearchResultModifier;
 import com.graphaware.integration.es.filter.SearchResultFilter;
 import com.graphaware.integration.es.util.Instantiator;
 import com.graphaware.integration.es.util.NumberUtil;
@@ -73,7 +73,7 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
 
     private final ClusterService clusterService;
     private final Cache<String, IndexInfo> scriptInfoCache;
-    private final Client client;
+    //private final Client client;
 
     public GraphAidedSearchActionListenerWrapper(Settings settings, ClusterService clusterService, Client client) {
         this.logger = Loggers.getLogger(getClass(), settings);
@@ -81,7 +81,7 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
         this.instantiator = new Instantiator(settings);
 
         this.clusterService = clusterService;
-        this.client = client;
+        //this.client = client;
         this.scriptInfoCache = CacheBuilder.newBuilder().concurrencyLevel(16).expireAfterAccess(120, TimeUnit.SECONDS).build();
     }
 

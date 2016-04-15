@@ -16,7 +16,7 @@
  */
 package com.graphaware.integration.es.filter;
 
-import com.graphaware.integration.es.domain.SearchResultModifier;
+import com.graphaware.integration.es.modifier.SearchResultModifier;
 
 public interface SearchResultFilter extends SearchResultModifier {
 

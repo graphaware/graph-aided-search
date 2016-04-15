@@ -16,8 +16,8 @@
 
 package com.graphaware.integration.es.booster;
 
-import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.TestIndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
+import com.graphaware.integration.es.domain.TestIndexInfo;
 import com.graphaware.integration.es.stubs.CypherSearchResultTestBooster;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Before;

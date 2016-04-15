@@ -43,10 +43,10 @@ public final class PluginClassLoader {
         return loader;
     }
 
-    private static void loadReflections(final String packagePath) { //todo how to change package path?
+    private static void loadReflections(final String packagePath) { 
         AccessController.doPrivileged(new PrivilegedAction<Void>() {
             public Void run() {
-                reflections = new Reflections("com.graphaware.integration.es");
+                reflections = new Reflections(packagePath);
                 return null; // nothing to return
             }
         });

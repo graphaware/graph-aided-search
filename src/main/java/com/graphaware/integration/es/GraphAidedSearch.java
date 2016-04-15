@@ -31,17 +31,19 @@ import org.elasticsearch.threadpool.ThreadPool;
 public class GraphAidedSearch extends AbstractLifecycleComponent<GraphAidedSearch> {
 
     private final ActionListenerWrapper<?> wrapper;
+    private final ActionFilters filters;
 
     @Inject
     public GraphAidedSearch(final Settings settings, final Client client, final ClusterService clusterService, final ScriptService scriptService, final ThreadPool threadPool, final ActionFilters filters) {
         super(settings);
 
+        this.filters = filters;
         this.wrapper = new GraphAidedSearchActionListenerWrapper(settings, clusterService, client);
 
-        initializeFilters(filters);
+        initializeFilters();
     }
 
-    private void initializeFilters(ActionFilters filters) {
+    private void initializeFilters() {
         for (final ActionFilter filter : filters.filters()) {
             if (filter instanceof GraphAidedSearchFilter) {
                 ((GraphAidedSearchFilter) filter).setWrapper(wrapper);

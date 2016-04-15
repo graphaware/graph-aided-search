@@ -13,10 +13,9 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.domain;
+package com.graphaware.integration.es.cypher;
 
-import com.google.common.io.BaseEncoding;
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import com.graphaware.integration.es.util.UrlUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -37,8 +36,6 @@ import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
 public class CypherEndPoint {
-
-    private static final String SETTINGS_NEO4J_PASSWORD_KEY = "index.gas.neo4j.password";
 
     private static final String CYPHER_ENDPOINT = "/db/data/transaction/commit";
     private static final String CYPHER_RESPONSE_RESULTS_FIELD = "results";
@@ -97,9 +94,9 @@ public class CypherEndPoint {
         }
 
         CypherResult result = new CypherResult();
-        for (int i = 0; i < rows.size(); ++i) {
+        for (Map r : rows) {
             ResultRow resultRow = new ResultRow();
-            List row = (List) rows.get(i).get(CYPHER_RESPONSE_ROW_FIELD);
+            List row = (List) r.get(CYPHER_RESPONSE_ROW_FIELD);
             for (String key : columns) {
                 resultRow.add(key, row.get(columnsMap.get(key)));
             }

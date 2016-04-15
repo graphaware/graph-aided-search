@@ -15,7 +15,7 @@
  */
 package com.graphaware.integration.es.booster;
 
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import com.graphaware.integration.es.domain.ExternalResult;
 import com.graphaware.integration.es.util.NumberUtil;
 import org.elasticsearch.common.settings.Settings;

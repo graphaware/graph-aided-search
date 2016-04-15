@@ -13,23 +13,20 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.domain;
+package com.graphaware.integration.es.cypher;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ResultRow {
+public class CypherResult {
 
-    private HashMap<String, Object> items = new HashMap<>();
+    private List<ResultRow> rows = new ArrayList<>();
 
-    public void add(String columnKey, Object item) {
-        items.put(columnKey, item);
+    public void addRow(ResultRow resultRow) {
+        rows.add(resultRow);
     }
 
-    public Object get(String columnKey) {
-        return items.get(columnKey);
-    }
-
-    public HashMap<String, Object> getValues() {
-        return items;
+    public List<ResultRow> getRows() {
+        return rows;
     }
 }

@@ -1,10 +1,10 @@
 package com.graphaware.integration.es.booster;
 
 import com.graphaware.integration.es.GraphAidedSearchTest;
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import static com.graphaware.integration.es.booster.SearchResultExternalBooster.DEFAULT_ID_RESULT_NAME;
 import static com.graphaware.integration.es.booster.SearchResultExternalBooster.DEFAULT_SCORE_RESULT_NAME;
-import com.graphaware.integration.es.domain.ClauseConstants;
+
 import com.graphaware.integration.es.domain.ExternalResult;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;

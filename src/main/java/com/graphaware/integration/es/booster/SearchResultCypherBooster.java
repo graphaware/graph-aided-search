@@ -15,11 +15,11 @@
  */
 package com.graphaware.integration.es.booster;
 
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
-import com.graphaware.integration.es.domain.CypherResult;
+import com.graphaware.integration.es.cypher.CypherResult;
 import com.graphaware.integration.es.domain.ExternalResult;
-import com.graphaware.integration.es.domain.ResultRow;
+import com.graphaware.integration.es.cypher.ResultRow;
 import com.graphaware.integration.es.util.NumberUtil;
 import com.graphaware.integration.es.util.UrlUtil;
 import org.elasticsearch.common.logging.ESLogger;
@@ -31,7 +31,7 @@ import java.util.*;
 import static com.graphaware.integration.es.domain.ClauseConstants.*;
 import static com.graphaware.integration.es.util.ParamUtil.*;
 
-import com.graphaware.integration.es.domain.CypherEndPoint;
+import com.graphaware.integration.es.cypher.CypherEndPoint;
 
 @SearchBooster(name = "SearchResultCypherBooster")
 public class SearchResultCypherBooster extends SearchResultExternalBooster {

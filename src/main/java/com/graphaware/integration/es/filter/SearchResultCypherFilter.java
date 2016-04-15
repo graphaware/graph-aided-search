@@ -16,23 +16,21 @@
 package com.graphaware.integration.es.filter;
 
 import com.graphaware.integration.es.annotation.SearchFilter;
-import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.domain.CypherResult;
-import com.graphaware.integration.es.domain.ResultRow;
+import com.graphaware.integration.es.domain.IndexInfo;
+import com.graphaware.integration.es.cypher.CypherResult;
+import com.graphaware.integration.es.cypher.ResultRow;
 import com.graphaware.integration.es.util.NumberUtil;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.graphaware.integration.es.util.ParamUtil;
-import com.graphaware.integration.es.util.UrlUtil;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;
 
 import static com.graphaware.integration.es.domain.ClauseConstants.*;
-import com.graphaware.integration.es.domain.CypherEndPoint;
+import com.graphaware.integration.es.cypher.CypherEndPoint;
 import static com.graphaware.integration.es.wrap.GraphAidedSearchActionListenerWrapper.GAS_FILTER_CLAUSE;
 
 @SearchFilter(name = "SearchResultCypherFilter")
@@ -45,7 +43,6 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     private static final int DEFAULT_RESULT_SIZE = 10;
     private static final int DEFAULT_FROM_VALUE = 0;
 
-    private final String neo4jHost;
     private final int maxResultWindow;
 
     private final CypherEndPoint cypherEndPoint;
@@ -58,7 +55,6 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     private String idResultName;
 
     public SearchResultCypherFilter(Settings settings, IndexInfo indexSettings) {
-        this.neo4jHost = indexSettings.getNeo4jHost();
         this.maxResultWindow = indexSettings.getMaxResultWindow();
         this.cypherEndPoint = new CypherEndPoint(settings,
                 indexSettings.getNeo4jHost(),

@@ -289,7 +289,7 @@ and it needs to have the following annotation:
 ```
 @GraphAidedSearchBooster(name = "MyCustomBooster")
 ```
-Moreover, it should be in the package `com.graphaware.integration.es`.
+Moreover, it should be in the package `com.graphaware.es.gas`.
 
 In order to implement a filter, `IGraphAidedSearchResultFilter` must be implemented and it needs to have the following annotation:
 
@@ -297,7 +297,7 @@ In order to implement a filter, `IGraphAidedSearchResultFilter` must be implemen
 @GraphAidedSearchFilter(name = "MyCustomFilter")
 ```
 
-Also in this case, it should be in the package `com.graphaware.integration.es`.
+Also in this case, it should be in the package `com.graphaware.es.gas`.
 
 ## Version Matrix
 

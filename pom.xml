@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.graphaware.integration.es</groupId>
+    <groupId>com.graphaware.es</groupId>
     <artifactId>graph-aided-search</artifactId>
     <version>2.2.2.0-SNAPSHOT</version>
 
@@ -28,7 +28,7 @@
         <java.version>1.7</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <elasticsearch.version>2.2.2</elasticsearch.version>
-        <elasticsearch.plugin.classname>com.graphaware.integration.es.GraphAidedSearchPlugin</elasticsearch.plugin.classname>
+        <elasticsearch.plugin.classname>com.graphaware.es.gas.GraphAidedSearchPlugin</elasticsearch.plugin.classname>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>

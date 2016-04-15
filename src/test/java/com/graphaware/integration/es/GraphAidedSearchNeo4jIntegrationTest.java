@@ -35,6 +35,8 @@ import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import org.mockserver.integration.ClientAndServer;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import org.mockserver.model.Header;
@@ -126,6 +128,77 @@ public class GraphAidedSearchNeo4jIntegrationTest extends GraphAidedSearchTest {
         assertEquals("test 1", hits.get(0).source.getMsg());
         float expectedScore = withoutBoosterMaxScore * 10.5f;
         assertEquals(expectedScore, result.getMaxScore(), 1);
+    }
+    
+    @Test
+    public void testSearchResultNeo4jBoosterAuth() throws IOException {
+        setMockAuthResponse("bmVvNGo6cGFzc3dvcmQ=");
+        String query = "{"
+                + "   \"query\": {"
+                + "      \"bool\": {"
+                + "         \"should\": ["
+                + "            {"
+                + "                  \"match\": {"
+                + "                       \"message\": \"test 1\""
+                + "                   }"
+                + "            }"
+                + "         ]"
+                + "      }"
+                + "   }"
+                + "   ,\"gas-booster\" :{"
+                + "          \"name\": \"SearchResultNeo4jBooster\","
+                + "          \"recoTarget\": \"12\","
+                + "          \"neo4j.endpoint\": \"/reco/\""               
+                + "      }"
+                + "}";
+
+        Search search = new Search.Builder(query)
+                // multiple index or types can be added.
+                .addIndex(INDEX_NAME_MOCK)
+                .addType(TYPE_NAME)
+                .build();
+        SearchResult result = jestClient.execute(search);
+        assertEquals(100, result.getTotal().intValue());
+        List<SearchResult.Hit<JestMsgResult, Void>> hits = getHitsForResult(result);
+        assertEquals(10, hits.size());
+
+        float withoutBoosterMaxScore = getResultForDocWithMessage("test 1", "1");
+        assertEquals("test 1", hits.get(0).source.getMsg());
+        float expectedScore = withoutBoosterMaxScore * 10.5f;
+        assertEquals(expectedScore, result.getMaxScore(), 1);
+    }
+    
+    @Test
+    public void testSearchResultNeo4jBoosterAuthFail() throws IOException {
+        setMockAuthResponse("MUST FAIL");
+        String query = "{"
+                + "   \"query\": {"
+                + "      \"bool\": {"
+                + "         \"should\": ["
+                + "            {"
+                + "                  \"match\": {"
+                + "                       \"message\": \"test 1\""
+                + "                   }"
+                + "            }"
+                + "         ]"
+                + "      }"
+                + "   }"
+                + "   ,\"gas-booster\" :{"
+                + "          \"name\": \"SearchResultNeo4jBooster\","
+                + "          \"recoTarget\": \"12\","
+                + "          \"neo4j.endpoint\": \"/reco/\""               
+                + "      }"
+                + "}";
+
+        Search search = new Search.Builder(query)
+                // multiple index or types can be added.
+                .addIndex(INDEX_NAME_MOCK)
+                .addType(TYPE_NAME)
+                .build();
+        SearchResult result = jestClient.execute(search);
+        assertNotNull(result);
+        assertNull(result.getTotal());
+        
     }
     
     @Test
@@ -289,6 +362,40 @@ public class GraphAidedSearchNeo4jIntegrationTest extends GraphAidedSearchTest {
               .when(
                       request()
                               .withPath("/reco/12")
+              )
+              .respond(response()
+                      .withHeaders(
+                              new Header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                      )
+                      .withBody("" +
+                              "[" + LS +
+                              "    {" + LS +
+                              "        \"nodeId\": 1," + LS +
+                              "        \"objectId\": \"1\"," + LS +
+                              "        \"score\": 10.5" + LS +
+                              "    }," + LS +
+                              "    {" + LS +
+                              "        \"nodeId\": 2," + LS +
+                              "        \"objectId\": \"2\"," + LS +
+                              "        \"score\": 2.2" + LS +
+                              "    }," + LS +
+                              "    {" + LS +
+                              "        \"nodeId\": 3," + LS +
+                              "        \"objectId\": \"3\"," + LS +
+                              "        \"score\": 1" + LS +
+                              "    }" + LS +
+                              "]")
+              );
+    }
+    
+    private void setMockAuthResponse(String auth) {
+      mockServer
+              .when(
+                      request()
+                              .withPath("/reco/12")
+                                .withHeaders(
+                                    new Header(HttpHeaders.AUTHORIZATION, "Basic " + auth)
+                                )
               )
               .respond(response()
                       .withHeaders(

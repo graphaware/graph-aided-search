@@ -29,6 +29,7 @@ import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.tasks.Task;
 
 public class GraphAidedSearchFilter extends AbstractComponent implements ActionFilter {
 
@@ -61,7 +62,7 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
     }
 
     @Override
-    public void apply(final String action, final ActionRequest request,  ActionListener listener, final ActionFilterChain chain) {
+    public void apply(Task task, String action, ActionRequest request, ActionListener listener, ActionFilterChain chain) {
         if (SearchAction.INSTANCE.name().equals(action)) {
             if (Boolean.TRUE.equals(request.<Boolean>getHeader(SEARCH_REQUEST_INVOKED))) {
                 try {
@@ -74,7 +75,7 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
             }
         }
 
-        chain.proceed(action, request, listener);
+        chain.proceed(task, action, request, listener);
     }
 
     @Override

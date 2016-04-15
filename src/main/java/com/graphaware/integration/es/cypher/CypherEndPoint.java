@@ -37,8 +37,6 @@ import org.elasticsearch.common.settings.Settings;
 
 public class CypherEndPoint {
 
-    private static final String SETTINGS_NEO4J_PASSWORD_KEY = "index.gas.neo4j.password";
-
     private static final String CYPHER_ENDPOINT = "/db/data/transaction/commit";
     private static final String CYPHER_RESPONSE_RESULTS_FIELD = "results";
     private static final String CYPHER_RESPONSE_DATA_FIELD = "data";
@@ -96,9 +94,9 @@ public class CypherEndPoint {
         }
 
         CypherResult result = new CypherResult();
-        for (int i = 0; i < rows.size(); ++i) {
+        for (Map r : rows) {
             ResultRow resultRow = new ResultRow();
-            List row = (List) rows.get(i).get(CYPHER_RESPONSE_ROW_FIELD);
+            List row = (List) r.get(CYPHER_RESPONSE_ROW_FIELD);
             for (String key : columns) {
                 resultRow.add(key, row.get(columnsMap.get(key)));
             }

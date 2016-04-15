@@ -43,7 +43,6 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     private static final int DEFAULT_RESULT_SIZE = 10;
     private static final int DEFAULT_FROM_VALUE = 0;
 
-    private final String neo4jHost;
     private final int maxResultWindow;
 
     private final CypherEndPoint cypherEndPoint;
@@ -56,7 +55,6 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     private String idResultName;
 
     public SearchResultCypherFilter(Settings settings, IndexInfo indexSettings) {
-        this.neo4jHost = indexSettings.getNeo4jHost();
         this.maxResultWindow = indexSettings.getMaxResultWindow();
         this.cypherEndPoint = new CypherEndPoint(settings,
                 indexSettings.getNeo4jHost(),

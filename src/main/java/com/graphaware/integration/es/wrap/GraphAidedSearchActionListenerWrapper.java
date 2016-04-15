@@ -73,7 +73,7 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
 
     private final ClusterService clusterService;
     private final Cache<String, IndexInfo> scriptInfoCache;
-    private final Client client;
+    //private final Client client;
 
     public GraphAidedSearchActionListenerWrapper(Settings settings, ClusterService clusterService, Client client) {
         this.logger = Loggers.getLogger(getClass(), settings);
@@ -81,7 +81,7 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
         this.instantiator = new Instantiator(settings);
 
         this.clusterService = clusterService;
-        this.client = client;
+        //this.client = client;
         this.scriptInfoCache = CacheBuilder.newBuilder().concurrencyLevel(16).expireAfterAccess(120, TimeUnit.SECONDS).build();
     }
 

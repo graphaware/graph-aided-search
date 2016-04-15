@@ -16,10 +16,11 @@
 package com.graphaware.integration.es.cypher;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class ResultRow {
 
-    private HashMap<String, Object> items = new HashMap<>();
+    private Map<String, Object> items = new HashMap<>();
 
     public void add(String columnKey, Object item) {
         items.put(columnKey, item);
@@ -29,7 +30,7 @@ public class ResultRow {
         return items.get(columnKey);
     }
 
-    public HashMap<String, Object> getValues() {
+    public Map<String, Object> getValues() {
         return items;
     }
 }

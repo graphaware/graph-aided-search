@@ -3,8 +3,6 @@ language: java
 before_install:
     - sudo apt-get update > /dev/null
     
-sudo: false
-
 jdk:
   - oraclejdk8
   - oraclejdk7

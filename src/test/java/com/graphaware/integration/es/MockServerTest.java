@@ -1,9 +1,5 @@
 package com.graphaware.integration.es;
 
-import com.graphaware.integration.es.booster.*;
-import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.annotation.SearchBooster;
-import com.graphaware.integration.es.domain.ClauseConstants;
 import com.graphaware.integration.es.domain.ExternalResult;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -12,7 +8,6 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 
 import java.util.*;

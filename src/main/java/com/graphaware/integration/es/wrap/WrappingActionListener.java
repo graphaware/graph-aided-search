@@ -16,7 +16,7 @@
 
 package com.graphaware.integration.es.wrap;
 
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import com.graphaware.integration.es.modifier.SearchResultModifier;
 import org.elasticsearch.Version;
 import org.elasticsearch.action.ActionListener;

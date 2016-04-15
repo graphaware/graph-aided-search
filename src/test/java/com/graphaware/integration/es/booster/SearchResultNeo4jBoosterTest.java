@@ -1,6 +1,6 @@
 package com.graphaware.integration.es.booster;
 
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.domain.ClauseConstants;
 import com.graphaware.integration.es.domain.ExternalResult;
@@ -19,7 +19,6 @@ import org.mockserver.integration.ClientAndServer;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
-import org.mockserver.model.Parameter;
 
 public class SearchResultNeo4jBoosterTest {
 

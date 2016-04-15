@@ -18,7 +18,7 @@ package com.graphaware.integration.es.stubs;
 
 import com.graphaware.integration.es.booster.SearchResultCypherBooster;
 import com.graphaware.integration.es.annotation.SearchBooster;
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import com.graphaware.integration.es.domain.ExternalResult;
 import org.elasticsearch.common.settings.Settings;
 

@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.integration.es;
+package com.graphaware.integration.es.domain;
 
 public class TestIndexInfo extends IndexInfo {
 

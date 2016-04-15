@@ -16,7 +16,7 @@
 package com.graphaware.integration.es.filter;
 
 import com.graphaware.integration.es.annotation.SearchFilter;
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import com.graphaware.integration.es.cypher.CypherResult;
 import com.graphaware.integration.es.cypher.ResultRow;
 import com.graphaware.integration.es.util.NumberUtil;

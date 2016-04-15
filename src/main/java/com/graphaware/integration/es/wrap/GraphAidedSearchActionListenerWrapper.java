@@ -17,7 +17,7 @@ package com.graphaware.integration.es.wrap;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import com.graphaware.integration.es.annotation.SearchBooster;
 import com.graphaware.integration.es.annotation.SearchFilter;
 import com.graphaware.integration.es.booster.SearchResultBooster;

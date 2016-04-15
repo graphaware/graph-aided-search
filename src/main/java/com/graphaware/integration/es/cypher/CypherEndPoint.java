@@ -15,7 +15,7 @@
  */
 package com.graphaware.integration.es.cypher;
 
-import com.graphaware.integration.es.IndexInfo;
+import com.graphaware.integration.es.domain.IndexInfo;
 import com.graphaware.integration.es.util.UrlUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;

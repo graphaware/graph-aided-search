@@ -37,17 +37,17 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.graphaware.integration.es.domain.ClauseConstants.*;
+import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 
-
 @SearchBooster(name = "SearchResultNeo4jBooster")
 public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
-    
+
     public static final String DEFAULT_KEY_PROPERTY = "uuid";
     public static final String DEFAULT_REST_ENDPOINT = "/graphaware/recommendation/filter";
-
 
     private String boosterEndpoint = null;
     private final ESLogger logger;
@@ -79,22 +79,43 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
     }
 
     public List<ExternalResult> getExternalResults(Set<String> keySet) {
-        Map<String, String> headers = new HashMap<>();
-        if (null != getNeo4jPassword()) {
-            headers.put(HttpHeaders.AUTHORIZATION, UrlUtil.getAuthorizationHeaderValue(getNeo4jUsername(), getNeo4jPassword()));
-        }
+
         ClientConfig cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
         WebResource resource = Client.create(cfg).resource(getEndpoint());
-        ClientResponse response = resource
-                .accept(MediaType.APPLICATION_JSON)
-                .post(ClientResponse.class, getParameters(keySet));
-        GenericType<List<ExternalResult>> type = new GenericType<List<ExternalResult>>() {
-        };
-        List<ExternalResult> externalResults = response.getEntity(type);
-        response.close();
-
+        WebResource.Builder resBuilder = resource.accept(MediaType.APPLICATION_JSON);
+        setHeader(resBuilder);
+        ClientResponse response = null;
+        List<ExternalResult> externalResults = null;
+        
+        try {
+            response = resBuilder.post(ClientResponse.class, getParameters(keySet));
+            GenericType<List<ExternalResult>> type = new GenericType<List<ExternalResult>>() {
+            };
+            externalResults = response.getEntity(type);
+        }
+        catch (UniformInterfaceException | ClientHandlerException ex) {
+            throw new RuntimeException("Error while connecting to neo4j host", ex);
+        }
+        finally {
+            if (response != null)
+                response.close();
+        }
+        if (externalResults == null) {
+            logger.error("Null results from neo4j endpoint");
+            throw new RuntimeException("Null results from neo4j endpoint. No results returned");
+        }
         return externalResults;
+    }
+
+    private void setHeader(WebResource.Builder resBuilder) {
+      Map<String, String> headers = new HashMap<>();
+      if (null != getNeo4jPassword()) {
+        headers.put(HttpHeaders.AUTHORIZATION, UrlUtil.getAuthorizationHeaderValue(getNeo4jUsername(), getNeo4jPassword()));
+      }
+      for (String k : headers.keySet()) {
+        resBuilder.header(k, headers.get(k));
+      }
     }
 
     @Override
@@ -112,7 +133,7 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
         param.add("ids", implodeKeySet(keySet));
         return param;
     }
-    
+
     protected String getTargetId() {
         return targetId;
     }

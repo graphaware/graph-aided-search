@@ -114,7 +114,7 @@ Neo4j, you would change the query in the following way.
     },
     "gas-booster" :{
           "name": "GraphAidedSearchNeo4jBooster",
-          "recoTarget": "2",
+          "target": "2",
           "maxResultSize": 10,
           "keyProperty": "objectId",
           "neo4j.endpoint": "/graphaware/recommendation/movie/filter/"
@@ -131,7 +131,7 @@ This booster uses Neo4j through custom REST APIs available as plugins for the da
 
 The following parameters are available for this booster:
 
-* **recoTarget**: (Mandatory) This parameter contains the identifier of the target for which the boosting values are computed. 
+* **target**: (Mandatory) This parameter contains the identifier of the target for which the boosting values are computed.
 Since the boosting is customized according to a target, this parameter is mandatory and allows getting different results for different target (typically a user).
 
 * **maxResultSize**: (Default is set to the max result windows size of elasticsearch, defined by the parameter index.max_result_window)
@@ -149,7 +149,7 @@ It is added to the Neo4j host value defined for the index.
 
 Information about the list of IDs that should be boosted as well as the target is passed to the API running atop Neo4j. The REST API should expose a POST endpoint that accepts the following parameters:
 
-* **target** (url parameter): This is the value of recoTarget defined above and it is used to identify the user or item for which the score will be computed from the recommender;
+* **target** (url parameter): This is the value of target defined above and it is used to identify the user or item for which the score will be computed from the recommender;
 
 * **limit**: This value can be used to limit the number of results provided be the REST API;
 

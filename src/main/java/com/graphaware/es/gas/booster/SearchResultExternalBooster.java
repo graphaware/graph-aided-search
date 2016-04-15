@@ -32,9 +32,9 @@ import static com.graphaware.es.gas.wrap.GraphAidedSearchActionListenerWrapper.*
 
 public abstract class SearchResultExternalBooster implements SearchResultBooster {
     
-    public static final String DEFAULT_SCORE_OPERATOR = MULTIPLY;
-    public static final String DEFAULT_SCORE_RESULT_NAME = "score";
-    public static final String DEFAULT_ID_RESULT_NAME = "id";
+    private static final String DEFAULT_SCORE_OPERATOR = MULTIPLY;
+    static final String DEFAULT_SCORE_RESULT_NAME = "score";
+    static final String DEFAULT_ID_RESULT_NAME = "id";
 
     private final String neo4jHost;
     private final String neo4jUsername;

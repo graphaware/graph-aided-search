@@ -16,7 +16,6 @@
 package com.graphaware.es.gas.booster;
 
 import com.graphaware.es.gas.annotation.SearchBooster;
-import com.graphaware.es.gas.domain.ClauseConstants;
 import com.graphaware.es.gas.domain.ExternalResult;
 import com.graphaware.es.gas.domain.IndexInfo;
 import com.graphaware.es.gas.util.UrlUtil;
@@ -48,8 +47,8 @@ import static com.graphaware.es.gas.domain.ClauseConstants.*;
 @SearchBooster(name = "SearchResultNeo4jBooster")
 public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
-    public static final String DEFAULT_KEY_PROPERTY = "uuid";
-    public static final String DEFAULT_REST_ENDPOINT = "/graphaware/recommendation/filter";
+    private static final String DEFAULT_KEY_PROPERTY = "uuid";
+    private static final String DEFAULT_REST_ENDPOINT = "/graphaware/recommendation/filter";
 
     private String boosterEndpoint = null;
     private final ESLogger logger;
@@ -122,7 +121,7 @@ public class SearchResultNeo4jBooster extends SearchResultExternalBooster {
 
     @Override
     protected void extendedParseRequest(Map<String, String> extParams) {
-        targetId = extParams.get(RECO_TARGET);
+        targetId = extParams.get(TARGET);
         keyProperty = extParams.get(KEY_PROPERTY) != null ? extParams.get(KEY_PROPERTY) : DEFAULT_KEY_PROPERTY;
         boosterEndpoint = extParams.get(NEO4J_ENDPOINT);
     }

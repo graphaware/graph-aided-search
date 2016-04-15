@@ -16,7 +16,6 @@
 
 package com.graphaware.es.gas.util;
 
-import com.graphaware.es.gas.domain.ClauseConstants;
 import com.graphaware.es.gas.domain.IndexInfo;
 import com.graphaware.es.gas.modifier.SearchResultModifier;
 import org.elasticsearch.common.logging.ESLogger;
@@ -34,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.graphaware.es.gas.domain.ClauseConstants.*;
+import static com.graphaware.es.gas.domain.ClauseConstants.NAME;
 
 public class Instantiator {
 

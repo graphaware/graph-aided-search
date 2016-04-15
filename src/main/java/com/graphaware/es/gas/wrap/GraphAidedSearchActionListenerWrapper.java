@@ -20,7 +20,6 @@ import com.google.common.cache.CacheBuilder;
 import com.graphaware.es.gas.annotation.SearchBooster;
 import com.graphaware.es.gas.annotation.SearchFilter;
 import com.graphaware.es.gas.booster.SearchResultBooster;
-import com.graphaware.es.gas.domain.ClauseConstants;
 import com.graphaware.es.gas.domain.IndexInfo;
 import com.graphaware.es.gas.filter.SearchResultFilter;
 import com.graphaware.es.gas.modifier.PrivilegedSearchResultModifier;
@@ -66,7 +65,6 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
     public static final String GAS_FILTER_CLAUSE = "gas-filter";
     //
     public static final int DEFAULT_MAX_RESULT_WINDOW = 10000;
-      
       
     private final ESLogger logger;
     private final Settings settings;

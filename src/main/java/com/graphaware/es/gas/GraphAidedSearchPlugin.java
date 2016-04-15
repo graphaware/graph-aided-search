@@ -26,7 +26,6 @@ import java.util.Collections;
 
 import static com.graphaware.es.gas.wrap.GraphAidedSearchActionListenerWrapper.*;
 
-
 public class GraphAidedSearchPlugin extends Plugin {
 
     @Override

@@ -44,7 +44,7 @@ public class SearchResultNeo4jBoosterTest {
     public void testExtendedParseRequest() {
         HashMap<String, String> externalParams = new HashMap<>();
         externalParams.put(ClauseConstants.KEY_PROPERTY, "objectId");
-        externalParams.put(ClauseConstants.RECO_TARGET, "12");
+        externalParams.put(ClauseConstants.TARGET, "12");
         externalParams.put(ClauseConstants.NEO4J_ENDPOINT, "reco/");
         SearchResultNeo4jBooster booster = getBooster();
         booster.extendedParseRequest(externalParams);
@@ -71,7 +71,7 @@ public class SearchResultNeo4jBoosterTest {
     public void testExternalDoReorder() {
         HashMap<String, String> externalParams = new HashMap<>();
         externalParams.put(ClauseConstants.KEY_PROPERTY, "objectId");
-        externalParams.put(ClauseConstants.RECO_TARGET, "12");
+        externalParams.put(ClauseConstants.TARGET, "12");
         externalParams.put(ClauseConstants.NEO4J_ENDPOINT, "reco/");
         SearchResultNeo4jBooster testBooster = getTestBooster();
         testBooster.extendedParseRequest(externalParams);
@@ -118,7 +118,7 @@ public class SearchResultNeo4jBoosterTest {
                 );
         HashMap<String, String> externalParams = new HashMap<>();
         externalParams.put(ClauseConstants.KEY_PROPERTY, "objectId");
-        externalParams.put(ClauseConstants.RECO_TARGET, "12");
+        externalParams.put(ClauseConstants.TARGET, "12");
         externalParams.put(ClauseConstants.NEO4J_ENDPOINT, "reco/");
         SearchResultNeo4jBooster testBooster = getMockBooster();
         testBooster.extendedParseRequest(externalParams);
@@ -136,7 +136,7 @@ public class SearchResultNeo4jBoosterTest {
         SearchResultNeo4jBooster booster = getBooster();
         HashMap<String, String> externalParams = new HashMap<>();
         externalParams.put(ClauseConstants.KEY_PROPERTY, "objectId");
-        externalParams.put(ClauseConstants.RECO_TARGET, "12");
+        externalParams.put(ClauseConstants.TARGET, "12");
         externalParams.put(ClauseConstants.NEO4J_ENDPOINT, "reco/");
         booster.extendedParseRequest(externalParams);
         assertEquals("http://localhost:7474/reco/12", booster.getEndpoint());

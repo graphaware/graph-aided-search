@@ -102,7 +102,7 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
                 + "   }"
                 + "   ,\"gas-booster\" :{"
                 + "          \"name\": \"SearchResultTestBooster\","
-                + "          \"recoTarget\": \"Durgan%20LLC\""
+                + "          \"target\": \"Durgan%20LLC\""
                 + "      }"
                 + "}";
 

@@ -32,7 +32,7 @@ public final class ClauseConstants {
     public static final String MINUS = "-";
     public static final String REPLACE = "replace";
 
-    public static final String RECO_TARGET = "recoTarget";
+    public static final String TARGET = "target";
     public static final String KEY_PROPERTY = "keyProperty";
     public static final String NEO4J_ENDPOINT = "neo4j.endpoint";
     public static final String LIMIT = "limit";

@@ -83,8 +83,8 @@ You can use also template to configure settings in the index:
       "settings": {
         "index.gas.neo4j.hostname": "http://localhost:7474",
         "index.gas.enable": true,
-        "index.gas.neo4j.user": neo4j,
-        "index.gas.neo4j.password": password
+        "index.gas.neo4j.user": "neo4j",
+        "index.gas.neo4j.password": "password"
       }
     }
 ```

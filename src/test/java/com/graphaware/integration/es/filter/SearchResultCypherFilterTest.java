@@ -1,16 +1,12 @@
 package com.graphaware.integration.es.filter;
 
-import com.graphaware.integration.es.GraphAidedSearchTest;
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.TestIndexInfo;
-import com.graphaware.integration.es.domain.CypherResult;
-import com.graphaware.integration.es.domain.ResultRow;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.Assert.*;
 

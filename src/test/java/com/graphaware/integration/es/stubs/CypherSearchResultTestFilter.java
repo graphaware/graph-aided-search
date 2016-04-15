@@ -16,8 +16,6 @@
 package com.graphaware.integration.es.stubs;
 
 import com.graphaware.integration.es.annotation.SearchFilter;
-import com.graphaware.integration.es.domain.CypherResult;
-import com.graphaware.integration.es.domain.ResultRow;
 import com.graphaware.integration.es.filter.SearchResultCypherFilter;
 import com.graphaware.integration.es.IndexInfo;
 import java.util.HashSet;

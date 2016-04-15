@@ -13,9 +13,8 @@
  * the GNU General Public License along with this program.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package com.graphaware.integration.es.domain;
+package com.graphaware.integration.es.cypher;
 
-import com.google.common.io.BaseEncoding;
 import com.graphaware.integration.es.IndexInfo;
 import com.graphaware.integration.es.util.UrlUtil;
 import com.sun.jersey.api.client.Client;

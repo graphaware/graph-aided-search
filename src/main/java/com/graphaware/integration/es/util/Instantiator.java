@@ -17,7 +17,7 @@
 package com.graphaware.integration.es.util;
 
 import com.graphaware.integration.es.IndexInfo;
-import com.graphaware.integration.es.domain.SearchResultModifier;
+import com.graphaware.integration.es.modifier.SearchResultModifier;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;

@@ -15,7 +15,7 @@
  */
 package com.graphaware.integration.es.booster;
 
-import com.graphaware.integration.es.domain.SearchResultModifier;
+import com.graphaware.integration.es.modifier.SearchResultModifier;
 
 public interface SearchResultBooster extends SearchResultModifier {
 

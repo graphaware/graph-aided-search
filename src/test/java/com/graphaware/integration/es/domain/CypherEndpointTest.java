@@ -1,5 +1,8 @@
 package com.graphaware.integration.es.domain;
 
+import com.graphaware.integration.es.cypher.CypherEndPoint;
+import com.graphaware.integration.es.cypher.CypherResult;
+import com.graphaware.integration.es.cypher.ResultRow;
 import com.graphaware.integration.es.util.TestHttpClient;
 import com.graphaware.integration.neo4j.test.EmbeddedGraphDatabaseServer;
 import org.apache.commons.codec.binary.Base64;

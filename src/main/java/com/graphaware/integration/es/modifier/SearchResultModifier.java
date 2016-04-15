@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.integration.es.domain;
+package com.graphaware.integration.es.modifier;
 
 import org.elasticsearch.search.internal.InternalSearchHits;
 

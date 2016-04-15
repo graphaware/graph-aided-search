@@ -1,5 +1,6 @@
 package com.graphaware.integration.es.domain;
 
+import com.graphaware.integration.es.cypher.CypherEndPoint;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Before;
 import org.junit.Test;

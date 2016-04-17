@@ -314,7 +314,7 @@ The following version are currently supported
 
 | Version (this project)   | Elasticsearch |
 |:---------:|:-------------:|
-| master    | 2.2.2         |
+| 2.3.1.x   | 2.3.1         |
 | 2.2.2.x   | 2.2.2         |
 
 ### Issues/Questions

@@ -63,15 +63,15 @@ Start elasticsearch
 Then configure indexes with the url of Neo4j. This can be done in two ways. First:
 
 ```bash
-$ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.hostname=http://localhost:7474
-$ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=true
+$ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.hostname=http://localhost:7474
+$ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.enable=true
 ```
 
 If the Neo4j Rest Api is protected by Basic Authentication confire username and password for neo4j in the following way:
 
 ```bash
-$ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.user=neo4j
-$ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.password=password
+$ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.user=neo4j
+$ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.password=password
 ```
 
 Second, you can use also template to configure settings in the index:
@@ -92,7 +92,7 @@ Second, you can use also template to configure settings in the index:
 ### Disable Plugin
 
 ```bash
-$ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=false
+$ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.enable=false
 ```
 
 Queries will continue to work even with Graph-Aided-Search-specific elements, e.g. "gas-boost" and "gas-filter".
@@ -314,8 +314,8 @@ The following version are currently supported
 
 | Version (this project)   | Elasticsearch |
 |:---------:|:-------------:|
-| 2.3.1.x   | 2.3.1         |
-| 2.2.2.x   | 2.2.2         |
+| master    | 2.3.1         |
+| 2.2.2.0   | 2.2.2         |
 
 ### Issues/Questions
 

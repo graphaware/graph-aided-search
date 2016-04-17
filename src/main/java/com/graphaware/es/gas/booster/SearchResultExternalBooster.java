@@ -18,8 +18,6 @@ package com.graphaware.es.gas.booster;
 import com.graphaware.es.gas.domain.ExternalResult;
 import com.graphaware.es.gas.domain.IndexInfo;
 import com.graphaware.es.gas.util.NumberUtil;
-import com.graphaware.es.gas.util.ParamUtil;
-import com.graphaware.es.gas.wrap.GraphAidedSearchActionListenerWrapper;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.search.internal.InternalSearchHits;

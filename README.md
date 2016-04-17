@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/graphaware/graph-aided-search.svg?branch=master)](https://travis-ci.org/graphaware/graph-aided-search) | Latest Release: 2.2.2.0
 
 GraphAware Graph-Aided Search is an enterprise-grade bi-directional integration between Neo4j and Elasticsearch. It consists
-of two independent modules plus a test suite. Both modules can be used independently or together to achieve full integration.
+of two independent modules plus test suites. Both modules can be used independently or together to achieve full integration.
 
 The [first module](https://github.com/graphaware/neo4j-to-elasticsearch) is a plugin for Neo4j (more precisely, a [GraphAware Transaction-Driven Runtime Module](https://github.com/graphaware/neo4j-framework/tree/master/runtime#graphaware-runtime)),
 which can be configured to transparently and asynchronously replicate data from Neo4j to ElasticSearch.
@@ -13,7 +13,7 @@ which can be configured to transparently and asynchronously replicate data from 
 The second module (this module) is a plugin for Elasticsearch that can query the Neo4j graph database during a search query
 to enrich the result (boost the score) by results that are more efficiently calculated in a graph database, e.g. recommendations.
 
-Both modules are now production-ready and officially supported by GraphAware for <a href="http://graphaware.com/enterprise/" target="_blank">GraphAware Enterprise</a> subscribers.
+Both modules are now open-source production-ready for everyone. They are also officially supported by GraphAware for <a href="http://graphaware.com/enterprise/" target="_blank">GraphAware Enterprise</a> subscribers.
 
 ## Feature Overview: Graph-Aided Search
 
@@ -53,28 +53,28 @@ $ $ES_HOME/bin/plugin install com.graphaware.es/graph-aided-search/2.2.2.0
 ```bash
 $ git clone git@github.com:graphaware/graph-aided-search.git
 $ mvn clean package
-$ $ES_HOME/bin/plugin install file:///path/to/project/graph-aided-search/target/releases/graph-aided-search-2.2.1.zip
+$ $ES_HOME/bin/plugin install file:///path/to/project/graph-aided-search/target/releases/graph-aided-search-2.2.2.0.zip
 ```
 
 Start elasticsearch
 
 ### Configuration
 
-Then configure indexes with the url of Neo4j. This can be done in two ways:
+Then configure indexes with the url of Neo4j. This can be done in two ways. First:
 
 ```bash
 $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.hostname=http://localhost:7474
 $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=true
 ```
 
-If the neo4j Rest Api is protected by Basic Authentication confire username and password for neo4j in the following way:
+If the Neo4j Rest Api is protected by Basic Authentication confire username and password for neo4j in the following way:
 
 ```bash
 $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.user=neo4j
 $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.neo4j.password=password
 ```
 
-You can use also template to configure settings in the index:
+Second, you can use also template to configure settings in the index:
 
 ```json
     POST _template/template_gas
@@ -95,7 +95,7 @@ You can use also template to configure settings in the index:
 $ curl -XPUT http://localhost:9200/indexName/_settings?index.gas.enable=false
 ```
 
-The query will continue to work even with the "gas-boost" and "gas-filter" piece in the query. They will be removed automatically.
+Queries will continue to work even with Graph-Aided-Search-specific elements, e.g. "gas-boost" and "gas-filter".
 
 ## Usage: Search Phase
 
@@ -104,7 +104,7 @@ The integration with a pre-existing search query is seamless, since the plugin o
 ### Booster example
 
 Boosters allow to change the score by an external score source. This could be a `recommender`, a Cypher query, or any custom booster provider.
-A simple query for Elasticsearch could have the following structure:
+A simple Elasticsearch query could have the following structure:
 
 ```bash
   curl -X POST http://localhost:9200/neo4j-index/Movie/_search -d '{
@@ -131,12 +131,12 @@ Neo4j, you would change the query in the following way.
   }';
 ```
 The **_gas-booster_** clause identifies the type of operation, in this case it defines a boost operation.
-The **_name_** parameter is mandatory and allows to specify the Booster class. The remaining parameters depend on the type of booster.
+The **_name_** parameter is mandatory and allows to specify the Booster class. The remaining parameters depend on the type of the booster.
 In the following paragraph the available boosters are described.
 
 #### SearchResultNeo4jBooster
 
-This booster uses Neo4j through custom REST APIs available as plugins for the database. In this case, the _name_ value must be set to `GraphAidedSearchNeo4jBooster`.
+This booster uses Neo4j through custom REST APIs available as plugins for the database. In this case, the _name_ value must be set to `SearchResultNeo4jBooster`.
 
 The following parameters are available for this booster:
 
@@ -205,7 +205,7 @@ This component supposes that the results are a json array with the following str
 
 #### SearchResultCypherBooster
 
-This booster uses Neo4j through custom REST APIs available as plugins for the database. In this case the _name_ value must be set to `GraphAidedSearchCypherBooster`.
+This booster uses Neo4j through custom REST APIs available as plugins for the database. In this case the _name_ value must be set to `SearchResultCypherBooster`.
 
 The following parameters are available for this booster:
 
@@ -276,7 +276,7 @@ In the following paragraph the available filters are described.
 
 #### SearchResultCypherFilter
 
-This filter allows to filter results using a Cypher query on Neo4j. In this case the _name_ value must be set to `GraphAidedSearchCypherFilter`.
+This filter allows to filter results using a Cypher query on Neo4j. In this case the _name_ value must be set to `SearchResultCypherFilter`.
 
 The following parameters are available for this filter:
 

@@ -33,8 +33,6 @@ import org.elasticsearch.tasks.Task;
 
 public class GraphAidedSearchFilter extends AbstractComponent implements ActionFilter {
 
-    private static final String SEARCH_REQUEST_INVOKED = "filter.graphaware.neo4j.Invoked";
-
     private static final int DEFAULT_FILTER_ORDER = 10;
 
     private static final String FILTER_ORDER_KEY_NAME = "indices.graphaware.filter.order";
@@ -64,14 +62,10 @@ public class GraphAidedSearchFilter extends AbstractComponent implements ActionF
     @Override
     public void apply(Task task, String action, ActionRequest request, ActionListener listener, ActionFilterChain chain) {
         if (SearchAction.INSTANCE.name().equals(action)) {
-            if (Boolean.TRUE.equals(request.<Boolean>getHeader(SEARCH_REQUEST_INVOKED))) {
-                try {
-                    listener = wrapper.wrap((SearchRequest) request, listener);
-                } catch (CannotWrapException e) {
-                    //that's OK, will use the original unwrapped one and perform no Graph-Aided Search
-                }
-            } else {
-                request.putHeader(SEARCH_REQUEST_INVOKED, Boolean.TRUE);
+            try {
+                listener = wrapper.wrap((SearchRequest) request, listener);
+            } catch (CannotWrapException e) {
+                //that's OK, will use the original unwrapped one and perform no Graph-Aided Search
             }
         }
 

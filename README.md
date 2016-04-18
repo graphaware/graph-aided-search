@@ -2,7 +2,7 @@
 
 ## ElasticSearch Plugin providing integration with Neo4j
 
-[![Build Status](https://travis-ci.org/graphaware/graph-aided-search.svg?branch=master)](https://travis-ci.org/graphaware/graph-aided-search) | Latest Release: 2.2.2.0 (2.3.1.x not released yet)
+[![Build Status](https://travis-ci.org/graphaware/graph-aided-search.svg?branch=master)](https://travis-ci.org/graphaware/graph-aided-search) | Latest Release: 2.2.2.0 / 2.3.1.0
 
 GraphAware Graph-Aided Search is an enterprise-grade bi-directional integration between Neo4j and Elasticsearch. It consists
 of two independent modules plus test suites. Both modules can be used independently or together to achieve full integration.
@@ -44,8 +44,16 @@ e.g. Cypher query, target user, etc...;
 
 ### Install Graph-Aided Search Binary
 
+#### Elasticsearch 2.2.2:
+
 ```bash
 $ $ES_HOME/bin/plugin install com.graphaware.es/graph-aided-search/2.2.2.0
+```
+
+#### Elasticsearch 2.3.1:
+
+```bash
+$ $ES_HOME/bin/plugin install com.graphaware.es/graph-aided-search/2.3.1.0
 ```
 
 ### Build from source
@@ -53,7 +61,7 @@ $ $ES_HOME/bin/plugin install com.graphaware.es/graph-aided-search/2.2.2.0
 ```bash
 $ git clone git@github.com:graphaware/graph-aided-search.git
 $ mvn clean package
-$ $ES_HOME/bin/plugin install file:///path/to/project/graph-aided-search/target/releases/graph-aided-search-2.2.2.0.zip
+$ $ES_HOME/bin/plugin install file:///path/to/project/graph-aided-search/target/releases/graph-aided-search-2.X.X.0.zip
 ```
 
 Start elasticsearch

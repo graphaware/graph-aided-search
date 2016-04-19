@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
 public abstract class GraphAidedSearchTest {
 
     private final String DEFAULT_CLUSTER_NAME = "graph-aided-search-cluster";
-    protected static final String NEO4J_SERVER_URL = "http://localhost:7474";
+//    protected static final String NEO4J_SERVER_URL = "http://localhost:7474";
     protected static final String NEO4J_USER = "neo4j";
     protected static final String NEO4J_PASSWORD = "password";
 
@@ -162,13 +162,13 @@ public abstract class GraphAidedSearchTest {
     }
 
     protected void emptyDB() {
-        httpClient.executeCypher(NEO4J_SERVER_URL, getAuthorizationHeaders(NEO4J_PASSWORD), "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r,n");
+        httpClient.executeCypher(getNeo4jURL(), getAuthorizationHeaders(NEO4J_PASSWORD), "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE r,n");
     }
 
     protected void changePassword() {
         String json = "{\"password\":\"" + NEO4J_PASSWORD + "\"}";
         try {
-            httpClient.post(NEO4J_SERVER_URL + "/user/neo4j/password", json, getAuthorizationHeaders("neo4j"), 200);
+            httpClient.post(getNeo4jURL() + "/user/neo4j/password", json, getAuthorizationHeaders("neo4j"), 200);
         } catch (AssertionError e) {
             // password was already changed in a previous test and the dbms auth directory is already existing
         }
@@ -187,7 +187,7 @@ public abstract class GraphAidedSearchTest {
     }
 
     protected String executeCypher(String query) {
-        return httpClient.executeCypher(NEO4J_SERVER_URL, getAuthorizationHeaders(NEO4J_PASSWORD), query);
+        return httpClient.executeCypher(getNeo4jURL(), getAuthorizationHeaders(NEO4J_PASSWORD), query);
     }
 
     @After
@@ -195,5 +195,9 @@ public abstract class GraphAidedSearchTest {
         runner.close();
         runner.clean();
         neo4jServer.stop();
+    }
+    
+    public String getNeo4jURL() {
+        return neo4jServer.getURL();
     }
 }

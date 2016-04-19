@@ -26,25 +26,24 @@ public class CypherEndpointTest {
 
     private TestHttpClient httpClient;
 
-    private static final String NEO4J_SERVER_URL = "http://localhost:7474";
     private static final String NEO4J_CUSTOM_PASSWORD = "password";
     private static final String NEO4J_CUSTOM_USER = "neo4j";
 
     @Before
     public void setUp() {
-        cypherEndPoint = new CypherEndPoint(Settings.EMPTY,
-                NEO4J_SERVER_URL,
-                NEO4J_CUSTOM_USER,
-                NEO4J_CUSTOM_PASSWORD);
         server = new EmbeddedGraphDatabaseServer();
         server.start();
+        cypherEndPoint = new CypherEndPoint(Settings.EMPTY,
+                server.getURL(),
+                NEO4J_CUSTOM_USER,
+                NEO4J_CUSTOM_PASSWORD);
         httpClient = new TestHttpClient();
         changePassword();
     }
 
     @Test
     public void testExecuteCypher() throws Exception {
-        httpClient.executeCypher(NEO4J_SERVER_URL, getHeaders(NEO4J_CUSTOM_USER, NEO4J_CUSTOM_PASSWORD), "UNWIND range(1, 10) as x CREATE (n:Test) SET n.id = x");
+        httpClient.executeCypher(server.getURL(), getHeaders(NEO4J_CUSTOM_USER, NEO4J_CUSTOM_PASSWORD), "UNWIND range(1, 10) as x CREATE (n:Test) SET n.id = x");
         String query = "MATCH (n) RETURN n.id as id";
         HashMap<String, Object> params = new HashMap<>();
         CypherResult result = cypherEndPoint.executeCypher(getHeaders(NEO4J_CUSTOM_USER, NEO4J_CUSTOM_PASSWORD), query, params);
@@ -59,7 +58,7 @@ public class CypherEndpointTest {
     private void changePassword() {
         String json = "{\"password\":\"" + NEO4J_CUSTOM_PASSWORD + "\"}";
         try {
-            httpClient.post(NEO4J_SERVER_URL + "/user/neo4j/password", json, getHeaders(NEO4J_CUSTOM_USER, "neo4j"), 200);
+            httpClient.post(server.getURL() + "/user/neo4j/password", json, getHeaders(NEO4J_CUSTOM_USER, "neo4j"), 200);
         } catch (AssertionError e) {
             // password was already changed in a previous test and the dbms auth directory is already existing
         }

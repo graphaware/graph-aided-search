@@ -147,7 +147,7 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
 
     private SearchResultCypherBooster getBooster() {
         Settings.Builder builder = Settings.builder();
-        IndexInfo indexInfo = new IndexInfo(NEO4J_SERVER_URL, NEO4J_USER, NEO4J_PASSWORD, true, 0);
+        IndexInfo indexInfo = new IndexInfo(getNeo4jURL(), NEO4J_USER, NEO4J_PASSWORD, true, 0);
 
         return new SearchResultCypherBooster(builder.build(), indexInfo);
     }

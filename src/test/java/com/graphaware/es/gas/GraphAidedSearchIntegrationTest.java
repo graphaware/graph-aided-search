@@ -40,7 +40,6 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
     
     private static final String INDEX_NAME = "test-index";
     private static final String DISABLED_INDEX_NAME = "disabled-test-index";
-    private static final String NEO4J_HOSTNAME = "http://localhost:7474";
     private static final String TYPE_NAME = "test_data";
 
     @Override
@@ -462,7 +461,7 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
     private void createIndices() {
         Map<String, Object> settings1 = new HashMap<>();
         settings1.put(INDEX_GA_ES_NEO4J_ENABLED, true);
-        settings1.put(INDEX_GA_ES_NEO4J_HOST, NEO4J_HOSTNAME);
+        settings1.put(INDEX_GA_ES_NEO4J_HOST, getNeo4jURL());
         settings1.put(INDEX_GA_ES_NEO4J_USER, NEO4J_USER);
         settings1.put(INDEX_GA_ES_NEO4J_PWD, NEO4J_PASSWORD);
         createIndex(INDEX_NAME, settings1);

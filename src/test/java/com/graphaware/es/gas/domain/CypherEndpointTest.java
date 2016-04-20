@@ -1,6 +1,6 @@
 package com.graphaware.es.gas.domain;
 
-import com.graphaware.es.gas.cypher.CypherEndPoint;
+import com.graphaware.es.gas.cypher.CypherHttpEndPoint;
 import com.graphaware.es.gas.cypher.CypherResult;
 import com.graphaware.es.gas.cypher.ResultRow;
 import com.graphaware.es.gas.util.TestHttpClient;
@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 
 public class CypherEndpointTest {
 
-    private CypherEndPoint cypherEndPoint;
+    private CypherHttpEndPoint cypherHttpEndPoint;
 
     private EmbeddedGraphDatabaseServer server;
 
@@ -33,7 +33,7 @@ public class CypherEndpointTest {
     public void setUp() {
         server = new EmbeddedGraphDatabaseServer();
         server.start();
-        cypherEndPoint = new CypherEndPoint(Settings.EMPTY,
+        cypherHttpEndPoint = new CypherHttpEndPoint(Settings.EMPTY,
                 server.getURL(),
                 NEO4J_CUSTOM_USER,
                 NEO4J_CUSTOM_PASSWORD);
@@ -46,7 +46,7 @@ public class CypherEndpointTest {
         httpClient.executeCypher(server.getURL(), getHeaders(NEO4J_CUSTOM_USER, NEO4J_CUSTOM_PASSWORD), "UNWIND range(1, 10) as x CREATE (n:Test) SET n.id = x");
         String query = "MATCH (n) RETURN n.id as id";
         HashMap<String, Object> params = new HashMap<>();
-        CypherResult result = cypherEndPoint.executeCypher(getHeaders(NEO4J_CUSTOM_USER, NEO4J_CUSTOM_PASSWORD), query, params);
+        CypherResult result = cypherHttpEndPoint.executeCypher(getHeaders(NEO4J_CUSTOM_USER, NEO4J_CUSTOM_PASSWORD), query, params);
         assertEquals(10, result.getRows().size());
         int i = 0;
         for (ResultRow resultRow : result.getRows()) {

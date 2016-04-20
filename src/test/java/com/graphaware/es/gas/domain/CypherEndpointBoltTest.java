@@ -1,6 +1,6 @@
 package com.graphaware.es.gas.domain;
 
-import com.graphaware.es.gas.cypher.CypherBoltEndPoint;
+import com.graphaware.es.gas.cypher.CypherBoltHttpEndPoint;
 import com.graphaware.es.gas.cypher.CypherResult;
 import com.graphaware.es.gas.cypher.ResultRow;
 import com.graphaware.integration.neo4j.test.EmbeddedGraphDatabaseServer;
@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 public class CypherEndpointBoltTest {
 
     
-    private CypherBoltEndPoint cypherEndPoint;
+    private CypherBoltHttpEndPoint cypherEndPoint;
 
     private EmbeddedGraphDatabaseServer server;
 
@@ -36,7 +36,7 @@ public class CypherEndpointBoltTest {
         Map<String, Object> serverParams = new HashMap<>();
         serverParams.put(EmbeddedGraphDatabaseServerConfig.CONFIG_REST_ENABLE_BOLT, "true");
         server.start(serverParams);
-        cypherEndPoint = new CypherBoltEndPoint(Settings.EMPTY,
+        cypherEndPoint = new CypherBoltHttpEndPoint(Settings.EMPTY,
                 server.getURL(),
                 NEO4J_CUSTOM_USER,
                 NEO4J_CUSTOM_PASSWORD);

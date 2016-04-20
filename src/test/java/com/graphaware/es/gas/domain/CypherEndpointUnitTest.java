@@ -1,6 +1,6 @@
 package com.graphaware.es.gas.domain;
 
-import com.graphaware.es.gas.cypher.CypherEndPoint;
+import com.graphaware.es.gas.cypher.CypherHttpEndPoint;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 
 public class CypherEndpointUnitTest {
 
-    private CypherEndPoint cypherEndPoint;
+    private CypherHttpEndPoint cypherHttpEndPoint;
     
     private static final String NEO4J_SERVER_URL = "http://localhost:7474";
     private static final String NEO4J_CUSTOM_PASSWORD = "password";
@@ -21,7 +21,7 @@ public class CypherEndpointUnitTest {
 
     @Before
     public void setUp() {
-        cypherEndPoint = new CypherEndPoint(Settings.EMPTY,
+        cypherHttpEndPoint = new CypherHttpEndPoint(Settings.EMPTY,
                 NEO4J_SERVER_URL,
                 NEO4J_CUSTOM_USER,
                 NEO4J_CUSTOM_PASSWORD);
@@ -30,7 +30,7 @@ public class CypherEndpointUnitTest {
     @Test
     public void testBuildCypherQuery() {
         String query = "MATCH (n) RETURN n";
-        String json = cypherEndPoint.buildCypherQuery(query);
+        String json = cypherHttpEndPoint.buildCypherQuery(query);
         assertEquals("{\"statements\" : [{\"statement\" : \"MATCH (n) RETURN n\"}]}", json);
     }
 
@@ -43,7 +43,7 @@ public class CypherEndpointUnitTest {
         ids.add(2);
         ids.add(3);
         parameters.put("ids", ids);
-        String json = cypherEndPoint.buildCypherQuery(query, parameters);
+        String json = cypherHttpEndPoint.buildCypherQuery(query, parameters);
         assertEquals("{\"statements\" : [{\"statement\" : \"MATCH (n) WHERE id(n) IN {ids}\",\"parameters\":{\"ids\":[1,2,3]}}]}", json);
     }
 }

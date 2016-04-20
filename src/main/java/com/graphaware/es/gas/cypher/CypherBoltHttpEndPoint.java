@@ -16,6 +16,8 @@
 package com.graphaware.es.gas.cypher;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import org.elasticsearch.common.settings.Settings;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
@@ -25,15 +27,22 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.util.Pair;
 
-public class CypherBoltEndPoint extends CypherEndPoint {
+public class CypherBoltHttpEndPoint extends CypherEndPoint {
 
-    public CypherBoltEndPoint(Settings settings, String neo4jUrl, String neo4jUsername, String neo4jPassword) {
-        super(settings, neo4jUrl, neo4jUsername, neo4jPassword);
+    private Settings settings;
+
+    public CypherBoltHttpEndPoint(Settings settings, String neo4jUrl, String neo4jUsername, String neo4jPassword) {
+        super(neo4jUrl, neo4jUsername, neo4jPassword);
+        this.settings = settings;
     }
 
-    public CypherResult executeCypher(HashMap<String, String> headers, String query, HashMap<String, Object> parameters) {
-        try (Driver driver = GraphDatabase.driver(getUrl()); Session session = driver.session()) {
-            StatementResult response = session.run(query, parameters);
+    public CypherResult executeCypher(String cypherQuery) {
+        return executeCypher(cypherQuery, new HashMap<String, Object>());
+    }
+
+    public CypherResult executeCypher(String cypherQuery, Map<String, Object> parameters) {
+        try (Driver driver = GraphDatabase.driver(neo4jHost); Session session = driver.session()) {
+            StatementResult response = session.run(cypherQuery, parameters);
             return buildResult(response);
         } catch (Exception ex) {
             throw new RuntimeException(ex);

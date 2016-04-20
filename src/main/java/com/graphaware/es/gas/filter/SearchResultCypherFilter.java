@@ -16,7 +16,7 @@
 package com.graphaware.es.gas.filter;
 
 import com.graphaware.es.gas.annotation.SearchFilter;
-import com.graphaware.es.gas.cypher.CypherEndPoint;
+import com.graphaware.es.gas.cypher.CypherHttpEndPoint;
 import com.graphaware.es.gas.cypher.CypherResult;
 import com.graphaware.es.gas.cypher.ResultRow;
 import com.graphaware.es.gas.domain.IndexInfo;
@@ -47,7 +47,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
 
     private final int maxResultWindow;
 
-    private final CypherEndPoint cypherEndPoint;
+    private final CypherHttpEndPoint cypherHttpEndPoint;
 
     private int maxResultSize = -1;
     private int size;
@@ -58,7 +58,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
 
     public SearchResultCypherFilter(Settings settings, IndexInfo indexSettings) {
         this.maxResultWindow = indexSettings.getMaxResultWindow();
-        this.cypherEndPoint = new CypherEndPoint(settings,
+        this.cypherHttpEndPoint = new CypherHttpEndPoint(settings,
                 indexSettings.getNeo4jHost(),
                 indexSettings.getNeo4jUsername(),
                 indexSettings.getNeo4jPassword());
@@ -142,7 +142,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     }
 
     protected CypherResult getCypherResult() {
-        return cypherEndPoint.executeCypher(cypherQuery, new HashMap<String, Object>());
+        return cypherHttpEndPoint.executeCypher(cypherQuery, new HashMap<String, Object>());
     }
 
     protected String getFilteredItem(ResultRow resultRow) {

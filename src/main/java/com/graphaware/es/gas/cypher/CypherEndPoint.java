@@ -161,11 +161,15 @@ public class CypherEndPoint {
         return results;
     }
 
-    private void checkErrors(Map<String, Object> results) {
+    protected void checkErrors(Map<String, Object> results) {
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> errors = (List) results.get(CYPHER_RESPONSE_ERRORS_FIELD);
         if (errors.size() > 0) {
             throw new RuntimeException("Cypher Execution Error, message is : " + errors.get(0).toString());
         }
+    }
+    
+    protected String getUrl() {
+        return url;
     }
 }

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
+import static java.lang.System.getProperty;
 
 public class CypherEndpointBoltTest {
 
@@ -37,6 +38,7 @@ public class CypherEndpointBoltTest {
         cypherEndPoint = new CypherEndPointBuilder(CypherEndPointBuilder.CypherEndPointType.BOLT)
                 .neo4jHostname(server.getURL())
                 .settings(Settings.EMPTY)
+                .encryption(false)
                 .build();
     }
     

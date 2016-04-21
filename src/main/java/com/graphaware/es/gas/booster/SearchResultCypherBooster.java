@@ -34,6 +34,7 @@ import java.util.Set;
 
 import static com.graphaware.es.gas.domain.ClauseConstants.*;
 import static com.graphaware.es.gas.util.ParamUtil.extractParameter;
+import static com.graphaware.es.gas.util.ParamUtil.extractParameter;
 
 @SearchBooster(name = "SearchResultCypherBooster")
 public class SearchResultCypherBooster extends SearchResultExternalBooster {

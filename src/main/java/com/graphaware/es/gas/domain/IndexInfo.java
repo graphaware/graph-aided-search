@@ -26,6 +26,7 @@ public class IndexInfo {
     private String neo4jPwd;
     private final boolean enabled;
     private final int maxResultWindow;
+    private boolean secureBolt = true;
 
     IndexInfo() {
         this.neo4jHost = null;
@@ -37,7 +38,11 @@ public class IndexInfo {
     public IndexInfo(final String hostname, final String username, final String password, boolean enabled, int maxResultWindow) {
         this(hostname, null, username, password, enabled, maxResultWindow);
     }
-    
+    //only for tests
+    public IndexInfo(final String hostname, final String boltHostname, final String username, final String password, boolean enabled, int maxResultWindow, boolean secureBolt) {
+        this(hostname, boltHostname, username, password, enabled, maxResultWindow);
+        this.secureBolt = secureBolt;
+    }
     public IndexInfo(final String hostname, final String boltHostname, final String username, final String password, boolean enabled, int maxResultWindow) {
         this(hostname, boltHostname, enabled, maxResultWindow);
         this.neo4jUsername = username;
@@ -87,5 +92,8 @@ public class IndexInfo {
     public String getNeo4jBoltHost() {
         return neo4jBoltHost;
     }
-    
+
+    public boolean isSecureBolt() {
+        return secureBolt;
+    }    
 }

@@ -32,6 +32,7 @@ public class SearchResultCypherBoltBoosterTest extends SearchResultCypherBooster
         cypherEndPoint = new CypherEndPointBuilder(CypherEndPointBuilder.CypherEndPointType.BOLT)
                 .neo4jHostname(neo4jServer.getURL())
                 .settings(Settings.EMPTY)
+                .encryption(false)
                 .build();
     }
 
@@ -47,7 +48,7 @@ public class SearchResultCypherBoltBoosterTest extends SearchResultCypherBooster
 
     protected SearchResultCypherBooster getBooster() {
         Settings.Builder builder = Settings.builder();
-        IndexInfo indexInfo = new IndexInfo(getNeo4jURL(), getNeo4jURL(), NEO4J_USER, NEO4J_PASSWORD, true, 0);
+        IndexInfo indexInfo = new IndexInfo(getNeo4jURL(), getNeo4jURL(), NEO4J_USER, NEO4J_PASSWORD, true, 0, false);
 
         return new SearchResultCypherBooster(builder.build(), indexInfo);
     }

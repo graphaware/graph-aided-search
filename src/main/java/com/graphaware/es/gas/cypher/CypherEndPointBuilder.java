@@ -20,6 +20,7 @@ public class CypherEndPointBuilder {
     private final CypherEndPointType type;
     private String neo4jUsername;
     private String neo4jPassword;
+    private boolean encryption = true;
 
     public CypherEndPointBuilder(CypherEndPointType type) {
         this.type = type;
@@ -54,6 +55,11 @@ public class CypherEndPointBuilder {
         return this;
     }
 
+    public CypherEndPointBuilder encryption(boolean encryption) {
+        this.encryption = encryption;
+        return this;
+    }    
+
     public CypherEndPoint build() {
         switch (type) {
             case HTTP:
@@ -63,8 +69,9 @@ public class CypherEndPointBuilder {
                         neo4jPassword != null ? neo4jPassword : indexInfo != null ? indexInfo.getNeo4jPassword() : null
                 );
             case BOLT:
-                return new CypherBoltHttpEndPoint(settings,
-                        neo4jHost != null ? neo4jHost : indexInfo != null ? indexInfo.getNeo4jBoltHost() : null);
+                return new CypherBoltHttpEndPoint(settings, 
+                        neo4jHost != null ? neo4jHost : indexInfo != null ? indexInfo.getNeo4jBoltHost() : null,
+                        encryption && (indexInfo != null ? indexInfo.isSecureBolt() : true));
         }
         throw new RuntimeException("Type " + type + " not supported");
     }

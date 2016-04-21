@@ -31,10 +31,16 @@ public final class NumberUtil {
             return ((Number) value).floatValue();
         } else if (value instanceof String) {
             return Float.parseFloat(value.toString());
+        } else {
+            try {
+                return Float.parseFloat(String.valueOf(value));
+            } catch (NumberFormatException ex) {
+                throw new RuntimeException("Unable to parse float from value: " + value + " of type " + value.getClass(), ex);
+            }
         }
-
-        throw new RuntimeException("Unable to parse float from value");
     }
+
+    
 
     private NumberUtil() {
     }

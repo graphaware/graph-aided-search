@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.elasticsearch.common.settings.Settings;
+import org.neo4j.driver.v1.Config;
+import static org.neo4j.driver.v1.Config.EncryptionLevel.NONE;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.driver.v1.Record;
@@ -29,8 +31,11 @@ import org.neo4j.driver.v1.util.Pair;
 
 public class CypherBoltHttpEndPoint extends CypherEndPoint {
 
-    CypherBoltHttpEndPoint(Settings settings, String neo4jUrl) {
+    private boolean encryption = true;
+
+    CypherBoltHttpEndPoint(Settings settings, String neo4jUrl, boolean encryption) {
         super(settings, neo4jUrl);
+        this.encryption = encryption;
     }
 
     public CypherResult executeCypher(String cypherQuery) {
@@ -38,7 +43,8 @@ public class CypherBoltHttpEndPoint extends CypherEndPoint {
     }
 
     public CypherResult executeCypher(String cypherQuery, Map<String, Object> parameters) {
-        try (Driver driver = GraphDatabase.driver(neo4jHost); Session session = driver.session()) {
+        try (Driver driver = encryption ? GraphDatabase.driver(neo4jHost) : GraphDatabase.driver(neo4jHost, Config.build().withEncryptionLevel(NONE).toConfig());
+                Session session = driver.session()) {
             StatementResult response = session.run(cypherQuery, parameters);
             return buildResult(response);
         } catch (Exception ex) {
@@ -50,11 +56,11 @@ public class CypherBoltHttpEndPoint extends CypherEndPoint {
         CypherResult result = new CypherResult();
         while (response.hasNext()) {
             Record record = response.next();
+            ResultRow resultRow = new ResultRow();
             for (Pair<String, Value> fieldInRecord : record.fields()) {
-                ResultRow resultRow = new ResultRow();
                 resultRow.add(fieldInRecord.key(), fieldInRecord.value());
-                result.addRow(resultRow);
             }
+            result.addRow(resultRow);
         }
         return result;
     }

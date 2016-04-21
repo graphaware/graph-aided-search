@@ -16,7 +16,8 @@
 package com.graphaware.es.gas.booster;
 
 import com.graphaware.es.gas.annotation.SearchBooster;
-import com.graphaware.es.gas.cypher.CypherHttpEndPoint;
+import com.graphaware.es.gas.cypher.CypherEndPoint;
+import com.graphaware.es.gas.cypher.CypherEndPointBuilder;
 import com.graphaware.es.gas.cypher.CypherResult;
 import com.graphaware.es.gas.cypher.ResultRow;
 import com.graphaware.es.gas.domain.ExternalResult;
@@ -36,9 +37,11 @@ import static com.graphaware.es.gas.util.ParamUtil.extractParameter;
 
 @SearchBooster(name = "SearchResultCypherBooster")
 public class SearchResultCypherBooster extends SearchResultExternalBooster {
+    private static final String DEFAULT_PROTOCOL = "http";
 
     private final ESLogger logger;
-    private final CypherHttpEndPoint cypherHttpEndPoint;
+    private CypherEndPoint cypherEndPoint;
+    
 
     private String cypherQuery;
     private String scoreResultName;
@@ -47,11 +50,6 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     public SearchResultCypherBooster(Settings settings, IndexInfo indexInfo) {
         super(settings, indexInfo);
         this.logger = Loggers.getLogger(IndexInfo.INDEX_LOGGER_NAME, settings);
-        this.cypherHttpEndPoint = new CypherHttpEndPoint(settings,
-                indexInfo.getNeo4jHost(), 
-                indexInfo.getNeo4jUsername(),
-                indexInfo.getNeo4jPassword()
-        );
     }
 
     @Override
@@ -59,6 +57,12 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
         cypherQuery = extractParameter(QUERY, extParams);
         scoreResultName = extractParameter(SCORE_NAME, extParams, DEFAULT_SCORE_RESULT_NAME);
         idResultName = extractParameter(IDENTIFIER, extParams, DEFAULT_ID_RESULT_NAME);
+        String protocol = extParams.containsKey(PROTOCOL) ? String.valueOf(extParams.get(PROTOCOL)) : DEFAULT_PROTOCOL;
+        createCypherEndPoint(protocol, settings, indexSettings);
+    }
+
+    private void createCypherEndPoint(String type, Settings settings, IndexInfo indexSettings) {
+        this.cypherEndPoint = new CypherEndPointBuilder(type).settings(settings).indexInfo(indexSettings).build();
     }
 
     @Override
@@ -68,7 +72,7 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     }
 
     protected Map<String, ExternalResult> getExternalResults(Set<String> keySet) {
-        CypherResult externalResult = cypherHttpEndPoint.executeCypher(cypherQuery, getParameters(keySet));
+        CypherResult externalResult = cypherEndPoint.executeCypher(cypherQuery, getParameters(keySet));
         Map<String, ExternalResult> results = new HashMap<>();
         for (ResultRow resultRow : externalResult.getRows()) {
             checkResultRow(resultRow);

@@ -1,5 +1,7 @@
 package com.graphaware.es.gas.domain;
 
+import com.graphaware.es.gas.cypher.CypherEndPoint;
+import com.graphaware.es.gas.cypher.CypherEndPointBuilder;
 import com.graphaware.es.gas.cypher.CypherHttpEndPoint;
 import com.graphaware.es.gas.cypher.CypherResult;
 import com.graphaware.es.gas.cypher.ResultRow;
@@ -33,10 +35,12 @@ public class CypherEndpointTest {
     public void setUp() {
         server = new EmbeddedGraphDatabaseServer();
         server.start();
-        cypherHttpEndPoint = new CypherHttpEndPoint(Settings.EMPTY,
-                server.getURL(),
-                NEO4J_CUSTOM_USER,
-                NEO4J_CUSTOM_PASSWORD);
+        cypherHttpEndPoint = (CypherHttpEndPoint)new CypherEndPointBuilder(CypherEndPointBuilder.CypherEndPointType.HTTP)
+                .settings(Settings.EMPTY)
+                .neo4jHostname(server.getURL())
+                .username(NEO4J_CUSTOM_USER)
+                .password(NEO4J_CUSTOM_PASSWORD)
+                .build();
         httpClient = new TestHttpClient();
         changePassword();
     }

@@ -29,11 +29,8 @@ import org.neo4j.driver.v1.util.Pair;
 
 public class CypherBoltHttpEndPoint extends CypherEndPoint {
 
-    private Settings settings;
-
-    public CypherBoltHttpEndPoint(Settings settings, String neo4jUrl, String neo4jUsername, String neo4jPassword) {
-        super(neo4jUrl, neo4jUsername, neo4jPassword);
-        this.settings = settings;
+    CypherBoltHttpEndPoint(Settings settings, String neo4jUrl) {
+        super(settings, neo4jUrl);
     }
 
     public CypherResult executeCypher(String cypherQuery) {

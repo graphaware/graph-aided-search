@@ -15,20 +15,20 @@
  */
 package com.graphaware.es.gas.cypher;
 
+import com.graphaware.es.gas.domain.IndexInfo;
 import java.util.Map;
+import org.elasticsearch.common.logging.ESLogger;
+import org.elasticsearch.common.logging.Loggers;
+import org.elasticsearch.common.settings.Settings;
 
 public abstract class CypherEndPoint {
 
+    protected final ESLogger logger;
     protected final String neo4jHost;
 
-    protected final String neo4jUser;
-
-    protected final String neo4jPassword;
-
-    public CypherEndPoint(String neo4jHost, String neo4jUser, String neo4jPassword) {
+    public CypherEndPoint(Settings settings, String neo4jHost) {
         this.neo4jHost = neo4jHost;
-        this.neo4jUser = neo4jUser;
-        this.neo4jPassword = neo4jPassword;
+        this.logger = Loggers.getLogger(IndexInfo.INDEX_LOGGER_NAME, settings);
     }
 
     public abstract CypherResult executeCypher(String cypherQuery, Map<String, Object> parameters);

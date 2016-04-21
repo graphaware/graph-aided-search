@@ -15,7 +15,6 @@
  */
 package com.graphaware.es.gas.cypher;
 
-import com.graphaware.es.gas.domain.IndexInfo;
 import com.graphaware.es.gas.util.UrlUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -31,8 +30,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.elasticsearch.common.logging.ESLogger;
-import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 
 public class CypherHttpEndPoint extends CypherEndPoint {
@@ -44,14 +41,19 @@ public class CypherHttpEndPoint extends CypherEndPoint {
     private static final String CYPHER_RESPONSE_ERRORS_FIELD = "errors";
     private static final String CYPHER_RESPONSE_ROW_FIELD = "row";
 
-    private final ESLogger logger;
     private final ClientConfig cfg;
     private final StringBuilder stringBuilder;
     private final ObjectMapper mapper;
+    
+    protected final String neo4jUser;
+    protected final String neo4jPassword;
 
-    public CypherHttpEndPoint(Settings settings, String neo4jUrl, String neo4jUsername, String neo4jPassword) {
-        super(neo4jUrl, neo4jUsername, neo4jPassword);
-        this.logger = Loggers.getLogger(IndexInfo.INDEX_LOGGER_NAME, settings);
+
+    CypherHttpEndPoint(Settings settings, String neo4jUrl, String neo4jUsername, String neo4jPassword) {
+        super(settings, neo4jUrl);
+        this.neo4jUser = neo4jUsername;
+        this.neo4jPassword = neo4jPassword;
+        
         cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
         stringBuilder = new StringBuilder();

@@ -1,5 +1,7 @@
 package com.graphaware.es.gas.domain;
 
+import com.graphaware.es.gas.cypher.CypherEndPoint;
+import com.graphaware.es.gas.cypher.CypherEndPointBuilder;
 import com.graphaware.es.gas.cypher.CypherHttpEndPoint;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Before;
@@ -21,10 +23,12 @@ public class CypherEndpointUnitTest {
 
     @Before
     public void setUp() {
-        cypherHttpEndPoint = new CypherHttpEndPoint(Settings.EMPTY,
-                NEO4J_SERVER_URL,
-                NEO4J_CUSTOM_USER,
-                NEO4J_CUSTOM_PASSWORD);
+        cypherHttpEndPoint = (CypherHttpEndPoint)new CypherEndPointBuilder(CypherEndPointBuilder.CypherEndPointType.HTTP)
+                .settings(Settings.EMPTY)
+                .neo4jHostname(NEO4J_SERVER_URL)
+                .username(NEO4J_CUSTOM_USER)
+                .password(NEO4J_CUSTOM_PASSWORD)
+                .build();
     }
 
     @Test

@@ -45,8 +45,12 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
     private int from;
 
     protected String composeScoreOperator;
+    protected final Settings settings;
+    protected final IndexInfo indexSettings;
 
     public SearchResultExternalBooster(Settings settings, IndexInfo indexSettings) {
+        this.settings = settings;
+        this.indexSettings = indexSettings;
         this.neo4jHost = indexSettings.getNeo4jHost();
         this.neo4jUsername = indexSettings.getNeo4jUsername();
         this.neo4jPassword = indexSettings.getNeo4jPassword();

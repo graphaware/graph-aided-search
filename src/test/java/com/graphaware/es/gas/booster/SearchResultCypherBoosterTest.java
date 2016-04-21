@@ -136,7 +136,7 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
         return getDefaultMap("MATCH (n:Test) RETURN n.id as id");
     }
 
-    private HashMap<String, Object> getDefaultMap(String query) {
+    protected HashMap<String, Object> getDefaultMap(String query) {
         HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> gasFilter = new HashMap<>();
         gasFilter.put("query", query);
@@ -145,7 +145,7 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
         return map;
     }
 
-    private SearchResultCypherBooster getBooster() {
+    protected SearchResultCypherBooster getBooster() {
         Settings.Builder builder = Settings.builder();
         IndexInfo indexInfo = new IndexInfo(getNeo4jURL(), NEO4J_USER, NEO4J_PASSWORD, true, 0);
 

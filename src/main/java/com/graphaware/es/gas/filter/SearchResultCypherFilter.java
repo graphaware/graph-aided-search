@@ -16,6 +16,8 @@
 package com.graphaware.es.gas.filter;
 
 import com.graphaware.es.gas.annotation.SearchFilter;
+import com.graphaware.es.gas.cypher.CypherEndPoint;
+import com.graphaware.es.gas.cypher.CypherEndPointBuilder;
 import com.graphaware.es.gas.cypher.CypherHttpEndPoint;
 import com.graphaware.es.gas.cypher.CypherResult;
 import com.graphaware.es.gas.cypher.ResultRow;
@@ -44,10 +46,14 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     private static final String ID_RESULT_NAME_KEY = "identifier";
     private static final int DEFAULT_RESULT_SIZE = 10;
     private static final int DEFAULT_FROM_VALUE = 0;
+    private static final String DEFAULT_PROTOCOL = "http";
 
     private final int maxResultWindow;
+    private final Settings settings;
+    private final IndexInfo indexSettings;
+    
 
-    private final CypherHttpEndPoint cypherHttpEndPoint;
+    private CypherEndPoint cypherEndPoint;
 
     private int maxResultSize = -1;
     private int size;
@@ -58,10 +64,9 @@ public class SearchResultCypherFilter implements SearchResultFilter {
 
     public SearchResultCypherFilter(Settings settings, IndexInfo indexSettings) {
         this.maxResultWindow = indexSettings.getMaxResultWindow();
-        this.cypherHttpEndPoint = new CypherHttpEndPoint(settings,
-                indexSettings.getNeo4jHost(),
-                indexSettings.getNeo4jUsername(),
-                indexSettings.getNeo4jPassword());
+        this.settings = settings;
+        this.indexSettings = indexSettings;
+        
     }
 
     @Override
@@ -70,11 +75,13 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         from = NumberUtil.getInt(sourceAsMap.get(FROM), DEFAULT_FROM_VALUE);
 
         HashMap extParams = (HashMap) sourceAsMap.get(GAS_FILTER_CLAUSE);
+        String protocol = DEFAULT_PROTOCOL;
         if (extParams != null) {
             cypherQuery = (String) extParams.get(QUERY);
             maxResultSize = NumberUtil.getInt(extParams.get(MAX_RESULT_SIZE), maxResultWindow);
             shouldExclude = extParams.containsKey(EXCLUDE) && String.valueOf(extParams.get(EXCLUDE)).equalsIgnoreCase(TRUE);
             idResultName = extParams.containsKey(ID_RESULT_NAME_KEY) ? String.valueOf(extParams.get(ID_RESULT_NAME_KEY)) : null;
+            protocol = extParams.containsKey(PROTOCOL) ? String.valueOf(extParams.get(PROTOCOL)) : DEFAULT_PROTOCOL;
         }
         if (maxResultSize > 0) {
             sourceAsMap.put(SIZE, maxResultSize);
@@ -82,6 +89,12 @@ public class SearchResultCypherFilter implements SearchResultFilter {
         if (null == cypherQuery) {
             throw new RuntimeException("The Query Parameter is required in gas-filter");
         }
+        
+        createCypherEndPoint(protocol, settings, indexSettings);
+    }
+    
+    private void createCypherEndPoint(String type, Settings settings, IndexInfo indexSettings) {
+      this.cypherEndPoint = new CypherEndPointBuilder(type).settings(settings).indexInfo(indexSettings).build();
     }
 
     @Override
@@ -142,7 +155,7 @@ public class SearchResultCypherFilter implements SearchResultFilter {
     }
 
     protected CypherResult getCypherResult() {
-        return cypherHttpEndPoint.executeCypher(cypherQuery, new HashMap<String, Object>());
+        return cypherEndPoint.executeCypher(cypherQuery, new HashMap<String, Object>());
     }
 
     protected String getFilteredItem(ResultRow resultRow) {

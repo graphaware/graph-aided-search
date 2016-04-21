@@ -45,6 +45,7 @@ public class GraphAidedSearchPlugin extends Plugin {
     public void onModule(final ClusterModule module) {
         module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_ENABLED, Validator.BOOLEAN);
         module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_HOST, Validator.EMPTY);
+        module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_BOLT_HOST, Validator.EMPTY);
         module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_USER, Validator.EMPTY);
         module.registerIndexDynamicSetting(INDEX_GA_ES_NEO4J_PWD, Validator.EMPTY);
     }

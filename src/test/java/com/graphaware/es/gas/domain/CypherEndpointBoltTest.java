@@ -1,6 +1,7 @@
 package com.graphaware.es.gas.domain;
 
-import com.graphaware.es.gas.cypher.CypherBoltHttpEndPoint;
+import com.graphaware.es.gas.cypher.CypherEndPoint;
+import com.graphaware.es.gas.cypher.CypherEndPointBuilder;
 import com.graphaware.es.gas.cypher.CypherResult;
 import com.graphaware.es.gas.cypher.ResultRow;
 import com.graphaware.integration.neo4j.test.EmbeddedGraphDatabaseServer;
@@ -20,15 +21,12 @@ import static org.junit.Assert.*;
 public class CypherEndpointBoltTest {
 
     
-    private CypherBoltHttpEndPoint cypherEndPoint;
+    private CypherEndPoint cypherEndPoint;
 
     private EmbeddedGraphDatabaseServer server;
 
     private static final File DEFAULT_KNOWN_HOSTS = new File(getProperty("user.home"),
             ".neo4j" + File.separator + "known_hosts");
-
-    private static final String NEO4J_CUSTOM_PASSWORD = "password";
-    private static final String NEO4J_CUSTOM_USER = "neo4j";
 
     @Before
     public void setUp() {
@@ -36,10 +34,10 @@ public class CypherEndpointBoltTest {
         Map<String, Object> serverParams = new HashMap<>();
         serverParams.put(EmbeddedGraphDatabaseServerConfig.CONFIG_REST_ENABLE_BOLT, "true");
         server.start(serverParams);
-        cypherEndPoint = new CypherBoltHttpEndPoint(Settings.EMPTY,
-                server.getURL(),
-                NEO4J_CUSTOM_USER,
-                NEO4J_CUSTOM_PASSWORD);
+        cypherEndPoint = new CypherEndPointBuilder(CypherEndPointBuilder.CypherEndPointType.BOLT)
+                .neo4jHostname(server.getURL())
+                .settings(Settings.EMPTY)
+                .build();
     }
     
     @After

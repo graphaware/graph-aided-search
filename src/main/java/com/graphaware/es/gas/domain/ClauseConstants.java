@@ -21,6 +21,7 @@ public final class ClauseConstants {
     public static final String QUERY = "query";
     public static final String SCORE_NAME = "scoreName";
     public static final String IDENTIFIER = "identifier";
+    public static final String PROTOCOL = "protocol";
 
     public static final String SIZE = "size";
     public static final String FROM = "from";

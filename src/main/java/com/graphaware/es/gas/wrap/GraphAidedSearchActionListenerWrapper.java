@@ -57,6 +57,7 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
     public static final String INDEX_GA_ES_NEO4J_ENABLED = "index.gas.enable";
     public static final String INDEX_MAX_RESULT_WINDOW = "max_result_window";
     public static final String INDEX_GA_ES_NEO4J_HOST = "index.gas.neo4j.hostname";
+    public static final String INDEX_GA_ES_NEO4J_BOLT_HOST = "index.gas.neo4j.boltHostname";
     public static final String INDEX_GA_ES_NEO4J_USER = "index.gas.neo4j.user";
     public static final String INDEX_GA_ES_NEO4J_PWD = "index.gas.neo4j.password";
     //
@@ -235,6 +236,7 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
                     }
 
                     return new IndexInfo(indexSettings.get(INDEX_GA_ES_NEO4J_HOST),
+                            indexSettings.get(INDEX_GA_ES_NEO4J_BOLT_HOST),
                             indexSettings.get(INDEX_GA_ES_NEO4J_USER),
                             indexSettings.get(INDEX_GA_ES_NEO4J_PWD),
                             indexSettings.getAsBoolean(INDEX_GA_ES_NEO4J_ENABLED, false),

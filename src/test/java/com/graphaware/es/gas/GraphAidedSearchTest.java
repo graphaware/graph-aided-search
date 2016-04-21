@@ -16,8 +16,10 @@
 
 package com.graphaware.es.gas;
 
+import com.graphaware.es.gas.cypher.CypherEndPointBuilder;
 import com.graphaware.es.gas.util.TestHttpClient;
 import com.graphaware.integration.neo4j.test.EmbeddedGraphDatabaseServer;
+import com.graphaware.integration.neo4j.test.EmbeddedGraphDatabaseServerConfig;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.config.HttpClientConfig;
@@ -89,10 +91,17 @@ public abstract class GraphAidedSearchTest {
 
     protected void createNeo4jServer() throws IOException {
         neo4jServer = new EmbeddedGraphDatabaseServer();
+        Map<String, Object> serverParams = new HashMap<>();
+        serverParams.put(EmbeddedGraphDatabaseServerConfig.CONFIG_REST_ENABLE_BOLT, "true");
+        neo4jServer.start(serverParams);
         neo4jServer.start();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            //
+        }
         changePassword();
         eventuallyPopulateDatabase();
-        //emptyDB();
     }
     
     protected void eventuallyPopulateDatabase() {

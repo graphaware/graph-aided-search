@@ -294,39 +294,6 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
     }
 
     @Test
-    public void testCypherFilterWithGraphAndBolt() throws IOException {
-        executeCypher("UNWIND range(0, 100) as x CREATE (n) SET n.id = x");
-        String query = "{"
-                + "   \"query\": {"
-                + "      \"bool\": {"
-                + "         \"should\": ["
-                + "            {"
-                + "                  \"match\": {"
-                + "                       \"message\": \"test 1\""
-                + "                   }"
-                + "            }"
-                + "         ]"
-                + "      }"
-                + "   }"
-                + "   ,\"gas-filter\" :{"
-                + "          \"name\": \"SearchResultCypherFilter\","
-                + "          \"query\": \"MATCH (n) RETURN n.id as id\","
-                + "          \"exclude\": false,"
-                + "          \"protocol\": \"bolt\""
-                + "      }"
-                + "}";
-
-        Search search = new Search.Builder(query)
-                // multiple index or types can be added.
-                .addIndex(INDEX_NAME)
-                .addType(TYPE_NAME)
-                .build();
-        SearchResult result = jestClient.execute(search);
-
-        assertEquals(100, result.getTotal().intValue());
-    }
-
-    @Test
     public void testCypherBooster() throws IOException {
         String query = "{"
                     + "   \"query\": {"
@@ -494,7 +461,6 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
         settings1.put(INDEX_GA_ES_NEO4J_HOST, getNeo4jURL());
         settings1.put(INDEX_GA_ES_NEO4J_USER, NEO4J_USER);
         settings1.put(INDEX_GA_ES_NEO4J_PWD, NEO4J_PASSWORD);
-        settings1.put(INDEX_GA_ES_NEO4J_BOLT_HOST, "bolt://localhost");
         createIndex(INDEX_NAME, settings1);
 
         Map<String, Object> settings2 = new HashMap<>();

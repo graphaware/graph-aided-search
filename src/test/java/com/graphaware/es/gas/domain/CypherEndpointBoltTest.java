@@ -24,7 +24,7 @@ public class CypherEndpointBoltTest {
     
     private CypherEndPoint cypherEndPoint;
 
-    private EmbeddedGraphDatabaseServer server;
+    protected EmbeddedGraphDatabaseServer server;
 
     private static final File DEFAULT_KNOWN_HOSTS = new File(getProperty("user.home"),
             ".neo4j" + File.separator + "known_hosts");

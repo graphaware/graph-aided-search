@@ -53,7 +53,7 @@ $ $ES_HOME/bin/plugin install com.graphaware.es/graph-aided-search/2.2.2.0
 #### Elasticsearch 2.3.1:
 
 ```bash
-$ $ES_HOME/bin/plugin install com.graphaware.es/graph-aided-search/2.3.1.0
+$ $ES_HOME/bin/plugin install com.graphaware.es/graph-aided-search/2.3.2.0
 ```
 
 ### Build from source
@@ -322,7 +322,8 @@ The following version are currently supported
 
 | Version (this project)   | Elasticsearch |
 |:---------:|:-------------:|
-| master    | 2.3.1         |
+| master    | 2.3.2         |
+| 2.3.1.0   | 2.3.1         |
 | 2.2.2.0   | 2.2.2         |
 
 ### Issues/Questions

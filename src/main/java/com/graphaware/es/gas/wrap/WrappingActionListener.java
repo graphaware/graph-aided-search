@@ -34,10 +34,13 @@ import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.transport.netty.ChannelBufferStreamInput;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import static org.elasticsearch.action.search.ShardSearchFailure.readShardSearchFailure;
+import org.elasticsearch.search.internal.InternalSearchHit;
 import static org.elasticsearch.search.internal.InternalSearchHits.readSearchHits;
 import static org.elasticsearch.search.internal.InternalSearchHits.readSearchHits;
 
@@ -129,7 +132,31 @@ public class WrappingActionListener implements ActionListener<SearchResponse> {
         for (final SearchResultModifier modifier : modifiers) {
             hits = modifier.modify(hits);
         }
-        return hits;
+        InternalSearchHit[] searchHits = sortResults(hits);
+        return new InternalSearchHits(searchHits, hits.getTotalHits(),
+                hits.maxScore());
+    }
+
+    private InternalSearchHit[] sortResults(InternalSearchHits hits) {
+      final InternalSearchHit[] searchHits = hits.internalHits();
+      Arrays.sort(searchHits, new Comparator<InternalSearchHit>() {
+          @Override
+          public int compare(InternalSearchHit o1, InternalSearchHit o2) {
+              if (o1 == null && o2 != null)
+                  return -1;
+              else if (o1 != null && o2 == null)
+                  return 1;
+              else if (o1 == null && o2 == null)
+                  return 0;
+              else if (o1.getScore() > o2.getScore())
+                  return -1;
+              else if (o1.getScore() < o2.getScore())
+                  return 1;
+              else
+                  return 0;
+          }
+      });
+        return searchHits;
     }
 
     private InternalAggregations readAggregations(ChannelBufferStreamInput in) throws IOException {

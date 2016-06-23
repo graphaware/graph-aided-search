@@ -118,6 +118,14 @@ public class GraphAidedSearchIntegrationTest extends GraphAidedSearchTest {
 
         float withoutBoosterMaxScore = getResultForDocWithMessage("test 99").getMaxScore();
         assertEquals("test 99", hits.get(0).source.getMsg());
+        assertEquals("test 94", hits.get(1).source.getMsg());
+        assertEquals("test 91", hits.get(2).source.getMsg());
+        assertEquals("test 90", hits.get(3).source.getMsg());
+        assertEquals("test 88", hits.get(4).source.getMsg());
+        assertTrue(hits.get(0).score > hits.get(1).score);
+        assertTrue(hits.get(1).score > hits.get(2).score);
+        assertTrue(hits.get(2).score > hits.get(3).score);
+        assertTrue(hits.get(4).score > hits.get(5).score);
         float expectedScore = withoutBoosterMaxScore * (Integer.parseInt(hits.get(0).source.getDocumentId()) * 1000);
         assertEquals(expectedScore, result.getMaxScore(), 1);
     }

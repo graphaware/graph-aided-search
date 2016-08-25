@@ -151,4 +151,21 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
 
         return new SearchResultCypherBooster(builder.build(), indexInfo);
     }
+    
+    @Test
+    public void testExternalResultsIdsUsage() {
+        executeCypher("UNWIND range(1,10) as x CREATE (n:Test) SET n.id = str(x)");
+        Set<String> keySet = new HashSet<>();
+        for (int i = 1; i <= 2; ++i) {
+            keySet.add(String.valueOf(i));
+        }
+        SearchResultCypherBooster booster = getBooster();
+        Map<String, String> map = (Map<String, String>) getDefaultMap("MATCH (n:Test) WHERE n.id in {ids} RETURN n.id as uuid, 15 as freq").get("gas-booster");
+        map.put("identifier", "uuid");
+        map.put("scoreName", "freq");
+        booster.extendedParseRequest(map);
+        Map<String, ExternalResult> externalResults = booster.getExternalResults(keySet);
+        assertEquals(2, externalResults.size());
+        assertEquals(15.0f, externalResults.get("1").getScore(), 0);
+    }
 }

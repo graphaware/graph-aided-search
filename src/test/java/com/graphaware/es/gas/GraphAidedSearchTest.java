@@ -30,8 +30,10 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,14 +91,12 @@ public abstract class GraphAidedSearchTest {
 
     protected void createNeo4jServer() throws IOException {
         neo4jServer = new EmbeddedGraphDatabaseServer();
-        neo4jServer.start();
+        neo4jServer.start(Collections.<String, Object>singletonMap("cypherPath", new ClassPathResource(cypherFile()).getFile().getAbsolutePath()));
         changePassword();
-        eventuallyPopulateDatabase();
-        //emptyDB();
     }
     
-    protected void eventuallyPopulateDatabase() {
-        
+    protected String cypherFile() {
+        return "graphgen-test-data.cyp";
     }
 
     protected CreateIndexResponse createIndex(String indexName) {

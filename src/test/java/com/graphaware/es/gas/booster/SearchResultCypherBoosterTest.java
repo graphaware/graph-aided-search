@@ -16,20 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-import org.springframework.core.io.ClassPathResource;
 
 public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
-
-    @Override
-    protected void eventuallyPopulateDatabase() {
-        try {
-            String graphgenPath = new ClassPathResource("graphgen-test-data.cyp").getFile().getAbsolutePath();
-            neo4jServer.populate(graphgenPath);
-        }
-        catch (Exception ex) {
-            throw new RuntimeException("Error while populating database", ex);
-        }
-    }
 
     @Test
     public void testDefaultBoosterSettings() {

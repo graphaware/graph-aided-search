@@ -7,6 +7,7 @@ import static com.graphaware.es.gas.booster.SearchResultExternalBooster.DEFAULT_
 import static com.graphaware.es.gas.booster.SearchResultExternalBooster.DEFAULT_SCORE_RESULT_NAME;
 
 import com.graphaware.es.gas.domain.ExternalResult;
+import static com.graphaware.test.util.TestUtils.waitFor;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 
@@ -142,7 +143,7 @@ public class SearchResultCypherBoosterTest extends GraphAidedSearchTest {
     
     @Test
     public void testExternalResultsIdsUsage() {
-        executeCypher("UNWIND range(1,10) as x CREATE (n:Test) SET n.id = str(x)");
+        executeCypher("UNWIND range(1,10) as x CREATE (n:Test) SET n.id = toString(x)");
         Set<String> keySet = new HashSet<>();
         for (int i = 1; i <= 2; ++i) {
             keySet.add(String.valueOf(i));

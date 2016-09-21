@@ -7,7 +7,6 @@ import static com.graphaware.es.gas.booster.SearchResultExternalBooster.DEFAULT_
 import static com.graphaware.es.gas.booster.SearchResultExternalBooster.DEFAULT_SCORE_RESULT_NAME;
 
 import com.graphaware.es.gas.domain.ExternalResult;
-import static com.graphaware.test.util.TestUtils.waitFor;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
 

@@ -85,8 +85,8 @@ $ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.password=
 Second, you can use also template to configure settings in the index:
 
 ```json
-    POST _template/template_gas
-    {
+    curl -XPOST http://localhost:9200/_template/template_gas -d \
+    '{
       "template": "*",
       "settings": {
         "index.gas.neo4j.hostname": "http://localhost:7474",
@@ -94,7 +94,7 @@ Second, you can use also template to configure settings in the index:
         "index.gas.neo4j.user": "neo4j",
         "index.gas.neo4j.password": "password"
       }
-    }
+    }'
 ```
 
 ### Disable Plugin
@@ -322,7 +322,8 @@ The following version are currently supported
 
 | Version (this project)   | Elasticsearch |
 |:---------:|:-------------:|
-| master    | 2.3.2         |
+| master    | 2.4.1         |
+| 2.3.2.2   | 2.3.2         |
 | 2.3.1.0   | 2.3.1         |
 | 2.2.2.0   | 2.2.2         |
 

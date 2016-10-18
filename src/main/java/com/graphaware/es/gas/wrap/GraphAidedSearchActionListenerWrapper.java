@@ -60,6 +60,7 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
     public static final String INDEX_GA_ES_NEO4J_USER = "index.gas.neo4j.user";
     public static final String INDEX_GA_ES_NEO4J_PWD = "index.gas.neo4j.password";
     public static final String INDEX_GA_ES_NEO4J_BOLT_HOST = "index.gas.neo4j.boltHostname";
+    public static final String INDEX_GA_ES_NEO4J_BOLT_SECURE = "index.gas.neo4j.bolt.secure";
 
     //
     public static final String GAS_REQUEST = "_gas";
@@ -242,7 +243,8 @@ public class GraphAidedSearchActionListenerWrapper implements ActionListenerWrap
                             indexSettings.get(INDEX_GA_ES_NEO4J_PWD),
                             indexSettings.getAsBoolean(INDEX_GA_ES_NEO4J_ENABLED, false),
                             indexSettings.getAsInt(INDEX_MAX_RESULT_WINDOW,
-                                    DEFAULT_MAX_RESULT_WINDOW));
+                                    DEFAULT_MAX_RESULT_WINDOW),
+                            indexSettings.getAsBoolean(INDEX_GA_ES_NEO4J_BOLT_SECURE, true));
                 }
             });
         } catch (final Exception e) {

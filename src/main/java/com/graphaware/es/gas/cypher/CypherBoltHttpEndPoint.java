@@ -18,6 +18,7 @@ package com.graphaware.es.gas.cypher;
 import java.util.HashMap;
 
 import org.elasticsearch.common.settings.Settings;
+import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.Config;
 import static org.neo4j.driver.v1.Config.EncryptionLevel.NONE;
 import org.neo4j.driver.v1.Driver;
@@ -32,8 +33,8 @@ public class CypherBoltHttpEndPoint extends CypherEndPoint {
 
     private boolean encryption = true;
 
-    CypherBoltHttpEndPoint(Settings settings, String neo4jUrl, boolean encryption) {
-        super(settings, neo4jUrl);
+    CypherBoltHttpEndPoint(Settings settings, String neo4jUrl, String neo4jUsername, String neo4jPassword, boolean encryption) {
+        super(settings, neo4jUrl, neo4jUsername, neo4jPassword);
         this.encryption = encryption;
     }
 
@@ -43,8 +44,22 @@ public class CypherBoltHttpEndPoint extends CypherEndPoint {
 
     @Override
     public CypherResult executeCypher(String cypherQuery, HashMap<String, Object> parameters) {
-        try (Driver driver = encryption ? GraphDatabase.driver(neo4jHost) : GraphDatabase.driver(neo4jHost, Config.build().withEncryptionLevel(NONE).toConfig());
-                Session session = driver.session()) {
+        try {
+            Driver driver;
+            if (encryption) {
+                if (getNeo4jUsername() != null) {
+                    driver = GraphDatabase.driver(getNeo4jHost(), AuthTokens.basic(getNeo4jUsername(), getNeo4jPassword()));
+                } else {
+                    driver = GraphDatabase.driver(getNeo4jHost());
+                }
+            } else {
+                if (getNeo4jUsername() != null) {
+                    driver = GraphDatabase.driver(getNeo4jHost(), AuthTokens.basic(getNeo4jUsername(), getNeo4jPassword()), Config.build().withEncryptionLevel(NONE).toConfig());
+                } else {
+                    driver = GraphDatabase.driver(getNeo4jHost(), Config.build().withEncryptionLevel(NONE).toConfig());
+                }
+            }            
+            Session session = driver.session();
             StatementResult response = session.run(cypherQuery, parameters);
             return buildResult(response);
         } catch (Exception ex) {

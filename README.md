@@ -82,6 +82,18 @@ $ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.user=neo4
 $ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.password=password
 ```
 
+If the neo4j server supports bolt it can be enable and managed using the following configuration
+
+```bash
+$ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.boltHostname=bolt://localhost:7687
+$ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.bolt.secure=false (default is true)
+```
+Since bolt is still not in a final release the default protocol is http, to enable it add the following line in the booster or filter:
+
+```json
+"protocol": "bolt"
+```
+
 Second, you can use also template to configure settings in the index:
 
 ```json
@@ -90,6 +102,7 @@ Second, you can use also template to configure settings in the index:
       "template": "*",
       "settings": {
         "index.gas.neo4j.hostname": "http://localhost:7474",
+        "index.gas.neo4j.boltHostname": "bolt://localhost:7687",
         "index.gas.enable": true,
         "index.gas.neo4j.user": "neo4j",
         "index.gas.neo4j.password": "password"

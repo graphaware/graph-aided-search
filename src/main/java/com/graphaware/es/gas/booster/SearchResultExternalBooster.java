@@ -37,8 +37,6 @@ public abstract class SearchResultExternalBooster extends CypherSettingsReader i
     static final String DEFAULT_ID_RESULT_NAME = "id";
 
 
-    
-
     private int maxResultSize = -1;
 
     private int size;

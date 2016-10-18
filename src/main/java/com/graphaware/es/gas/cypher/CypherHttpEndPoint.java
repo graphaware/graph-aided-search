@@ -44,17 +44,13 @@ public class CypherHttpEndPoint extends CypherEndPoint {
     private final ClientConfig cfg;
     private final StringBuilder stringBuilder;
     private final ObjectMapper mapper;
-    private final String neo4jPassword;
-    private final String neo4jUsername;
 
     public CypherHttpEndPoint(Settings settings, String neo4jUrl, String neo4jUsername, String neo4jPassword) {
-        super(settings, neo4jUrl);
+        super(settings, neo4jUrl, neo4jUsername, neo4jPassword);
         cfg = new DefaultClientConfig();
         cfg.getClasses().add(JacksonJsonProvider.class);
         stringBuilder = new StringBuilder();
         mapper = new ObjectMapper();
-        this.neo4jUsername = neo4jUsername; 
-        this.neo4jPassword = neo4jPassword;
     }
 
     public String buildCypherQuery(String cypherQuery) {
@@ -71,7 +67,7 @@ public class CypherHttpEndPoint extends CypherEndPoint {
     @Override
     public CypherResult executeCypher(HashMap<String, String> headers, String query, HashMap<String, Object> parameters) {
         String jsonBody = buildCypherQuery(query, parameters);
-        String cypherEndpoint = UrlUtil.buildUrlFromParts(neo4jHost, CYPHER_ENDPOINT);
+        String cypherEndpoint = UrlUtil.buildUrlFromParts(getNeo4jHost(), CYPHER_ENDPOINT);
         Map<String, Object> response = post(cypherEndpoint, headers, jsonBody);
         checkErrors(response);
 
@@ -119,8 +115,8 @@ public class CypherHttpEndPoint extends CypherEndPoint {
     }
 
     public Map<String, Object> post(String url, HashMap<String, String> headers, String json) {
-        if (!headers.containsKey(HttpHeaders.AUTHORIZATION) && null != neo4jPassword) {
-            headers.put(HttpHeaders.AUTHORIZATION, UrlUtil.getAuthorizationHeaderValue(neo4jUsername, neo4jPassword));
+        if (!headers.containsKey(HttpHeaders.AUTHORIZATION) && null != getNeo4jPassword()) {
+            headers.put(HttpHeaders.AUTHORIZATION, UrlUtil.getAuthorizationHeaderValue(getNeo4jUsername(), getNeo4jPassword()));
         }
         WebResource resource = Client.create(cfg).resource(url);
         WebResource.Builder builder = resource.accept(MediaType.APPLICATION_JSON)

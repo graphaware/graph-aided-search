@@ -78,6 +78,8 @@ public class CypherEndPointBuilder {
             case BOLT:
                 return new CypherBoltHttpEndPoint(settings, 
                         neo4jBoltHost,
+                        neo4jUsername,
+                        neo4jPassword,
                         encryption);
         }
         throw new RuntimeException("Type " + protocol + " not supported");

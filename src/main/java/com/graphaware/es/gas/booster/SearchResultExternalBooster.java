@@ -15,6 +15,7 @@
  */
 package com.graphaware.es.gas.booster;
 
+import com.graphaware.es.gas.cypher.CypherSettingsReader;
 import com.graphaware.es.gas.domain.ExternalResult;
 import com.graphaware.es.gas.domain.IndexInfo;
 import com.graphaware.es.gas.util.NumberUtil;
@@ -28,16 +29,15 @@ import static com.graphaware.es.gas.domain.ClauseConstants.*;
 import static com.graphaware.es.gas.util.ParamUtil.*;
 import static com.graphaware.es.gas.wrap.GraphAidedSearchActionListenerWrapper.*;
 
-public abstract class SearchResultExternalBooster implements SearchResultBooster {
+public abstract class SearchResultExternalBooster extends CypherSettingsReader implements SearchResultBooster {
     
-    private static final String DEFAULT_SCORE_OPERATOR = MULTIPLY;
+    protected static final String DEFAULT_SCORE_OPERATOR = MULTIPLY;
+    protected static final String DEFAULT_PROTOCOL = "http";
     static final String DEFAULT_SCORE_RESULT_NAME = "score";
     static final String DEFAULT_ID_RESULT_NAME = "id";
 
-    private final String neo4jHost;
-    private final String neo4jUsername;
-    private final String neo4jPassword;
-    private final int maxResultWindow;
+
+    
 
     private int maxResultSize = -1;
 
@@ -47,10 +47,7 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
     protected String composeScoreOperator;
 
     public SearchResultExternalBooster(Settings settings, IndexInfo indexSettings) {
-        this.neo4jHost = indexSettings.getNeo4jHost();
-        this.neo4jUsername = indexSettings.getNeo4jUsername();
-        this.neo4jPassword = indexSettings.getNeo4jPassword();
-        this.maxResultWindow = indexSettings.getMaxResultWindow();
+        super(settings, indexSettings);
     }
 
     @Override
@@ -60,7 +57,7 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
 
         Map<String, String> extParams = (Map<String, String>) sourceAsMap.get(GAS_BOOSTER_CLAUSE);
         if (extParams != null) {
-            maxResultSize = NumberUtil.getInt(extParams.get(MAX_RESULT_SIZE), maxResultWindow);
+            maxResultSize = NumberUtil.getInt(extParams.get(MAX_RESULT_SIZE), getMaxResultWindow());
             composeScoreOperator = extractParameter(OPERATOR, extParams, DEFAULT_SCORE_OPERATOR);
             extendedParseRequest(extParams);
             validateOperator();
@@ -71,6 +68,7 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
         sourceAsMap.put(FROM, 0);
     }
 
+    @Override
     public InternalSearchHits modify(final InternalSearchHits hits) {
         final InternalSearchHit[] searchHits = hits.internalHits();
         Map<String, InternalSearchHit> hitMap = new HashMap<>();
@@ -155,14 +153,6 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
 
     protected abstract Map<String, ExternalResult> externalDoReorder(Set<String> keySet);
 
-    protected String getNeo4jHost() {
-        return neo4jHost;
-    }
-
-    protected int getMaxResultWindow() {
-        return maxResultWindow;
-    }
-
     protected void extendedParseRequest(Map<String, String> extParams) {
 
     }
@@ -184,13 +174,5 @@ public abstract class SearchResultExternalBooster implements SearchResultBooster
 
     protected String getComposeScoreOperator() {
         return composeScoreOperator != null ? composeScoreOperator : DEFAULT_SCORE_OPERATOR;
-    }
-
-    public String getNeo4jUsername() {
-        return neo4jUsername;
-    }
-
-    public String getNeo4jPassword() {
-        return neo4jPassword;
     }
 }

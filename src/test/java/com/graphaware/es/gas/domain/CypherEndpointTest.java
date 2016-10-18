@@ -1,13 +1,13 @@
 package com.graphaware.es.gas.domain;
 
 import com.graphaware.es.gas.cypher.CypherEndPoint;
+import com.graphaware.es.gas.cypher.CypherEndPointBuilder;
 import com.graphaware.es.gas.cypher.CypherResult;
 import com.graphaware.es.gas.cypher.ResultRow;
 import com.graphaware.es.gas.util.TestHttpClient;
 import com.graphaware.integration.neo4j.test.EmbeddedGraphDatabaseServer;
 import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +15,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.elasticsearch.common.settings.Settings;
 
 import static org.junit.Assert.*;
 
@@ -32,10 +33,12 @@ public class CypherEndpointTest {
 
     @Before
     public void setUp() {
-        cypherEndPoint = new CypherEndPoint(Settings.EMPTY,
-                NEO4J_SERVER_URL,
-                NEO4J_CUSTOM_USER,
-                NEO4J_CUSTOM_PASSWORD);
+        cypherEndPoint = new CypherEndPointBuilder("http")
+                .settings(Settings.builder().build())
+                .neo4jHostname(NEO4J_SERVER_URL)
+                .password(NEO4J_CUSTOM_PASSWORD)
+                .username(NEO4J_CUSTOM_USER)
+                .build();
         server = new EmbeddedGraphDatabaseServer();
         server.start();
         httpClient = new TestHttpClient();

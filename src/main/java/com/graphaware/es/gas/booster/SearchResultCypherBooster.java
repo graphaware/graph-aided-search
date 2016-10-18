@@ -17,6 +17,7 @@ package com.graphaware.es.gas.booster;
 
 import com.graphaware.es.gas.annotation.SearchBooster;
 import com.graphaware.es.gas.cypher.CypherEndPoint;
+import com.graphaware.es.gas.cypher.CypherEndPointBuilder;
 import com.graphaware.es.gas.cypher.CypherResult;
 import com.graphaware.es.gas.cypher.ResultRow;
 import com.graphaware.es.gas.domain.ExternalResult;
@@ -38,7 +39,7 @@ import static com.graphaware.es.gas.util.ParamUtil.extractParameter;
 public class SearchResultCypherBooster extends SearchResultExternalBooster {
 
     private final ESLogger logger;
-    private final CypherEndPoint cypherEndPoint;
+    private CypherEndPoint cypherEndPoint;
 
     private String cypherQuery;
     private String scoreResultName;
@@ -47,11 +48,6 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
     public SearchResultCypherBooster(Settings settings, IndexInfo indexInfo) {
         super(settings, indexInfo);
         this.logger = Loggers.getLogger(IndexInfo.INDEX_LOGGER_NAME, settings);
-        this.cypherEndPoint = new CypherEndPoint(settings, 
-                indexInfo.getNeo4jHost(), 
-                indexInfo.getNeo4jUsername(),
-                indexInfo.getNeo4jPassword()
-        );
     }
 
     @Override
@@ -59,6 +55,8 @@ public class SearchResultCypherBooster extends SearchResultExternalBooster {
         cypherQuery = extractParameter(QUERY, extParams);
         scoreResultName = extractParameter(SCORE_NAME, extParams, DEFAULT_SCORE_RESULT_NAME);
         idResultName = extractParameter(IDENTIFIER, extParams, DEFAULT_ID_RESULT_NAME);
+        String protocol = extParams.containsKey(PROTOCOL) ? String.valueOf(extParams.get(PROTOCOL)) : DEFAULT_PROTOCOL;
+        cypherEndPoint = createCypherEndPoint(protocol, getSettings());
     }
 
     @Override

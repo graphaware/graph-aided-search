@@ -88,7 +88,7 @@ If the neo4j server supports bolt it can be enable and managed using the followi
 $ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.boltHostname=bolt://localhost:7687
 $ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.bolt.secure=false (default is true)
 ```
-Since bolt is still not in a final release the default protocol is http, to enable it add the following line in the booster or filter:
+Since bolt is still not a stabel release, the default protocol is http, to enable it add the following line in the booster or filter configuration:
 
 ```json
 "protocol": "bolt"
@@ -286,7 +286,8 @@ If you would like to filter results according to a user's friends evaluation, it
                    MATCH (input)-[f:FRIEND_OF]->(friend)-[r:RATED]->(movie)
                    WHERE r.rate > 3
                    RETURN movie.objectId",
-          "shouldExclude": false
+          "shouldExclude": false,
+          "protocol": "bolt"
        }
   }';
 ```

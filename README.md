@@ -280,7 +280,7 @@ If you would like to filter results according to a user's friends evaluation, it
     "query" : {
         "match_all" : {}
     },
-    "gas-booster" :{
+    "gas-filter" :{
           "name": "SearchResultCypherFilter",
           "query": "MATCH (input:User) WHERE id(input) = 2
                    MATCH (input)-[f:FRIEND_OF]->(friend)-[r:RATED]->(movie)

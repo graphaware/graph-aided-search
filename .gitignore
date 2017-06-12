@@ -109,3 +109,7 @@ hs_err_pid*
 /neo4j-home/
 nb-configuration.xml
 /data/
+.classpath
+.project
+.settings/
+neo4jextlib

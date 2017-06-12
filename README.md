@@ -2,7 +2,7 @@
 
 ## ElasticSearch Plugin providing integration with Neo4j
 
-[![Build Status](https://travis-ci.org/graphaware/graph-aided-search.svg?branch=master)](https://travis-ci.org/graphaware/graph-aided-search) | Latest Release: 2.2.2.0 / 2.3.1.0
+[![Build Status](https://travis-ci.org/graphaware/graph-aided-search.svg?branch=master)](https://travis-ci.org/graphaware/graph-aided-search) | Latest Release: 2.4.1.4
 
 GraphAware Graph-Aided Search is an enterprise-grade bi-directional integration between Neo4j and Elasticsearch. It consists
 of two independent modules plus test suites. Both modules can be used independently or together to achieve full integration.
@@ -74,6 +74,10 @@ Then configure indexes with the url of Neo4j. This can be done in two ways. Firs
 $ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.neo4j.hostname=http://localhost:7474
 $ curl -XPUT http://localhost:9200/indexname/_settings?index.gas.enable=true
 ```
+
+> **indexname** as your index name.
+e.g.
+curl -XPUT http://localhost:9200/neo4j-index-node/_settings?index.gas.enable=true
 
 If the Neo4j Rest Api is protected by Basic Authentication confire username and password for neo4j in the following way:
 
@@ -285,9 +289,8 @@ If you would like to filter results according to a user's friends evaluation, it
           "query": "MATCH (input:User) WHERE id(input) = 2
                    MATCH (input)-[f:FRIEND_OF]->(friend)-[r:RATED]->(movie)
                    WHERE r.rate > 3
-                   RETURN movie.objectId",
-          "shouldExclude": false,
-          "protocol": "bolt"
+                   RETURN movie.uuid as id",
+          "exclude": false
        }
   }';
 ```
@@ -308,7 +311,7 @@ The following parameters are available for this filter:
 When search query is changed before submitting it to elasticsearch engine, the value of "size" for the results returned is changed according to this parameter.
 This is necessary since once the filtering function is applied, some of the results that wouldn't "make it" may fall into the "size" window.
 
-* **shouldExclude**: (Default true) This parameter allows to define the behaviour of the Filter.
+* **exclude**: (Default true) This parameter allows to define the behaviour of the Filter.
 If set to true (default), it will filter out the Neo4j results from the results provided by Elasticsearch. If set to false, it will
 keep the intersection of Neo4j and Elasticsearch results, i.e. exclude everything that has not been returned by Neo4j.
 

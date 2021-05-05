@@ -5,8 +5,6 @@ As of May 2021, this [repository has been retired](https://graphaware.com/framew
 
 ## ElasticSearch Plugin providing integration with Neo4j
 
-[![Build Status](https://travis-ci.org/graphaware/graph-aided-search.svg?branch=master)](https://travis-ci.org/graphaware/graph-aided-search) | Latest Release: 2.4.1.4
-
 GraphAware Graph-Aided Search is an enterprise-grade bi-directional integration between Neo4j and Elasticsearch. It consists
 of two independent modules plus test suites. Both modules can be used independently or together to achieve full integration.
 

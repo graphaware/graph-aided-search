@@ -1,4 +1,7 @@
-# GraphAware Graph-Aided Search
+# GraphAware Graph-Aided Search - RETIRED
+
+## GraphAware Graph-Aided Search Has Been Retired
+As of May 2021, this [repository has been retired](https://graphaware.com/framework/2021/05/06/from-graphaware-framework-to-graphaware-hume.html).
 
 ## ElasticSearch Plugin providing integration with Neo4j
 
